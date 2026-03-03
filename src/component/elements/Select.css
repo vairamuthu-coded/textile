@@ -1,0 +1,89 @@
+.container1{
+    width: 100%;
+  
+}
+
+
+.title1{
+    background-color: whitesmoke ;color: black;
+    font-size:1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;   
+    cursor: pointer;
+   padding-left: 5px;width: 100%;
+    border-radius: 5px;position: relative;
+}
+
+.headermenu_data{
+background-color: white;
+margin:0.5rem;
+overflow-y: auto;
+border-radius: 5px;
+transform: translateY((-10px));
+opacity: 0; border: 1px solid var(--bs-light);
+visibility: hidden;
+transition: all 5ms ease-in-out;position: absolute;
+}
+
+
+
+.dropShow{
+    transform: translateY((0));
+opacity: 1;
+visibility: visible;
+}
+
+.headermenu_data .search{
+    display: flex;
+    align-items: center;
+    margin: 0.5rem;
+    padding: 0.1rem; 
+    box-shadow: 0px 0px 1px 0.2px gray;
+}
+
+.search input{
+    border: none;
+    outline: none;
+    padding: 0.3rem;
+    width: 260px;
+    background-color: white;
+}
+
+.headermenu{
+display:flex; max-height: 7rem; 
+flex-direction:column; 
+}
+
+.headermenu span{
+  margin: 0 0.5rem 0 0.5rem;
+  background-color: whitesmoke;
+  padding: 0.2rem 0.2rem;
+  cursor: pointer;
+  border-radius: 5px;color: var(--bs-black);
+  border-bottom: 1px solid lightgrey
+}
+
+.headermenu span:hover{
+    background-color: var(--bs-sidebar);
+    color:white;
+}
+
+
+.block{
+    display: block;
+}
+
+.hidden{
+    display: none;
+}
+
+.rotate{
+
+    transform: rotate(180deg);
+    transition: all 200ms ease-in-out;
+}
+
+.normal{
+    transform: rotate(0);
+}

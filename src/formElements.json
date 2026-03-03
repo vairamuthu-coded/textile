@@ -1,0 +1,30 @@
+[
+    {
+        "page_label":"Jop Application Form",
+        "fields":
+        [
+            {"field_id":"English_Name","field_label":"Name","field_mandatory":"yes",
+            "field_placeholder":"EnterName","field_Type":"text" ,"field_value":""},
+
+            {"field_id":"email","field_label":"Email","field_mandatory":"yes",
+            "field_placeholder":"Enter Email","field_Type":"text" },
+
+            {"field_id":"employment","field_label":"Employeement-desired","field_mandatory":"yes",
+            "field_placeholder":"EnterName","field_value":"party-time",
+            "field_options":[
+               { "option_label":"Full-Time"},{ "option_label":"Party-Time"}
+            ],
+            "field_Type":"select"},
+
+            {"field_id":"contact","field_label":"ContactNo","field_mandatory":"yes",
+            "field_placeholder":"Enter Contact Name ","field_Type":"text" ,"field_value":""},
+
+            {"field_id":"driving - licence","field_label":"I Confirm to have Driving Licence","field_mandatory":"yes",
+            "field_Type":"checkbox" ,"field_value":"checked"},
+
+            {"field_id":"identity","field_label":"Driving Licence NO","field_mandatory":"yes",
+            "field_placeholder":"012 1235 055 ","field_Type":"text" ,"field_value":""}
+
+        ]
+    }
+]

@@ -1,0 +1,34 @@
+export const mockDataTeam=[
+    {
+    id:1,
+    name:"vairam",
+    email:"vairamuthu297@gmail.com",
+    age:36,
+    phone:"9751828323",
+    access:"admin"
+},
+    {
+    id:2,
+    name:"mahes",
+    email:"mahes19917@gmail.com",
+    age:36,
+    phone:"9751828323",
+    access:"general manager"
+},
+    {
+    id:3,
+    name:"abi",
+    email:"abi2015@gmail.com",
+    age:36,
+    phone:"9751828323",
+    access:"employee"
+},
+{
+    id:4,
+    name:"varsha",
+    email:"varhsa2018@gmail.com",
+    age:36,
+    phone:"9751828323",
+    access:"staff"
+},
+]

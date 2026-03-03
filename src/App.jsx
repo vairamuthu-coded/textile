@@ -1,0 +1,182 @@
+import { createContext,  useEffect,  useRef, useState } from 'react';
+import { Link, useNavigate, Route, Routes} from 'react-router-dom';
+import { DataProvider } from './context/CreateUserContext'
+import { TreeViewDataProdiver } from './context/CreateTreeViewContext'
+import styled from "styled-components"
+import { destop, mobile, tablet } from '.././src/ShoppingCart/Responsive';
+import { CreateShopContextProdiver } from './context/CreateShopContext.js';
+import Tabpage from './Tabpage.jsx';
+import AppRoutes from './AppRoutes.js';
+import Sidebar from './component/Sidebar.js';
+import Header from './Header.js';
+import Footer from './Footer.js';
+import useGetSuggestedUser from './hooks/useGetSuggestedUser.jsx';
+import useGetAllPost from './hooks/useGetAllPost.jsx';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSocket } from './redux/socketSlice.js';
+import { setOnlineUser } from './redux/chatSlice.js';
+import { toast } from 'react-toastify';
+import { setLayerDimensions } from 'pdfjs-dist';
+import axios from 'axios';
+if(!localStorage.getItem("cart")){
+  localStorage.setItem("cart",JSON.stringify([]))
+} 
+export const UserContext = createContext({})
+
+function App({ API_URL, localServerCart,urls }) {
+  const [defaultDetails, setDefaultDetails] = useState({ Compcode: "SAATEX",UserId:'', User: "VAIRAM", Pass: "Vairamwarsawabi297@" });
+  const [selectedTitle, setSelectedTitle] = useState([]);
+  const [mode, setMode] = useState('light');
+  const [sidebar, setSidebar] = useState(false);
+  const showSidebar = () => setSidebar(!sidebar);
+  const [colorValue, setColorValue] = useState('var(--bs-primary-text-emphasis)');  
+  const [foreValue, setForeValue] = useState('white');  
+  const [bgValue, setBgValue] = useState('whitesmoke');
+  const [header_items, setHeaderItems] = useState([]);
+  const [header_search, setHeaderSearch] = useState("");
+  const [headerfilterdata, setHeaderFilterData] = useState([]);
+  const [menuheader, setMenuHeader] = useState([]);
+  const [headerdrop, setHeaderDrop] = useState(false);
+  const [loginPage, setLoginPage] = useState(false);
+  let navigate = useNavigate();
+  let lastindex = 0; 
+  const handleSubmit = (e) => { e.preventDefault();}
+  let TitleCompCode = defaultDetails.Compcode, TitleUser = "Vairamuthu";
+
+
+     const constirng1= API_URL +"/UserMaster/Headings"+`/${defaultDetails.Compcode}/${defaultDetails.User}`;
+     const constirng2= API_URL +"/UserMaster/ScreenName"+`/${defaultDetails.Compcode}/${defaultDetails.User}/${"screen"}`;
+     const constirng3=  API_URL + "/UserMaster/ScreenNameHeading"+`/${defaultDetails.Compcode}/${defaultDetails.User}`;
+     const constirng4= API_URL + "/CompanyMaster/GridLoad"+`/${defaultDetails.Compcode}`;
+     const constirng5= API_URL + "/UserRights/UserRightsCheck"+`/${defaultDetails.Compcode}/${defaultDetails.User}/${defaultDetails.Pass}`;
+
+
+   const [sidebarData, setSidebarData] = useState([]); 
+
+   const titlename = "Pinnacle Systems";
+  const [error,setError]=useState();
+  const headerSidebarClose = (e) => {
+    setSidebar(false); 
+    setHeaderSearch("")
+    setHeaderDrop(false)
+  }
+
+  const handleChange=(e)=>{
+    const {name,value}=e.target;
+    setDefaultDetails((pre)=>{ return{...pre,[name]:value}})
+  }
+
+
+
+
+
+  let ref = useRef();
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const res1 = await axios.get(constirng1);      // First API
+      const res2 = await axios.get(constirng2);       // Second API
+      const res3 = await axios.get(constirng3);     // Third API
+      setMenuHeader(res1.data);
+      setHeaderItems(res2.data);
+      setSidebarData(res3.data);
+    } catch (error) {
+      toast.error("Error in useEffect: " + error);
+    }
+  };
+
+  fetchData();
+}, []);
+
+
+    const handleLoginSubmit =  () => {    
+        axios.get(constirng5).then((ress1) => {   
+          if (ress1.data === true) {
+            setLoginPage(ress1.data);
+            navigate("/Dashboard");
+          }
+        }).catch((error) => {  });
+  }
+
+
+
+
+  return (
+    <>
+       { 
+        loginPage === false ?      
+          <div className="modal" id="myModal">
+    <div className="modal-dialog modal-dialog-centered">
+      <div className="modal-content">
+        <div className='modalContainer'>
+        <div  className="modal-body ">          
+                  <div className='row justify-content-center pt-2' >
+                    <label  htmlFor="CompCode" className='col-md-3'>CompCode</label>
+                    <input type="text" className='col-md-6' value={defaultDetails.Compcode} onChange={handleChange}   name="Compcode" />
+                  </div>
+                  <div className='row justify-content-center pt-2' >
+                    <label  htmlFor="UserName" className='col-md-3 ' >UserName</label>
+                    <input type="text" className='col-md-6' value={defaultDetails.User} onChange={handleChange}  name="User" />
+                  </div>
+                  <div className='row  justify-content-center pt-2' >
+                    <label htmlFor="Password"  className='col-md-3' >Password</label>
+                    <input type="password" className='col-md-6' value={defaultDetails.Pass} onChange={handleChange}  name="Pass" />
+                  </div>                
+                <div className='d-flex justify-content-center p-2 '>
+                  <button className='col-md-2 text-primary' onClick={handleLoginSubmit} >
+                    Login
+                  </button>
+                  <button className='col-md-2 text-primary' onClick={handleLoginSubmit}>
+                    Exit
+                  </button>
+                </div>
+        </div>
+  </div>
+        
+
+      </div>
+    </div>
+            </div>
+       :
+        <div className='container-fluid animate-zoom '  style={{backgroundColor:`${foreValue}`}}  >
+          <div className='row boxShadow' >         
+              <DataProvider headerdrop={headerdrop} setHeaderDrop={setHeaderDrop}  sidebar={sidebar} 
+              setSidebar={setSidebar} showSidebar={showSidebar}  API_URL={API_URL} urls={urls}
+              localServerCart={localServerCart}  header_items={header_items} menuheader={menuheader}   
+              selectedTitle={selectedTitle} setSelectedTitle={setSelectedTitle}  mode={mode} setMode={setMode}
+              colorValue={colorValue} foreValue={foreValue} setForeValue={setForeValue} bgValue={bgValue}  defaultDetails={defaultDetails} headerfilterdata={headerfilterdata} sidebarData={sidebarData}>
+                <TreeViewDataProdiver  API_URL={API_URL} colorValue={colorValue} bgValue={bgValue} setBgValue={setBgValue} foreValue={foreValue}  defaultDetails={defaultDetails} setDefaultDetails={setDefaultDetails} >
+                  <CreateShopContextProdiver error={error} setError={setError}   API_URL={API_URL} localServerCart={localServerCart} colorValue={colorValue} > 
+
+                   <Sidebar  menuheader={menuheader} showSidebar={showSidebar} header_items={sidebarData} bgValue={bgValue} colorValue={colorValue}                     />
+                  <Header   mode={mode} setMode={setMode} titlename={titlename}  setColorValue={setColorValue}  TitleCompCode={TitleCompCode} TitleUser={TitleUser}  />
+                  
+                  <Tabpage    title={selectedTitle}     bgValue={bgValue}     colorValue={colorValue}    />  
+                   <main   onClick={headerSidebarClose}
+                     onSubmit={handleSubmit}>  
+                 <Routes>     
+                    {
+                      AppRoutes.map((route,index)=>{
+                        const {element,...rest}=route;
+                        return <Route key={index} {...rest} element={element} />
+                      })
+                    }  
+                  </Routes> 
+                  </main> 
+                   </CreateShopContextProdiver> 
+                </TreeViewDataProdiver>
+              </DataProvider> 
+          </div>
+         <Footer title={titlename} colorValue={colorValue}></Footer>
+       
+        </div> 
+      
+                  }
+</>
+     
+
+     
+                  )
+}
+export default  App;

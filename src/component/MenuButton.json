@@ -1,0 +1,18 @@
+{
+    "MenuButtons": [
+      { "title": "News"},
+      { "title": "Saves"},
+      { "title": "Search"},
+      { "title": "Delete"},
+      { "title": "Print"},
+      { "title": "Pdf"},
+      { "title": "Dwonload"},
+      { "title": "Imports"},
+      { "title": "ReadOnly"},
+      { "title": "TreeButton"},
+      { "title": "Global"},
+      { "title": "Login"},
+      { "title": "Change"},
+      { "title": "Contact"}      
+    ]
+  }
