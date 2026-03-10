@@ -186,8 +186,8 @@ const handleLoginSubmit = async () => {
                  <Routes>     
                     {
                       AppRoutes.map((route,index)=>{
-                        const {element,...rest}=route;
-                        return <Route key={index} {...rest} element={element} />
+                        const {element,...rest}=route;                     
+                        return <Route key={index} {...rest} element={element} path={route.path} />
                       })
                     }  
                   </Routes> 

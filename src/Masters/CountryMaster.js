@@ -36,14 +36,30 @@ const CountryMaster = ({ title, subTitle }) => {
   
   const [country_FilterSearch, setCountry_FilterSearch] = useState([]);
 
-useEffect(() => { 
-     axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`).then((ress) => {
-       setUserRights(ress.data)    
-      axios.get(`${CountryParam}`).then((res1) => { setItems(res1.data);         
-        setNewButton(1); 
-        }).catch((error) => {setError(error) })    
-       }).catch((error) => { alert("loginCompCode"+error); });
-  }, [])
+  useEffect(() => {
+
+ if(!defaultDetails?.Compcode) return;
+
+ const loadData = async () => {
+   try{
+    const rights = await axios.get(
+      `${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`
+    );
+    setUserRights(rights.data);
+    const res = await axios.get(CountryParam);
+    setItems(res.data);
+    setNewButton(1);
+   }
+   catch(error){
+    setError(error)
+   }
+ }
+
+ loadData();
+
+},[defaultDetails])
+
+
 
   useEffect(() => { 
     const filterResult = items.filter((post) => ((post.countryname).includes(search)))
@@ -73,101 +89,102 @@ useEffect(() => {
 
 
 const validate = (countryValues) => {
-  if (!countryValues.countryname?.trim()) {
-    toast.error("Invalid Country Name");
+
+  const name = countryValues.countryname?.trim();
+
+  if (!name) {
+    toast.error("Country Name is required");
     return false;
   }
 
-  // Only alphabets and spaces allowed
-  if (!/^[a-zA-Z\s]+$/.test(countryValues.countryname)) {
-    toast.error("Special Character not allowed");
+  // Only alphabets and spaces
+  const regex = /^[A-Za-z\s]+$/;
+
+  if (!regex.test(name)) {
+    toast.error("Only alphabets allowed");
+    return false;
+  }
+
+  // Minimum length check
+  if (name.length < 3) {
+    toast.error("Country name must be at least 3 characters");
     return false;
   }
 
   return true;
 };
 
+const CountryMaster_Check = (row) => {
+
+  setCountryValues({
+    gtcountrymastid: row.gtcountrymastid,
+    countryname: row.countryname,
+    active: row.active === "T"
+  });
+
+  setNewButton(1);
+};
 
 
-  const CountryMaster_Check = (id) => {
-    try {
-      const myitem = items.filter(item => item.gtcountrymastid === id.gtcountrymastid); 
-      setCountryValues({ gtcountrymastid: myitem[0].gtcountrymastid, countryname: myitem[0].countryname, active:myitem[0].active === "T" ? true : false  })
-      
+
+const CountryMaster_Save = async () => {
+
+  if (!validate(countryValues)) return;
+
+  try {
+
+    const CountryData = {
+      gtcountrymastid: countryValues.gtcountrymastid > 0 ? countryValues.gtcountrymastid : 0,
+      countryname: countryValues.countryname,
+      active: countryValues.active ? "T" : "F"
+    };
+
+    const response = await axios.post(insert_update, CountryData);
+    if (response.data !== "") {
+      const res = await axios.get(CountryParam);
+      setItems(res.data.reverse());
+      setNewButton(2);
+      toast.success("Saved Successfully");
+    } else {
+      toast.error("Save Failed");
     }
-    catch (err) {
-      if (err.response) {
-        setFetchError(err.response)
-      }
-    }
-    finally {
-      setNewButton(1);
-    }
+
+  } catch (error) {
+    setFetchError(error);
+    toast.error("Service error");
+  } finally {
+    setCountryValues({});
+  }
+};
+
+  
+
+const CountryMaster_Delete = async () => {
+  if (!countryValues.gtcountrymastid) {
+    toast.error("Select a record to delete");
+    return;
   }
 
+  try {
+    const id = countryValues.gtcountrymastid;
+    const response = await axios.delete(`${deleteData}/${id}`);
 
-
-  const CountryMaster_Save = () => {
-    validate(countryValues);
-    if (validcheck === true) {
-        try {
-      const CountryData = { gtcountrymastid: countryValues.gtcountrymastid > 0 ? countryValues.gtcountrymastid : 0, countryname: countryValues.countryname, active: countryValues.active === true ? "T" : "F" };
-      axios.post(`${insert_update}`, CountryData)
-        .then((respose) => {
-          if (respose.data !== "") {
-            axios.get(`${CountryParam}`)
-              .then((res) => {
-                setItems(res.data.reverse()); setNewButton(2);
-                
-              })
-              .catch((error) => { setFetchError("Service does't running. pls check (ProcessMaster) API in Country Controller") });
-          }
-          else {
-            alert("Error " + respose.data);
-          }
-        }).catch((error) => {
-          alert(error)
-        });
+    if (response.data.message != null) {
+      const res = await axios.get(CountryParam);
+      setItems(res.data.reverse());
+      toast.success(response.data.message);
+      CountryMasterClear();
+    } else {
+      toast.error(response.data.message);
     }
 
-    catch (err) {
-      alert(`Error . ${err}`);
-    } finally {
-      setCountryValues({})
-    }
-    }
+  } catch (error) {
+
+   // setFetchError(error);
+    toast.error(error.response.data);
+
   }
-
-  const CountryMaster_Delete = async (id) => {
-    try {
-      if (countryValues.countryname === '') { alert(`Empty Not Allowed`); return; }
-      if (countryValues.gtcountrymastid >= 1) {
-        const id = countryValues.gtcountrymastid;
-        await axios.delete(`${deleteData}/${id}`)
-          .then((respose) => {
-            if (respose.data === true) {
-              axios.get(`${CountryParam}`)
-                .then((res) => { setItems(res.data.reverse());; })
-                .catch((error) => { setFetchError(error) });
-              alert("Record Deleted Successfully");
-              setNewButton(2);
-            }
-            else {
-              setFetchError(respose.error)             
-            }
-          }).catch((error) => {
-            setFetchError(error)
-          });
-
-      }
-    }
-    catch (err) {
-      
-        console.log(`Error ${err.message}`);
-      
-    }
-  }
-
+};
 
   const inputref = useRef();
 
@@ -205,18 +222,23 @@ const validate = (countryValues) => {
       (currentPage - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE);
   }, [items, currentPage, search, sorting])
 
-  // const [count,setCount]=useState({count:4,theme:'red' })
 
-
-  // const handleIncrement=()=>{
-  //    setCount(pre=>{return {...pre, count:pre.count+1}})
-  // }
-
-  // const handleDecrement=()=>{
-  //   setCount(pre=>{return {...pre, count:pre.count-1}})
-  // }
-
-
+const menuButtons = [
+  { key: "news", label: "News", action: CountryMasterNew },
+  { key: "saves", label: "Save", action: CountryMaster_Save },
+  { key: "deletes", label: "Delete", action: CountryMaster_Delete },
+  { key: "searches", label: "Search", action: CountryMasterNew },
+  { key: "prints", label: "Prints", action: CountryMasterNew },
+  { key: "treebutton", label: "TreeButton", action: CountryMasterNew },
+  { key: "globalsearch", label: "Globalsearch", action: CountryMasterNew },
+  { key: "login", label: "Login", action: CountryMasterNew },
+  { key: "changepassword", label: "Changepassword", action: CountryMasterNew },
+  { key: "changeskin", label: "Changeskin", action: CountryMasterNew },
+  { key: "contact", label: "Contact", action: CountryMasterNew },
+  { key: "pdf", label: "Pdf", action: CountryMasterNew },
+  { key: "import", label: "Import", action: CountryMasterNew },
+  { key: "download", label: "Download", action: CountryMasterNew }
+];
 
   return (
    <div onSubmit={handleSubmit}> 
@@ -225,23 +247,18 @@ const validate = (countryValues) => {
   {!fetchError ? (
     <>
   <div  style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
- <ul className='boxShadow d-flex justify-content-end'>
-              <li  > <button  className={newButton === 1  ? "tabs active-tabs" : "tabs" } style={{display:`${userRights[0].news}`==='T' ? "block" : "none",backgroundColor:`${colorValue}`}} onClick={() => CountryMasterNew()}    >News</button></li>
-                                <li > <button  className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].saves}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CountryMaster_Save()}    >Save</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].deletes}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CountryMaster_Delete(countryValues.gtcountrymastid)}  >Delete</button></li>
-                                <li  > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].searches}` === "T" ? "block" : "none",ackgroundColor:`${colorValue}`}}  onClick={() => CountryMasterNew()}  > Search </button></li>
-                                <li  > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].prints}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CountryMasterNew()} >Prints</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].readonlys}` === "T" ? "none" : "none",backgroundColor:`${colorValue}`}} onClick={() => CountryMasterNew()} >Readonlys</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].treebutton}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CountryMasterNew()} >TreeButton</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].globalsearch}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CountryMasterNew()} > Globalsearch </button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].login}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CountryMasterNew()} >Login</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].changepassword}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CountryMasterNew()} >Changepassword</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].changeskin}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CountryMasterNew()} >Changeskin</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].contact}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}} onClick={() => CountryMasterNew()} > Contact </button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].pdf}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CountryMasterNew()} >Pdf</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].import}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CountryMasterNew()} > Import </button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].download}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CountryMasterNew()} > Download </button></li>
-          </ul>    
+        <ul className="boxShadow d-flex justify-content-end">
+                  {menuButtons.map((btn, index) => (
+                    userRights[0][btn.key] === "T" && (
+                      <li key={index}>
+                        <button className={newButton === 1 ? "tabs active-tabs" : "tabs"}
+                          style={{ backgroundColor: colorValue }}onClick={btn.action}  >
+                          {btn.label}
+                        </button>
+                      </li>
+                    )
+                  ))}
+        </ul>
           <div className='row' >
         <div className='col-md-6' style={{ backgroundColor: `${foreValue}`, padding: "0px",margin:'0px' }}>
                  <div className='content active-content' >
