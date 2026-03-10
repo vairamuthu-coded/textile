@@ -26,12 +26,12 @@ const CityMaster = ({ title, subTitle }) => {
   const [fetchError, setFetchError] = useState(null)
   const [checkall, setCheckAll] = useState(false)
   const [checkchild, setCheckchild] = useState(false)
-  const userrightsMenuCheck = API_URL + "/UserRights/userrightsMenuCheck";
-  const CityParam = `${API_URL}`+"/CityMaster/GridLoad";
-  const StateParam = `${API_URL}`+"/StateMaster/SelectCommond";
-  const CountryParam = `${API_URL}`+"/StateMaster/GridLoad";
-  const insert_update = API_URL + "/CityMaster/Saves";
-  const deleteData = `${API_URL}`+"/CityMaster/DeleteCommond";
+  const userrightsMenuCheck =`${API_URL}/UserRights/userrightsMenuCheck`;
+  const CountryParam = `${API_URL}/CountryMaster/GridLoad`;
+  const CityParam = `${API_URL}/CityMaster/GridLoad`;
+  const StateParam = `${API_URL}/StateMaster/SelectCommond`;
+  const insert_update = `${API_URL}/CityMaster/Saves`;
+  const deleteData = `${API_URL}/CityMaster/DeleteCommond`;
   const heights = "380px";
 
     let one = React.createRef();
@@ -64,49 +64,46 @@ const handleEnter = (e, index) => {
 
 
 
- const handleChange = (e) => {
+const handleChange = (e) => {
   const { name, value, checked, type } = e.target;
+  const finalValue =
+    type === "checkbox"
+      ? checked
+      : type === "number"
+      ? Number(value)
+      : value;
 
-  let finalValue = value;
-  if (type === "checkbox") finalValue = checked;
-  if (type === "number") finalValue = Number(value);
-  if (type === "date") finalValue = value;
   setCityValues((prev) => ({
     ...prev,
     [name]: finalValue,
-  })); 
-  if (name === "state") {
-    handleStateChange(value);
-  }
+  }));
+
+  if (name === "state") handleStateChange(value);
 };
 
 
 
 
   let validcheck = true;
-  const validate = (cityValues) => {
+const validate = (cityValues) => {
 
-    if (!cityValues.cityname) {
-      alert("Invalid cityname");
-      validcheck = false;
-      return;
-    }
-
-    if (/^[a-zA-Z]$/.test(cityValues.cityname)) {
-      alert("Special Charector not allowed");
-      validcheck = false;
-      return;
-    }
-    return validcheck;
+  if (!cityValues.cityname?.trim()) {
+    toast.error("Invalid City Name");
+    return false;
   }
 
+  if (!/^[a-zA-Z\s]+$/.test(cityValues.cityname)) {
+    toast.error("Special Character not allowed");
+    return false;
+  }
 
-
+  return true;
+};
 
 useEffect(() => {
   const fetApi = async () => {
     try {
-      // Run all API calls in parallel
+
       const [menuRes, cityRes, stateRes] = await Promise.all([
         axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
         axios.get(CityParam),
@@ -115,15 +112,16 @@ useEffect(() => {
 
       setUserRights(menuRes.data);
       setCityItems(cityRes.data);
-      setCityStateData(stateRes.data); // safe reverse
-    } 
-    catch (error) {
+      setCityStateData(stateRes.data);
+
+    } catch (error) {
       setFetchError(error);
     }
   };
 
   fetApi();
-}, []);
+
+}, [defaultDetails, title]);
 
 
 
@@ -132,6 +130,7 @@ useEffect(() => {
     setCity_FilterSearch(cityItems);
     return;
   }
+  
   const search = String(city_Search || '').toLowerCase();
   const filtered = cityItems
     .filter((item) =>
