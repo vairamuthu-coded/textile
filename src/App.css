@@ -1862,7 +1862,7 @@ grid-auto-rows: 150px;
 
 button,optgroup,input,select,textarea {
    
-    font-family: 'roboto', sans-serif;
+    font-family: 'roboto';
     font-size: inherit;
     line-height: inherit;
   
@@ -1915,14 +1915,14 @@ input[type="text"]:focus,[type='email']:focus,[type='date']:focus, select:focus,
    /* filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.315));
      border-radius: 1px; */
   color: var(--bs-black);
-    border-bottom: 3px solid var(--bs-success);
+    border-bottom: 1px solid var(--bs-success);
     outline: 0;background-color: white;
     /* box-shadow: 0 0 0 .05rem rgba(13,110,253,.25) */
 }
 
 
 [type='text'],[type='email'],[type='date'],select{
-background-color: white;
+background-color: white;font-family: var(--bs-font-roboto);
 border: 1px solid rgba(0,0,0,0.315);
 
 /* border: 0.5px solid rgba(0,0,0,0.315); */
@@ -3558,8 +3558,9 @@ margin-left: 20px;
     transform: translate(-50%,-50%);
     display: flex;
     background-color: #ffffff;
-    box-shadow: 0px 0px 18px 0px rgba(0, 0, 0,0.75);
-    background:linear-gradient(to right , #a6b5cc, #e0edee);
+    box-shadow: 0px 0px 9px 0px rgba(0, 0, 0,0.5);
+    background-color: whitesmoke;
+    /* background:linear-gradient(to right , #a6b5cc, #e0edee); */
 }
 
 /* .modal-container{

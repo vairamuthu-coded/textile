@@ -183,7 +183,7 @@ button{
    
        width: 60px; 
     color: var(--bs-white); 
-    border: none;padding:2px;margin: 2px;
+    border: none;padding:2px;margin: 2px;font-family: var(--bs-font-roboto);
     /* filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.315)); */
     border-radius: 5px;
     outline: none;
