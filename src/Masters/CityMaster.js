@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';   import { useRef } from "react";
 import SocialMissing from '../Social/SocialMissing';
 // const Button=styled.button`margin:0px;padding-left:5px; padding-right:5px;width:100%;font-weight: bold;backgroundColor:${props=>props.color}; color:white;`;
- 
+ import { utilityState } from './../utilityState';
 
 const CityMaster = ({ title, subTitle }) => {
   const { newButton, setNewButton, inputref,foreValue, handleSubmit, colorValue,defaultDetails,cityValues,setCityValues,
@@ -27,7 +27,7 @@ const CityMaster = ({ title, subTitle }) => {
   const [checkall, setCheckAll] = useState(false)
   const [checkchild, setCheckchild] = useState(false)
   const userrightsMenuCheck =`${API_URL}/UserRights/userrightsMenuCheck`;
-  const CountryParam = `${API_URL}/CountryMaster/GridLoad`;
+  const CountryParam = `${API_URL}/StateMaster/GridLoad`;
   const CityParam = `${API_URL}/CityMaster/GridLoad`;
   const StateParam = `${API_URL}/StateMaster/SelectCommond`;
   const insert_update = `${API_URL}/CityMaster/Saves`;
@@ -65,7 +65,7 @@ const handleEnter = (e, index) => {
 
 
 const handleChange = (e) => {
-  const { name, value, checked, type } = e.target;
+   const { name, value, checked, type } = e.target;
   const finalValue =
     type === "checkbox"
       ? checked
@@ -77,7 +77,7 @@ const handleChange = (e) => {
     ...prev,
     [name]: finalValue,
   }));
-
+// utilityState(e, setCityValues);
   if (name === "state") handleStateChange(value);
 };
 
@@ -147,10 +147,8 @@ useEffect(() => {
 const CityMasterCheck = async (id) => {
   try {
     const res = await axios.get(`${CityParam}/${id.gtcitymastid}`);
-
     if (res?.data?.length > 0) {
       const row = res.data[0];
-
       setCityValues({
         gtcitymastid: row.gtcitymastid,
         cityname: row.cityname,
@@ -224,52 +222,39 @@ const CityMasterCheck = async (id) => {
 
   }
 
-  const handleStateChange = (id) => {
-    try {
-      axios.get(`${CountryParam}/${id}`).then((res) => {
-        setCityCountryData(res.data);
-      })
-        .catch((error) => { setFetchError("Service does't running. pls check (City Master) "); });
-    }
-    catch (e) {
-    }
-    finally {
-    }
+const handleStateChange = async (id) => {
 
-  }
+  if (!id) return;
 
-
-const CityMaster_Delete = async (id) => {
   try {
-    if (!cityValues.gtcitymastid) {
-      toast.error("Empty Not Allowed");
-      return;
-    }
+    const res = await axios.get(`${CountryParam}/${id}`);
+ 
+    setCityCountryData(res.data);
 
-    // Step 1: Delete record
-    const response = await axios.delete(`${deleteData}/${id.gtcitymastid}`);
-
-    if (response?.data !== "true") {
-      toast.error("Delete failed");
-      setFetchError(response?.error || "Delete failed");
-      return;
-    }
-
-    // Step 2: Refresh list
-    try {
-      const list = await axios.get(CityParam);
-      setCityItems(list.data);
-    } catch (error) {
-      setFetchError(error);
-      toast.error(error);
-    }
-
-    // Step 3: Success message
-    toast.success("Record Deleted Successfully");
   } 
-  catch (err) {
-    setFetchError(err);
-    toast.error(err?.message || "Unexpected error occurred");
+  catch (error) {
+    setFetchError("Service not running. Check API.");
+  }
+};
+
+
+const CityMaster_Delete = async (row) => {
+
+  // if (!window.confirm("Delete this record?")) return;
+
+  try {
+
+   let re= await axios.delete(`${deleteData}/${row}`);
+   alert(re.data);
+if(re.data)
+    setCityItems(prev =>
+      prev.filter(x => x.gtcitymastid !== row.gtcitymastid)
+    );
+
+    toast.success("Record Deleted Successfully");
+
+  } catch (error) {
+    toast.error(error?.message);
   }
 };
 
@@ -377,8 +362,8 @@ const CityMaster_Delete = async (id) => {
                   <div className='row py-1' >
                     <label className='col-md-2' > Country </label>
 
-                    <select className='col-sm-4' name='country' value={cityValues.country || ""}
-                    ref={el => refs.current[2] = el} onKeyDown={e => handleEnter(e,2)} >
+                    <select className='col-sm-4' name='country' value={cityValues.country}
+                    ref={el => refs.current[2] = el}  >
                     <option></option>
                       {                       
                         cityCountryData.map((result, index) => (

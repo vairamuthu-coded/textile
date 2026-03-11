@@ -5,6 +5,7 @@ import axios from 'axios';
 import SocialMissing from '../Social/SocialMissing';
 import Search from '../Custom/Search';
 import { toast } from 'react-toastify';
+import { utilityState } from './../utilityState';
 
 const CountryMaster = ({ title, subTitle }) => {
   const {   foreValue, newButton, setNewButton,  handleSubmit,userRights,setUserRights,
@@ -16,10 +17,10 @@ const CountryMaster = ({ title, subTitle }) => {
  } = useContext(DataContext)
 
   let ITEM_PER_PAGE = 20;  
-  const userrightsMenuCheck = API_URL + "/UserRights/userrightsMenuCheck";
-  const CountryParam = API_URL + '/CountryMaster/GridLoad';
-  const insert_update = API_URL+"/CountryMaster/Saves";
-  const deleteData = API_URL + "/CountryMaster/DeleteCommond";
+  const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
+  const CountryParam = `${API_URL}/CountryMaster/GridLoad`;
+  const insert_update = `${API_URL}/CountryMaster/Saves`;
+  const deleteData = `${API_URL}/CountryMaster/DeleteCommond`;
   let validcheck = true;
   const [totalItems,setTotalItems]=useState([]);
   const [fetchError, setFetchError] = useState(null);
@@ -36,35 +37,40 @@ const CountryMaster = ({ title, subTitle }) => {
   
   const [country_FilterSearch, setCountry_FilterSearch] = useState([]);
 
-  useEffect(() => {
+useEffect(() => {
 
- if(!defaultDetails?.Compcode) return;
+ if (!defaultDetails?.Compcode) return;
 
  const loadData = async () => {
-   try{
-    const rights = await axios.get(
-      `${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`
-    );
-    setUserRights(rights.data);
-    const res = await axios.get(CountryParam);
-    setItems(res.data);
-    setNewButton(1);
-   }
-   catch(error){
-    setError(error)
-   }
- }
+   try {
 
+     const [rightsRes, countryRes] = await Promise.all([
+       axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
+       axios.get(CountryParam)
+     ]);
+
+     setUserRights(rightsRes.data);
+     setItems(countryRes.data);
+     setNewButton(1);
+
+   } catch (error) {
+     console.error(error);
+     setError(error);
+   }
+ };
  loadData();
-
-},[defaultDetails])
-
+}, [defaultDetails?.Compcode, defaultDetails?.User]);
 
 
-  useEffect(() => { 
-    const filterResult = items.filter((post) => ((post.countryname).includes(search)))
-    setCountry_FilterSearch(filterResult.reverse());
-  }, [items, search]);
+
+useEffect(() => {
+
+  const text = (search || "").toLowerCase();
+  const filterResult = items.filter((post) =>
+    post.countryname?.toLowerCase().includes(text)
+  );
+  setCountry_FilterSearch([...filterResult].reverse());
+}, [items, search]);
 
   const HeadersColumn =
     [
@@ -78,13 +84,22 @@ const CountryMaster = ({ title, subTitle }) => {
 
 
 
-  const handleChange = (e) => {
-    const { name, value,checked,type} = e.target;
-  
-    setCountryValues((pre)=>({           
-        ...pre, [name]:type==="checkbox" ? checked: value,       
-  }))
-  };
+const handleChange = (e) => {
+  utilityState(e, setCountryValues);
+  // const { name, value, checked, type } = e.target;
+
+  // const finalValue =
+  //   type === "checkbox"
+  //     ? checked
+  //     : type === "number"
+  //     ? Number(value)
+  //     : value.trimStart();
+
+  // setCountryValues((prev) => ({
+  //   ...prev,
+  //   [name]: finalValue,
+  // }));
+};
 
 
 
