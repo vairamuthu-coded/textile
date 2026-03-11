@@ -223,6 +223,7 @@ let countryExists = cityCountryData.filter(c => c.gtstatemastid === cityValues.s
 const handleStateChange = async (id) => {
 
   if (!id) return;
+<<<<<<< HEAD
 
   try {
     const res = await axios.get(`${CountryParam}/${id}`);
@@ -253,6 +254,38 @@ const CityMaster_Delete = async (id) => {
     }
   } catch (error) {
     toast.error(error?.message || "Server error");
+=======
+
+  try {
+    const res = await axios.get(`${CountryParam}/${id}`);
+ 
+    setCityCountryData(res.data);
+
+  } 
+  catch (error) {
+    setFetchError("Service not running. Check API.");
+  }
+};
+
+
+const CityMaster_Delete = async (row) => {
+
+  // if (!window.confirm("Delete this record?")) return;
+
+  try {
+
+   let re= await axios.delete(`${deleteData}/${row}`);
+   alert(re.data);
+if(re.data)
+    setCityItems(prev =>
+      prev.filter(x => x.gtcitymastid !== row.gtcitymastid)
+    );
+
+    toast.success("Record Deleted Successfully");
+
+  } catch (error) {
+    toast.error(error?.message);
+>>>>>>> 1912bb535d1f56706babbc6780a2732719d3cfd9
   }
 };
 
@@ -360,7 +393,11 @@ const CityMaster_Delete = async (id) => {
                   <div className='row py-1' >
                     <label className='col-md-2' > Country </label>
 
+<<<<<<< HEAD
                     <select className='col-sm-4' name='country' value={cityValues.country || ""} onChange={handleChange}
+=======
+                    <select className='col-sm-4' name='country' value={cityValues.country}
+>>>>>>> 1912bb535d1f56706babbc6780a2732719d3cfd9
                     ref={el => refs.current[2] = el}  >
                     <option></option>
                       {                       
