@@ -179,10 +179,11 @@ const validate = (stateValues) => {
 
   const StateMaster_Delete = async (id) => {
     try {
-      if (stateValues.statename === '') { toast.error(`Empty Not Allowed`); return; }
-
-      if (stateValues.countryname === '') { toast.error(`countryname Empty  Not Allowed`); return; }
-
+      if(id === undefined){
+            toast.error("Please select a record to delete");
+            return;
+          }
+      
    var response=await axios.delete(`${API_URL}${deleteData}/${id}`);       
           if (response?.data == 'delete') {         
             toast.success("Record Deleted Successfully");

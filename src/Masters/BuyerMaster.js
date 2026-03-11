@@ -6,24 +6,25 @@ import SocialMissing from '../Social/SocialMissing';
 import { el } from 'date-fns/locale';
 import { RiChatSettingsFill } from 'react-icons/ri';
 import Search from '../Custom/Search';
+import toast from 'react-hot-toast';
 
 const BuyerMaster = ({ title, subTitle,  }) => {
     const {
         newButton, setNewButton,  tabindex, API_URL,
         handleSubmit,  currentPage, setCurrentPage,
-        sorting, setSorting, ITEM_PER_PAGE,  stateItems, setStateItems,
-        countryItems, setCountryItems, searchLable1, searchLable2, searchLable3,
+        sorting, setSorting, ITEM_PER_PAGE,  stateItems, setStateItems,foreValue,
+        countryItems, setCountryItems, searchLable1, searchLable2, searchLable3,userRights,setUserRights,
         setSearchLable1, setSearchLable2, setSearchLable3, color1,colorValue,defaultDetails,buyerValues,setBuyerValues
     } = useContext(CreateUserContext)
-    const insert = "/BuyerMaster/BuyerMaster_Insert";
-    const update = "/BuyerMaster/BuyerMasterUpdate";
-    const insert_update1 = "/BuyerMaster/BuyerMaster_Insert_Update1";
-    const deleteData = "/BuyerMaster/BuyerMaster_Delete";
-
-    const StateParam = "/CityMaster/GridLoad";
-    const BuyerMasterParam = "/BuyerMaster/BuyerMaster";
-    const CountryParam = "/StateMaster/GridLoad";
-    const compcodeparam = API_URL + "/CompanyMaster/CompanyMaster";
+    const insert = `${API_URL}/BuyerMaster/BuyerMaster_Insert`;
+    const update = `${API_URL}/BuyerMaster/BuyerMasterUpdate`;
+    const insert_update1 = `${API_URL}/BuyerMaster/BuyerMaster_Insert_Update1`;
+    const deleteData = `${API_URL}/BuyerMaster/BuyerMaster_Delete`;
+    const StateParam = `${API_URL}/CityMaster/GridLoad`;
+    const BuyerMasterParam = `${API_URL}/BuyerMaster/BuyerMaster`;
+    const CountryParam = `${API_URL}/StateMaster/GridLoad`;
+    const compcodeparam = `${API_URL}/CompanyMaster/CompanyMaster`;
+       const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
     const [fetchError, setFetchError] = useState(null)
     const [compcodeData, setCompCodeData] = useState([])
     setNewButton(1)
@@ -36,29 +37,28 @@ const BuyerMaster = ({ title, subTitle,  }) => {
     const [images, setImage] = useState(imagesrc);
   const [totalItems,setTotalItems]=useState([]);
 
-    const showPreview = e => {
-        if (e.target.files.name != "") {
-            imageFile = e.target.files[0]
-            const reader = new FileReader();
-            reader.onload = x => {
-                setImage({
-                    ...images,
-                    imageFile,
-                    imagesrc: x.target.result,
-                })
-            }
-            reader.readAsDataURL(imageFile);
-        }
-        else {
-            setImage({
-                ...images,
-                imageFile: null,
-                imagesrc: defaultimage
-            })
+const showPreview = (e) => {
+  const file = e.target.files?.[0];
+  if (!file) {
+    setImage({
+      ...images,
+      imageFile: null,
+      imagesrc: defaultimage
+    });
+    return;
+  }
 
-        }
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    setImage(prev => ({
+      ...prev,
+      imageFile: file,
+      imagesrc: reader.result
+    }));
+  };
 
-    }
+  reader.readAsDataURL(file);
+};
 
 
     const [cityItems, setCityItems] = useState([])
@@ -68,92 +68,108 @@ const BuyerMaster = ({ title, subTitle,  }) => {
     const [buyeritems, setBuyerItems] = useState([])
 
 
+const handleChange = (e) => {
+  const { name, value, type, checked } = e.target;
+  const newValue = type === "checkbox" ? checked : value;
+  setBuyerValues(prev => ({
+    ...prev,
+    [name]: newValue
+  }));
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setBuyerValues((previousValue) => {
-            return {
-                ...previousValue, [name]: value,
-            }
-        })
+  if (name === "city") {
+    handleStateChange(value);
+  }
 
-        if (name === "city") { handleStateChange(e.target.value); }
-        if (name === "state") { handleCountryChange(buyerValues.state); }
-    };
+  if (name === "state") {
+    handleCountryChange(value);
+  }
+};
 
-    const handleStateChange =(id) => {
-   
-        if (id === undefined) { } else {
-       
-            try {
-               axios.get(`${API_URL}${StateParam}/${id}`).then((res) => {
-                    setStateItems(res.data);      
-                     handleCountryChange(res.data[0].gtstatemastid);
-                }).catch((error) => {
-                    setFetchError(error);
-                });
-            }
-            catch (e) { }
-            finally {
 
-            }
-        }
+const handleStateChange = async (id) => {
+
+  if (!id) return;
+
+  try {
+    const res = await axios.get(`${StateParam}/${id}`);
+
+    setStateItems(res.data);
+
+    const stateId = res.data?.[0]?.gtstatemastid;
+
+    if (stateId) {
+      handleCountryChange(stateId);
     }
 
-    const handleCountryChange =  (id) => {
+  } catch (error) {
+    toast.error(error);
+    setFetchError(error);
+  }
 
-        if (id === undefined) { } else {
-           
-            try {
-               axios.get(`${API_URL}${CountryParam}/${id}`).then((res) => {
-                    setCountryItems(res.data);
+};
 
-                }).catch((error) => {
-               
-                });
-            }
-            catch (e) {
-            }
-            finally {
+const handleCountryChange = async (id) => {
+  if (!id) return;
+  try {
+    const { data } = await axios.get(`${CountryParam}/${id}`);
+    setCountryItems(data || []);
+  } catch (error) {
+    const message =
+      error?.response?.data || error?.message ||  "Country API failed";
+    toast.error(message);
+    setFetchError(message);
 
-            }
-        }
+  }
+
+};
+
+
+const validate = (values) => {
+
+  const regex = /^[a-zA-Z0-9\s]+$/;
+
+  const fields = [
+    { key: "compcode", label: "Company Code" },
+    { key: "compname", label: "Company Name" },
+    { key: "city", label: "City Name" },
+    { key: "state", label: "State Name" },
+    { key: "country", label: "Country Name" }
+  ];
+
+  for (const field of fields) {
+    if (!regex.test(values[field.key] || "")) {
+      toast.error(`Special characters not allowed in ${field.label}`);
+      return false;
     }
+  }
 
-
-    let validcheck = true;
-    const validate = (buyerValues) => {
-        if (/^[a-zA-Z]$/.test(buyerValues.compcode)) {
-            alert("Special Charector not allowed");
-            validcheck = false;
-            return;
-        }
-        if (/^[a-zA-Z]$/.test(buyerValues.compname)) {
-            alert("Special Charector not allowed");
-            validcheck = false;
-            return;
-        }
-        if (/^[a-zA-Z]$/.test(buyerValues.contactname)) {
-            alert("Special Charector not allowed");
-            validcheck = false;
-            return;
-        }
-        return validcheck;
-    }
+  return true;
+};
   
 
-    useEffect(() => {
-        axios.get(`${API_URL}${BuyerMasterParam}`).then((ress) => { setBuyerItems(ress.data);
-            axios.get(`${API_URL}${StateParam}`).then((res) => { setCityItems(res.data);
-                axios.get(`${compcodeparam}`).then((res2) => {
-                    setCompCodeData(res2.data);}).catch((error) => { alert(error); });
-            }).catch((error) => { alert(error); });
+useEffect(() => {
 
-         }).catch((error) => { alert(error); });
-        
- 
-       
-    }, [])
+  const fetchData = async () => {
+    try {
+      const [userRightsRes,buyerRes, stateRes, compRes] = await Promise.all([
+        axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
+        axios.get(BuyerMasterParam),
+        axios.get(StateParam),
+        axios.get(compcodeparam)
+      ]);
+      setUserRights(userRightsRes.data);
+      setBuyerItems(buyerRes.data);
+      setCityItems(stateRes.data);
+      setCompCodeData(compRes.data);
+
+    } catch (error) {    
+      totalItems.error(error.message);
+    }
+  };
+
+  fetchData();
+
+}, []);
 
     const BuyerMaster_Search = () => {
        
@@ -187,146 +203,118 @@ const BuyerMaster = ({ title, subTitle,  }) => {
             { headername: "Active", field: "active" }
         ]
 
+const BuyerMasterCheck = async (row) => {
+  try {
 
-    const BuyerMasterCheck = (id) => {
+    const res = await axios.get(`${BuyerMasterParam}/${row.asptblbuymasid}`);
+    const data = res.data?.[0];
+    if (!data || data.asptblbuymasid === 0) {
+      alert("Invalid Data");
+      return;
+    }
+
+    const activeValue = data.active === "T";
+    setBuyerActive(activeValue);
+    setBuyerValues({
+      asptblbuymasid: data.asptblbuymasid,
+      asptblbuymasid1: data.asptblbuymasid1,
+      buyingagent: data.buyingagent,
+      compcode: data.gtcompmastid,
+      compname: data.gtcompmastid,
+      buyercode: data.buyercode,
+      buyername: data.buyername,
+      city: data.gtcitymastid,
+      state: data.gtstatemastid,
+      country: data.gtcountrymastid,
+      address: data.address,
+      phoneno: data.phoneno,
+      pincode: data.pincode,
+      website: data.website,
+      email: data.email,
+      contactname: data.contactname,
+      active: activeValue
+    });
+
+    handleStateChange(data.gtcitymastid);
+
+  } catch (error) {
+
+    
+    toast.error(error?.message || "Failed to load Buyer");
+
+  }
+
+};
+
+
+    const BuyerMaster_Save = async() => {
         try {
-            
-        
-            axios.get(`${API_URL}${BuyerMasterParam}/${id.asptblbuymasid}`)
-                .then((res) => {                   
-                    if (res.data[0].asptblbuymasid === 0) { alert("Invalid Data") } else {
-                    
-                        const updatepost = { active: res.data[0].active === "T" ? true : false };                       
-                        setBuyerActive(updatepost.active);
-                        setBuyerValues({
-                            asptblbuymasid: res.data[0].asptblbuymasid,
-                            asptblbuymasid1: res.data[0].asptblbuymasid1,
-                            buyingagent: res.data[0].buyingagent,
-                            compcode: res.data[0].gtcompmastid,
-                            compname: res.data[0].gtcompmastid,
-                            buyercode: res.data[0].buyercode,
-                            buyername: res.data[0].buyername,
-                            city: res.data[0].gtcitymastid,
-                            state: res.data[0].gtstatemastid,
-                            country: res.data[0].gtcountrymastid,
-                            address: res.data[0].address,
-                            phoneno: res.data[0].phoneno,
-                            pincode: res.data[0].pincode,                          
-                            website: res.data[0].website,
-                            email: res.data[0].email,  
-                            contactname: res.data[0].contactname,
-                            active: res.data[0].active === "T" ? true : false
-                        });
-                        
-                         handleStateChange(res.data[0].gtcitymastid); 
-                  
-                    }
-                }).catch((error) => { alert("--" + error) });
-
-        }
-        catch (err) {
-            if (err.response) {
-                alert(`Error ${err.message}`);
+            const isValid = validate(buyerValues);
+            if (!isValid) return;
+            const buyerData = {
+                asptblbuymasid: buyerValues.asptblbuymasid > 0 ? buyerValues.asptblbuymasid : 0,
+                asptblbuymasid1: buyerValues.asptblbuymasid1 > 0 ? buyerValues.asptblbuymasid1 : 0,
+                compcode: buyerValues.compcode,
+                compname: buyerValues.compname,
+                buyercode: buyerValues.buyercode,
+                buyername: buyerValues.buyername,
+                buyingagent: buyerValues.buyingagent,
+                city: buyerValues.city,
+                state: buyerValues.state,
+                country: buyerValues.country,
+                address: buyerValues.address,
+                phoneno: buyerValues.phoneno,
+                pincode: buyerValues.pincode,
+                website: buyerValues.website,
+                email: buyerValues.email,
+                contactname: buyerValues.contactname,
+                active: buyer_active ? "T" : "F"
+            };
+            const response = await axios.post(insert, buyerData);
+            if (response.data) {
+                BuyerMaster_New();                
+                toast.success(response.data);
+            } else {
+                toast.error("Error saving data");
             }
-        }
-        finally {
-           
-        }
+        } catch (error) {  toast.error(error?.message || "Save failed");}
     }
 
-    const BuyerMaster_Insert = async () => {
-        try {
-            validate(buyerValues);
-            if (validcheck === true) {
-                const CountryData = {
-                    asptblbuymasid: buyerValues.asptblbuymasid > 0 ? buyerValues.asptblbuymasid : 0, 
-                    asptblbuymasid1: buyerValues.asptblbuymasid1 > 0 ? buyerValues.asptblbuymasid1 : 0,   
-                    compcode: buyerValues.compcode,
-                    compname: buyerValues.compname,
-                    buyercode: buyerValues.buyercode,
-                    buyername: buyerValues.buyername,
-                    buyingagent: buyerValues.buyingagent,
-                    city: buyerValues.city,
-                    state: buyerValues.state,
-                    country: buyerValues.country,
-                    address: buyerValues.address,
-                    phoneno: buyerValues.phoneno,
-                    pincode: buyerValues.pincode,                          
-                    website: buyerValues.website,
-                    email: buyerValues.email,  
-                    contactname: buyerValues.contactname,
-                    active: buyer_active === true ? "T" : "F"
-                };
-               
-                await axios.post(`${API_URL}${insert}`, CountryData)
-                    .then((respose) => {
-                        if (respose.data !== "") {
-                            BuyerMaster_New();
-                             alert(respose.data); 
-                        }
-                        else {
-                            alert("Error " + respose.data);
-                        }
-                    }).catch((error) => {
-                        alert(error);
+const BuyerMaster_Delete = async (id) => {
 
-                    });
+  if (!id) {
+    toast.error("Empty Not Allowed");
+    return;
+  }
 
-
-            } 
-        }
-        catch (err) {
-            console.log(`Error . ${err}`);
-        }
+  try {
+    const response = await axios.delete(`${deleteData}/${id}`);
+    if (response.data === "true") {
+      BuyerMaster_New();
+      toast.success("Record Deleted Successfully");
+    } else {
+      toast.error("Delete failed");
     }
 
-    const BuyerMaster_Save = () => {
+  } catch (error) {
+    toast.error(error?.message || "Delete failed");
+  }
 
-        BuyerMaster_Insert();
-
-    }
-
-
+};
 
 
-
-
-    const BuyerMaster_Delete = async (id) => {
-        try {
-            if (buyerValues.asptblbuymasid == '') { alert(`Empty Not Allowed`); return; }
-            await axios.delete(`${API_URL}${deleteData}/${id}`)
-                .then((respose) => {
-                    if (respose.data === 'true') {
-          
-                        BuyerMaster_New();
-                    }
-                    else {
-
-                        alert(respose.error);
-                    }
-                }).catch((error) => {
-                    alert(error);
-
-                });
-        }
-        catch (err) {
-            if (err.response) {
-                console.log(`Error ${err.message}`);
-                alert(err.error);
-            }
-        }
-    }
-
-
-    const BuyerMaster_New = () => {
+    const BuyerMaster_New = async () => {
+        try{
          setStateItems([]); setCountryItems([])
          setBuyerValues([]);
          setNewButton(1);
          setBuyerActive(false);      
-        axios.get(`${API_URL}${BuyerMasterParam}`)
-        .then((res) => { setBuyerItems(res.data); }).catch((error) => { alert("Service does't running. pls check City Master) API in Country Controller") });
-
-    }
+        const res = await axios.get(BuyerMasterParam);
+        setBuyerItems(res.data);
+    } catch (error) {
+    toast.error("Buyer API service not running");
+  }
+}
 
 
 
@@ -350,35 +338,50 @@ const BuyerMaster = ({ title, subTitle,  }) => {
             (currentPage - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE);
     }, [buyeritems, currentPage, buyersearch, sorting])
 
-
+const menuButtons = [
+  { key: "news", label: "News", action: BuyerMaster_New },
+  { key: "saves", label: "Save", action: BuyerMaster_Save },
+  { key: "deletes", label: "Delete", action: BuyerMaster_Delete },
+  { key: "searches", label: "Search", action: BuyerMaster_New },
+  { key: "prints", label: "Prints", action: BuyerMaster_New },
+  { key: "treebutton", label: "TreeButton", action: BuyerMaster_New },
+  { key: "globalsearch", label: "Globalsearch", action: BuyerMaster_New },
+  { key: "login", label: "Login", action: BuyerMaster_New },
+  { key: "changepassword", label: "Changepassword", action: BuyerMaster_New },
+  { key: "changeskin", label: "Changeskin", action: BuyerMaster_New },
+  { key: "contact", label: "Contact", action: BuyerMaster_New },
+  { key: "pdf", label: "Pdf", action: BuyerMaster_New },
+  { key: "import", label: "Import", action: BuyerMaster_New },
+  { key: "download", label: "Download", action: BuyerMaster_New }
+];
 
 
 
     return (
         <>
-            <form onSubmit={handleSubmit} className='animate__animated '>
-                <div className='container-fluid animate-zoom' >
-
-                    <div className='row' style={{ backgroundColor: "white" }}>
-                        <div className='col-md-12' style={{ textAlign: "right" }}>
-                            <ul style={{ backgroundColor: "white" }}>
-
-                                <li> <button type='submit' onClick={() => BuyerMaster_New()} style={{ backgroundColor: `${color1[0]}` }}>News</button></li>
-                                <li> <button type='submit' onClick={() => BuyerMaster_Save()} style={{ backgroundColor: `${color1[1]}` }}>Save</button></li>
-                                <li> <button type='submit' onClick={(e) => BuyerMaster_Delete(buyerValues.asptblbuymasid)} style={{ backgroundColor: `${color1[2]}` }}>Delete</button></li>
-                                <li> <button type='submit' onClick={() => BuyerMaster_Search()} style={{ backgroundColor: `${colorValue}` }}> Search </button></li>
-                                <li> <button type='submit' onClick={() => BuyerMaster_Exit()} style={{ backgroundColor: `${colorValue}` }}> Exit </button></li>
-
-
+           
+                {userRights?.length > 0  ? (
+                
+                    <div className='container-fluid animate-zoom p-1'  >
+                    <div className='row' style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
+                        <ul className="d-flex justify-content-end">
+                            {menuButtons.map((btn, index) => (
+                                userRights[0][btn.key] === "T" && (
+                                <li key={index}>
+                                    <button className={newButton === 1 ? "tabs active-tabs" : "tabs"}
+                                    style={{ backgroundColor: colorValue }}onClick={btn.action}  >
+                                    {btn.label}
+                                    </button>
+                                </li>
+                                )
+                            ))}
+                        </ul>
+                        <div className='row' >
+                                 
+                        <div className='col-md-6 float-start' >
+                           <ul className='' style={{backgroundColor:`${colorValue}`}}>
+                               <li className='ps-2'> <button className={newButton === 1  ? "tabs active-tabs btn" : "tabs"}  style={{ backgroundColor:`${colorValue}`, padding:'1%',fontWeight:'bold'}}>{title}  </button></li>
                             </ul>
-                        </div>
-
-                        {!fetchError && buyeritems.length ? (
-                            <>
-                        <div className='col-md-6' style={{ backgroundColor: "var(--bs-white)", padding: "0" }}>
-                        <div className='bloc-tabs'>
-                            <div className={newButton === 1 ? "tabs active-tabs" : "tabs"} onClick={() => setNewButton(1)} style={{ color: `${colorValue}` }}> {title} </div>
-                        </div>
                       
                         <div className='content-tabs' >
                         <div className="content active-content" >
@@ -513,23 +516,21 @@ const BuyerMaster = ({ title, subTitle,  }) => {
 
                           
                         </div>
-                        {/* ) : <SocialMissing colorValue={colorValue} fetchError={fetchError}></SocialMissing>}    */}
-                    </div>
+                        
+                     </div>
                
-                    <div className='col-md-6' style={{ backgroundColor: "var(--bs-light)", padding: "0" }}>
-
-<div className="tabs active-tabs" style={{ color: `${colorValue}` }}> {subTitle} </div>
-<div className='content-tabs' >
-  <div className={newButton === 1 ? "content active-content" : "content"}>
-       
-                                <Search colorValue={colorValue} searchs={buyersearch} setsearchs={setBuyerSearch}
-                                    SearchLable1={searchLable1} SearchLable2={searchLable2}
-                                    SearchLable3={searchLable3}
-                                    handleChange={handleChange} ChangeValues={buyerValues}
-                                    searchCompCode={searchCompCode} searchUserName={searchUserName} />
+                    <div className='col-md-6 float-end'  >             
+                    <div className='content-tabs' >
+                    <div className={newButton === 1 ? "content active-content" : "content"}>
+        <Search colorValue={colorValue} searchs={buyersearch} setsearchs={setBuyerSearch}
+              SearchLable1={searchLable1} SearchLable2={searchLable2}
+              SearchLable3={searchLable3}  stylecolor={foreValue}
+              handleChange={handleChange} ChangeValues={buyerValues}
+              searchCompCode={searchCompCode} searchUserName={searchUserName} />
+                                
                                 {!fetchError && newButton === 1 ? (
                                     <>
-                                        <DataTable heights={heights} colorValue={colorValue} headers={BuyerMasterColumn}
+                                        <DataTable heights={heights} colorValue={foreValue} headers={BuyerMasterColumn}
 
                                             comments={buyeritems} setComments={setBuyerItems}
                                             searches={buyersearch} setSearches={setBuyerSearch}
@@ -544,18 +545,19 @@ const BuyerMaster = ({ title, subTitle,  }) => {
                          </div>
               </div>
            
-            </div>
-               
-                </>
-            ) : <SocialMissing colorValue={colorValue} fetchError={fetchError} ></SocialMissing> }
- </div>
-                </div>
-            </form>
+                  
+             
+                
+          
 
+                </div>
+                
+            </div>
+       </div>  </div>
+                ): <SocialMissing colorValue={colorValue} fetchError={fetchError}></SocialMissing>}    
         </>
     )
 }
 
 
-//https://www.google.com/search?q=dbcontext+update+in+web+api+c%23&oq=&gs_lcrp=EgZjaHJvbWUqCQgAEEUYOxjCAzIJCAAQRRg7GMIDMgkIARBFGDsYwgMyCQgCEEUYOxjCAzIJCAMQRRg7GMIDMgkIBBBFGDsYwgMyCQgFEEUYOxjCAzIJCAYQRRg7GMIDMgkIBxBFGDsYwgPSAQ0xNzcxMzcwOTJqMGo3qAIIsAIB&sourceid=chrome&ie=UTF-8#fpstate=ive&vld=cid:703d5d2c,vid:QM91e2wIPWg,st:0
 export default BuyerMaster

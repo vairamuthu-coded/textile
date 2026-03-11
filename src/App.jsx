@@ -168,7 +168,7 @@ const handleLoginSubmit = async () => {
             </div>
        :
         <div className='container-fluid animate-zoom '  style={{backgroundColor:`${foreValue}`}}  >
-          <div className='row boxShadow'  >         
+          <div className='row '  >         
               <DataProvider headerdrop={headerdrop} setHeaderDrop={setHeaderDrop}  sidebar={sidebar} 
               setSidebar={setSidebar} showSidebar={showSidebar}  API_URL={API_URL} urls={urls}
               localServerCart={localServerCart}  header_items={header_items} menuheader={menuheader}   

@@ -1,18 +1,11 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import DataTable from '../Custom/DataTable';
 import axios from 'axios';
 import SocialMissing from '../Social/SocialMissing';
-import { el } from 'date-fns/locale';
-import { RiChatSettingsFill } from 'react-icons/ri';
 import Search from '../Custom/Search';
 import DataContext from '../context/CreateUserContext';
 import { toast } from 'react-toastify';
-// import styled from 'styled-components';
-// const Button=styled.button`
-// width:100%;padding-left:10px;margin:2px;color:white;
-// justify-content:center;
-// `
+
 
 const CompanyMaster = ({ title, subTitle,   }) => {
   const {
@@ -25,16 +18,16 @@ const CompanyMaster = ({ title, subTitle,   }) => {
 
 
 
-  const insert = "/CompanyMaster/Saves";
-  const deleteData = "/CompanyMaster/DeleteCommond";
-  const CityParam = "/CityMaster/GridLoad";
-  const StateParam = "/CityMaster/GridLoad";
-  const CompanyMasterParam="/CompanyMaster/GridLoad";
-  const CompanyMasterGrid="/CompanyMaster/GridLoad";
+  const insert = `${API_URL}/CompanyMaster/Saves`;
+  const deleteData = `${API_URL}/CompanyMaster/DeleteCommond`;
+  const CityParam = `${API_URL}/CityMaster/GridLoad`;
+  const StateParam = `${API_URL}/CityMaster/GridLoad`;
+  const CompanyMasterParam=`${API_URL}/CompanyMaster/GridLoad`;
+  const CompanyMasterGrid=`${API_URL}/CompanyMaster/GridLoad`;
     const [totalItems,setTotalItems]=useState([]);
-  const CountryParam = "/StateMaster/GridLoad";
- const DeviceParam="/CompanyMaster/DeviceConnect";
-   const userrightsMenuCheck = API_URL + "/UserRights/userrightsMenuCheck";
+  const CountryParam = `${API_URL}/StateMaster/GridLoad`;
+ const DeviceParam=`${API_URL}/CompanyMaster/DeviceConnect`;
+   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
   const [fetchError,setFetchError]=useState(null)
   setSearchLable1("Search");  setSearchLable2("");  setSearchLable3("")
   let defaultimage='';
@@ -44,164 +37,142 @@ var  imagesrc='',imageFile='';
 const [images, setImage] = useState(imagesrc);
 
 
-const showPreview=e=>{
-  if(e.target.files.name != ""){
+const showPreview = (e) => {
+  const file = e.target.files?.[0];
 
-    imageFile=e.target.files[0]   
-    const reader=new FileReader();
-    reader.onload=x=>{
-      setImage({
-      ...images,
-      imageFile,
-      imagesrc:x.target.result,
-    })
-    }    
-    reader.readAsDataURL(imageFile);    
-   }
-   else{
-   
+  if (!file) {
     setImage({
       ...images,
-      imageFile:null,
-      imagesrc:defaultimage
-    })
-    
+      imageFile: null,
+      imagesrc: defaultimage
+    });
+    return;
   }
+
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    setImage({
+      ...images,
+      imageFile: file,
+      imagesrc: reader.result
+    });
+  };
+
+  reader.readAsDataURL(file);
+};
+
   
-}
-
-  // const uploadImageDisplay= async ()=>{
-  //   try{
-  //   const uploadfile=inputref.current.files[0];
-  //   const formdata=new  FormData();
-  //   formdata.append("file",uploadfile);
-  //   const response= await fetch("https://api.escuelajs.co/api/v1/files/upload",{
-  //     method:"post",
-  //     body:formdata
-  //   });
-  //         if (response.status===201 ) {
-  //         const data= await response.json();     
-  //         setImage(data?.location);
-  //         companyValues.images=data.originalname;
-  //         }
-
-  //   //    companyValues.images=images;
-  //   // const cachedUrl=URL.createObjectURL(uploadfile);
-  //   // setImage(cachedUrl); 
-    
-  //   }
-  //   catch(err){
-  //     console.error(err);
-  //     setImage(defaultImage)
-     
-  //   }
-  //   finally{
-
-  //   }
-  // }
 
   const [cityItems, setCityItems] = useState([])
-
   const [company_search, setCompanySearch] = useState([])
   const [company_filterSearch, setCompanyFilterSearch] = useState([]);
   const [company_items, setCompanyItems] = useState([])
   const [company_logo, setCompanyLogo] = useState('')
  
 
-  const handleChange = (e) => {
-    const {name,value,type,checked } = e.target; 
-   
-    if(name==="city"){handleStateChange(e.target.value);}   
-    if(name==="state"){handleCountryChange(companyValues.state);}   
-    if (type !== "checkbox") {
-      setCompanyValues((previousValue) => {
-        return {
-          ...previousValue, [name]: value,
-        }
-      })
-  }else{
-    setCompanyValues((previousValue) => {
-        return {
-          ...previousValue, [name]: checked,
-        }
-      })
-  }
-}
+const handleChange = (e) => {
 
-  const handleStateChange = (id) => {   
-    if (id === undefined) { } else {
-     
-      companyValues.city = id;
-      try {
-        axios.get(`${API_URL}${StateParam}/${id}`).then((res) => {
-          setStateItems(res.data);         
-         
-           companyValues.state = res.data[0].gtstatemastid;
-           handleCountryChange(res.data[0].gtstatemastid);
-        }).catch((error) => {
-          setFetchError(error);
-        });
-      }
-      catch (e) { }
-      finally {
+  const { name, value, type, checked } = e.target;
+  const newValue = type === "checkbox" ? checked : value;
+  setCompanyValues(prev => ({
+    ...prev,
+    [name]: newValue
+  }));
 
-      }
-    }
+  if (name === "city") {
+    handleStateChange(value);
   }
 
-  const handleCountryChange = (id) => {   
-
-    if(id === undefined){}else{
-    
-    try {      
-      axios.get(`${API_URL}${CountryParam}/${id}`).then((res) => {  
-
-        setCountryItems(res.data.reverse());
-      }).catch((error) => {
-         setFetchError(error);
-        });
-    }
-    catch (e) {
-    }
-    finally {
-
-    }}
+  if (name === "state") {
+    handleCountryChange(value);
   }
+
+};
+
+const handleStateChange = async (id) => {
+  if (!id) return;
+  try {
+    const res = await axios.get(`${StateParam}/${id}`);
+    const data = res.data;
+    setStateItems(data);
+    const stateId = data?.[0]?.gtstatemastid;
+    setCompanyValues(prev => ({
+      ...prev,
+      city: id,
+      state: stateId
+    }));
+
+    if (stateId) {
+      handleCountryChange(stateId);
+    }
+
+  } catch (error) {
+    console.error(error);
+    setFetchError(error);
+  }
+
+};
+
+const handleCountryChange = async (id) => {
+  if (!id) return;
+  try {
+    const { data } = await axios.get(`${CountryParam}/${id}`);
+    setCountryItems(data.reverse());
+  } catch (error) {
+    setFetchError(error?.message || "Failed to load country");
+  }
+
+};
 
 
   let validcheck = true;
-  const validate = (companyValues) => {
-    if (/^[a-zA-Z]$/.test(companyValues.compcode)) {
-      alert("Special Charector not allowed");
-      validcheck = false;
-      return;
+const validate = (values) => {
+
+  const regex = /^[a-zA-Z\s]+$/;
+  const fields = [
+    { key: "compcode", name: "Company Code" },
+    { key: "compname", name: "Company Name" },
+    { key: "contactname", name: "Contact Name" }
+  ];
+  for (let field of fields) {
+    if (!regex.test(values[field.key])) {
+      toast.error(`Special characters not allowed in ${field.name}`);
+      return false;
     }
-    if (/^[a-zA-Z]$/.test(companyValues.compname)) {
-      alert("Special Charector not allowed");
-      validcheck = false;
-      return;
-    }
-    if (/^[a-zA-Z]$/.test(companyValues.contactname)) {
-      alert("Special Charector not allowed");
-      validcheck = false;
-      return;
-    }
-    return validcheck;
   }
-// alert(JSON.stringify(companyValues.gtcitymastid));
+
+  return true;
+};
 
 
 
-  useEffect(() => {    
-    async function fetchMyAPI() {
- await axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`).then((ress) => {  setUserRights(ress.data);   }).catch((error) => { setFetchError(error) });
-   await axios.get(`${API_URL}${CityParam}`).then((res) => { setCityItems(res.data); }).catch((error) => { alert(error); });
-        axios.get(`${API_URL}${CompanyMasterParam}`).then((ress) => {setCompanyItems(ress.data.reverse()); }).catch((error) => { alert(error); });
 
-   setNewButton(1);
+useEffect(() => {
+
+  const fetchMyAPI = async () => {
+    try {
+
+      const [userRightsRes, cityRes, companyRes] = await Promise.all([
+        axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
+        axios.get(CityParam),
+        axios.get(CompanyMasterParam)
+      ]);
+
+      setUserRights(userRightsRes.data);
+      setCityItems(cityRes.data);
+      setCompanyItems(companyRes.data.reverse());
+
+      setNewButton(1);
+
+    } catch (error) {
+      console.error(error);
+      setFetchError(error);
     }
-    fetchMyAPI();
-  },[])
+  };
+
+  fetchMyAPI();
+
+}, []);
 
 
 
@@ -231,105 +202,94 @@ const CompanyMaster_Exit=()=>{
     ]
 
 
-  const CompanyMasterCheck = (id) => {
-    try { 
-      axios.put(`${API_URL}${CompanyMasterGrid}/${id.gtcompmastid}`)
-        .then((res) => {        
-          if (res.data[0].gtstatemastid === 0) {alert("Invalid Data") } else {        
-            alert(JSON.stringify(res.data[0].companylogoo))        
-            setImage({                     
-              imagesrc:res.data[0].companylogoo          
-            });
-         
-            setCompanyValues({
-              gtcompmastid: res.data[0].gtcompmastid,
-              displayname: res.data[0].displayname,
-              compcode: res.data[0].compcode,
-              compname: res.data[0].compname,
-              city: res.data[0].gtcitymastid,
-               state: res.data[0].gtstatemastid,
-               country: res.data[0].gtcountrymastid,
-              address: res.data[0].address,
-              gstno: res.data[0].gstno,
-              gstdate: res.data[0].gstdate,
-              website: res.data[0].website,
-              email: res.data[0].email,
-              accno: res.data[0].accno,
-              bankname: res.data[0].bankname,
-              ifsc: res.data[0].ifsc,
-              phoneno: res.data[0].phoneno,
-              contactname: res.data[0].contactname,              
-              active: res.data[0].active === "T" ? true : false
-            });
-           
+const CompanyMasterCheck = async (row) => {
+  try {
 
-             if (companyValues.city !== null) { handleStateChange(res.data[0].gtcitymastid); }
-             //if (companyValues.state !== null) { handleCountryChange(res.data[0].gtstatemastid); }
-          }
-        }).catch((error) => { alert("--"+error) });
+    const res = await axios.put(`${CompanyMasterGrid}/${row.gtcompmastid}`);
+    if (!res.data || res.data[0].gtstatemastid === 0) {
+      toast.error("Invalid Data");
+      return;
+    }
+    const data = res.data[0];
+    setImage({
+      imagesrc: data.companylogoo
+    });
 
+    setCompanyValues({
+      gtcompmastid: data.gtcompmastid,
+      displayname: data.displayname,
+      compcode: data.compcode,
+      compname: data.compname,
+      city: data.gtcitymastid,
+      state: data.gtstatemastid,
+      country: data.gtcountrymastid,
+      address: data.address,
+      gstno: data.gstno,
+      gstdate: data.gstdate,
+      website: data.website,
+      email: data.email,
+      accno: data.accno,
+      bankname: data.bankname,
+      ifsc: data.ifsc,
+      phoneno: data.phoneno,
+      contactname: data.contactname,
+      active: data.active === "T"
+    });
+
+    if (data.gtcitymastid>0) {
+      handleStateChange(data.gtcitymastid);
     }
-    catch (err) {
-      if (err.response) {
-        console.log(`Error ${err.message}`);
-      }
-    }
-    finally {
-      setNewButton(1);
-    }
+
+  } catch (error) {
+    toast.error("-- " + error.message);   
+  } finally {
+    setNewButton(1);
+  }
+};
+
+
+
+  const CompanyMaster_Save = async () => {
+
+   try {
+
+  const isValid = validate(companyValues);
+  if (!isValid) return;
+  const CountryData = {
+    gtcompmastid: companyValues.gtcompmastid > 0 ? companyValues.gtcompmastid : 0,
+    compcode: companyValues.compcode,
+    compname: companyValues.compname,
+    city: companyValues.city,
+    state: companyValues.state,
+    country: companyValues.country,
+    displayname: companyValues.displayname,
+    images: images.imagesrc,
+    filenames: images.imageFile,
+    address: companyValues.address,
+    gstno: companyValues.gstno,
+    gstdate: companyValues.gstdate,
+    website: companyValues.website,
+    email: companyValues.email,
+    accno: companyValues.accno,
+    bankname: companyValues.bankname,
+    ifsc: companyValues.ifsc,
+    phoneno: companyValues.phoneno,
+    contactname: companyValues.contactname,
+    active: companyValues.active ? "T" : "F"
+  };
+
+  const response = await axios.post(insert, CountryData);
+  if (response.data) {
+    const res = await axios.get(CompanyMasterParam);
+    setCompanyItems(res.data);
+    toast.success(response.data);
+    CompanyMaster_New();
   }
 
-  const CompanyMaster_Insert = async () => {
+} catch (error) {
 
-    try {
-      validate(companyValues);
-      if (validcheck === true) {
-        const CountryData = {
-          gtcompmastid: companyValues.gtcompmastid > 0 > 0 ? companyValues.gtcompmastid : 0, 
-          compcode: companyValues.compcode,
-          compname: companyValues.compname,
-          city: companyValues.city,
-          state: companyValues.state,
-          country: companyValues.country,
-          displayname:companyValues.displayname, 
-          images: images.imagesrc, 
-          filenames:images.imageFile,
-              address: companyValues.address,
-              gstno: companyValues.gstno,
-              gstdate: companyValues.gstdate,
-              website: companyValues.website,
-              email: companyValues.email,
-              accno: companyValues.accno,
-              bankname: companyValues.bankname,
-              ifsc: companyValues.ifsc,
-              phoneno: companyValues.phoneno,
-              contactname: companyValues.contactname,
-          active: companyValues.active === true ? "T" : "F"
-        };      
-          await axios.post(`${API_URL}${insert}`, CountryData)
-            .then((respose) => {
-              if (respose.data !== null) {
-                axios.get(`${API_URL}${CompanyMasterParam}`)
-                  .then((res) => { setCompanyItems(res.data); }).catch((error) => { alert(error) });
-                   alert(respose.data); 
-              }
-             
-            }).catch((error) => {
-              alert(error);
-
-            });
-        
-       
-      }
-    }
-    catch (err) {
-      console.log(`Error . ${err}`);
-    }
-  }
-
-  const CompanyMaster_Save = () => {
-
-    CompanyMaster_Insert();
+  toast.error(error?.message || "Save failed");
+}
 
   }
 
@@ -341,7 +301,7 @@ const CompanyMaster_Exit=()=>{
   const CompanyMaster_Delete = async (id) => {
     try {
       if (companyValues.gtcompmastid == '') { alert(`Empty Not Allowed`); return; }
-      await axios.delete(`${API_URL}${deleteData}/${id}`)
+      await axios.delete(`${deleteData}/${id}`)
         .then((respose) => {
           if (respose.data === 'true') {
             // axios.get(`${API_URL}${CompanyMasterParam}`)
@@ -373,7 +333,7 @@ const CompanyMaster_Exit=()=>{
   }
 
   const CompanyMaster_New = () => {
-      setNewButton(2);
+     
     setStateItems([]);setCountryItems([])
      setCompanyValues([]); 
      setNewButton(1);   
@@ -420,52 +380,58 @@ const commentsData = useMemo(() => {
 
 }, [company_items, currentPage, company_search, sorting]);
 
-
+const menuButtons = [
+  { key: "news", label: "News", action: CompanyMaster_New },
+  { key: "saves", label: "Save", action: CompanyMaster_Save },
+  { key: "deletes", label: "Delete", action: CompanyMaster_Delete },
+  { key: "searches", label: "Search", action: CompanyMaster_New },
+  { key: "prints", label: "Prints", action: CompanyMaster_New },
+  { key: "treebutton", label: "TreeButton", action: CompanyMaster_New },
+  { key: "globalsearch", label: "Globalsearch", action: CompanyMaster_New },
+  { key: "login", label: "Login", action: CompanyMaster_New },
+  { key: "changepassword", label: "Changepassword", action: CompanyMaster_New },
+  { key: "changeskin", label: "Changeskin", action: CompanyMaster_New },
+  { key: "contact", label: "Contact", action: CompanyMaster_New },
+  { key: "pdf", label: "Pdf", action: CompanyMaster_New },
+  { key: "import", label: "Import", action: CompanyMaster_New },
+  { key: "download", label: "Download", action: CompanyMaster_New }
+];
 
 
 
   return (
-    <>
-<div onSubmit={handleSubmit}  >  
+ <>
   
-  {userRights.length  &&
- <div className='container-fluid animate-zoom' >
+  
+  {userRights?.length > 0  && (
+ <div className='container-fluid animate-zoom p-1'  >
                     <div className='row' style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
+      <ul className="d-flex justify-content-end">
+                  {menuButtons.map((btn, index) => (
+                    userRights[0][btn.key] === "T" && (
+                      <li key={index}>
+                        <button className={newButton === 1 ? "tabs active-tabs" : "tabs"}
+                          style={{ backgroundColor: colorValue }}onClick={btn.action}  >
+                          {btn.label}
+                        </button>
+                      </li>
+                    )
+                  ))}
+        </ul>
 
-         
- 
- <ul className='boxShadow d-flex justify-content-end'>
-                                <li  > <button type='submit' className={newButton === 1  ? "tabs active-tabs" : "tabs" } style={{display:`${userRights[0].news}`==='T' ? "block" : "none",backgroundColor:`${colorValue}`}} onClick={() => CompanyMaster_New()}    >News</button></li>
-                                <li > <button type='submit' className={newButton === 2 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].saves}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CompanyMaster_Save()}    >Save</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].deletes}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CompanyMaster_Delete(companyValues.gtcompmastid)}  >Delete</button></li>
-                                <li  > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].searches}` === "T" ? "block" : "none",ackgroundColor:`${colorValue}`}}  onClick={() => CompanyMaster_New()}  > Search </button></li>
-                                <li  > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].prints}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CompanyMaster_New()} >Prints</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].readonlys}` === "T" ? "none" : "none",backgroundColor:`${colorValue}`}} onClick={() => CompanyMaster_New()} >Readonlys</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].treebutton}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CompanyMaster_New()} >TreeButton</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].globalsearch}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CompanyMaster_New()} > Globalsearch </button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].login}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CompanyMaster_New()} >Login</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].changepassword}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CompanyMaster_New()} >Changepassword</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].changeskin}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CompanyMaster_New()} >Changeskin</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].contact}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}} onClick={() => CompanyMaster_New()} > Contact </button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].pdf}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CompanyMaster_New()} >Pdf</button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].import}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CompanyMaster_New()} > Import </button></li>
-                                <li > <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].download}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CompanyMaster_New()} > Download </button></li>
-                                  <li> <button type='submit' onClick={() => CompanyMaster_Exit()} style={{ backgroundColor: `${colorValue}` }}> Exit </button></li>
-
-                            </ul>
-
-    <ul className='bloc-tabs'>
-                               <li className='p-1'> <button className={newButton === 1 || newButton === 10 ? "tabs active-tabs btn" : "tabs"} onClick={() => TabIndexClick(1)} style={{ backgroundColor:`${colorValue}`,width:'100%' }}><b>{title} </b> </button></li>
-                               <li className='p-1'> <button className={newButton === 2 ? "tabs active-tabs btn" : "tabs"} onClick={() => TabIndexClick(2)} style={{ backgroundColor:`${colorValue}`,width:'100%'  }} ><b> {subTitle}</b> </button></li>
-
-                            </ul>       
-          
+        <ul className='' style={{backgroundColor:`${colorValue}`}}>
+                               <li className='ps-2'> <button className={newButton === 1 || newButton === 10 ? "tabs active-tabs btn" : "tabs"} onClick={() => TabIndexClick(1)} style={{ backgroundColor:`${colorValue}`, padding:'1%',fontWeight:'bold'}}>{title}  </button></li>
+                               <li className='ps-2'> <button className={newButton === 2 ? "tabs active-tabs btn" : "tabs"} onClick={() => TabIndexClick(2)} style={{ backgroundColor:`${colorValue}`, fontWeight:'bold', }} > {subTitle} </button></li>
+                              
+         </ul>
+                      
+           <div className='content-tabs' >
                <div className={newButton === 1 ? "content active-content" : "content"} > 
              
-<div className='row' >
+<div className='row'>
   
-                <div className='col-md-10' >
-                 <fieldset>
+                <div className='col-md-10'  >
+               
                    
                 <div className='row m-1'  >
                   
@@ -538,7 +504,7 @@ const commentsData = useMemo(() => {
                   </div>
               
                 
-                    <legend className='p-2 text-success' style={{ fontWeight: "bold", color: `${colorValue}` }}>Account Details</legend>
+                    {/* <legend className='p-2 text-success' style={{ fontWeight: "bold", color: `${colorValue}` }}>Account Details</legend> */}
                     <div className='row m-1'>
 
                       <label className='col-md-1' > GstNo</label>
@@ -555,7 +521,7 @@ const commentsData = useMemo(() => {
                       <input className='col-md-10' type='email' name="email" value={companyValues.email || ""} onChange={handleChange} />
                     </div>
                  
-                    <legend className='p-2 text-success' style={{ fontWeight: "bold", color: `${colorValue}` }}>Bank Details</legend>
+                    {/* <legend className='p-2 text-success' style={{ fontWeight: "bold", color: `${colorValue}` }}>Bank Details</legend> */}
                     <div className='row m-1' >
                       <label className='col-md-1' > AccNo </label>
                       <input className='col-md-5' type='text' name="accno" value={companyValues.accno || ""} onChange={handleChange} />
@@ -600,18 +566,18 @@ const commentsData = useMemo(() => {
 
                     </div>
 
-                  </fieldset>
+                 
                 </div>
 
-                <div className='col-md-2'  >
+                <div className='col-md-2'   >
                   <div style={{ padding: "0px", border: "1px solid var(--bs-white)",alignItems:"right" }} >
-                    <img src={images.imagesrc} style={{height:"150px" , width:"150px",textAlign:"right"}} />                        
+                    <img src={images.imagesrc} style={{height:"100px" , width:"100px",textAlign:"right"}} />                        
                     <input type='file' id='imageuploader'   onChange={showPreview} accept='image/' 
                         className="form-control">
                         </input>
                   </div> 
                 </div>
-
+</div>
            
 
             </div>
@@ -643,10 +609,12 @@ const commentsData = useMemo(() => {
            ) : <SocialMissing colorValue={colorValue} fetchError={fetchError}></SocialMissing>}    
         </div>
         </div>
+  )
 }
-      </div>
-          
-    </>
+ 
+      
+   
+     </>
   )
 }
 

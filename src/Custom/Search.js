@@ -7,8 +7,8 @@ const Search = ({ colorValue,stylecolor, searchs, setsearchs, SearchLable1, Sear
   return (
     <div className='container-fluid border-1' >
       <div className='row p-1' style={{background:`${colorValue}`}}>
-        {SearchLable1 !== "" ? <Label className={`col-md-1`} forecolor={stylecolor} labelName={SearchLable1}   ></Label> : ''}
-        {SearchLable1 !== "" ? <input className='col-md-3'  type='text' name="SearchItem"  placeholder='Search Items' aria-label='SearchItem'  value={searchs}  onChange={(e) => setsearchs(e.target.value)} /> : ''}
+        {SearchLable1 !== "" ? <Label className={`col-md-2`} forecolor={stylecolor} labelName={SearchLable1}   ></Label> : ''}
+        {SearchLable1 !== "" ? <input className='col-md-2'  type='text' name="SearchItem"  placeholder='Search Items' aria-label='SearchItem'  value={searchs}  onChange={(e) => setsearchs(e.target.value)} /> : ''}
         {SearchLable2 !== "" ? <Label className={`col-md-1`} forecolor={stylecolor} labelName={SearchLable2}  ></Label> : ''}
         {SearchLable2 !== "" ? <select className='col-md-2' name='compcode' value={ChangeValues.compcode || ""} 
         

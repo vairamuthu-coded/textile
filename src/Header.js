@@ -76,16 +76,7 @@ onClick={showSidebar}
 {/* CENTER MENU */}
 <div className="col-md-3">
 
-<Select
-sidebar={sidebar}
-setSidebar={setSidebar}
-items={header_items}
-userrights_search={header_search}
-setUserRightsSearch={setHeaderSearch}
-colorValue={colorValue}
-handlepage={handlepage}
-drop={headerdrop}
-setDrop={setHeaderDrop}
+<Select sidebar={sidebar}setSidebar={setSidebar}items={header_items}userrights_search={header_search}setUserRightsSearch={setHeaderSearch}colorValue={colorValue}handlepage={handlepage}drop={headerdrop} setDrop={setHeaderDrop}
 />
 
 </div>
