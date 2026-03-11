@@ -223,13 +223,9 @@ let countryExists = cityCountryData.filter(c => c.gtstatemastid === cityValues.s
 const handleStateChange = async (id) => {
 
   if (!id) return;
-<<<<<<< HEAD
-
   try {
-    const res = await axios.get(`${CountryParam}/${id}`);
- 
+    const res = await axios.get(`${CountryParam}/${id}`); 
     setCityCountryData(res.data);
-
   } 
   catch (error) {
     setFetchError("Service not running. Check API.");
@@ -254,7 +250,7 @@ const CityMaster_Delete = async (id) => {
     }
   } catch (error) {
     toast.error(error?.message || "Server error");
-=======
+  }
 
   try {
     const res = await axios.get(`${CountryParam}/${id}`);
@@ -264,28 +260,6 @@ const CityMaster_Delete = async (id) => {
   } 
   catch (error) {
     setFetchError("Service not running. Check API.");
-  }
-};
-
-
-const CityMaster_Delete = async (row) => {
-
-  // if (!window.confirm("Delete this record?")) return;
-
-  try {
-
-   let re= await axios.delete(`${deleteData}/${row}`);
-   alert(re.data);
-if(re.data)
-    setCityItems(prev =>
-      prev.filter(x => x.gtcitymastid !== row.gtcitymastid)
-    );
-
-    toast.success("Record Deleted Successfully");
-
-  } catch (error) {
-    toast.error(error?.message);
->>>>>>> 1912bb535d1f56706babbc6780a2732719d3cfd9
   }
 };
 
@@ -331,32 +305,43 @@ if(re.data)
   }, [cityItems, currentPage, city_Search, sorting])
 
 
+  const menuButtons = [
+  { key: "news", label: "News", action: CityMaster_New },
+  { key: "saves", label: "Save", action: CityMaster_Save },
+  { key: "deletes", label: "Delete", action: CityMaster_Delete },
+  { key: "searches", label: "Search", action: CityMaster_Search },
+  { key: "prints", label: "Prints", action: CityMaster_New },
+  { key: "treebutton", label: "TreeButton", action: CityMaster_New },
+  { key: "globalsearch", label: "Globalsearch", action: CityMaster_New },
+  { key: "login", label: "Login", action: CityMaster_New },
+  { key: "changepassword", label: "Changepassword", action: CityMaster_New },
+  { key: "changeskin", label: "Changeskin", action: CityMaster_New },
+  { key: "contact", label: "Contact", action: CityMaster_New },
+  { key: "pdf", label: "Pdf", action: CityMaster_New },
+  { key: "import", label: "Import", action: CityMaster_New },
+  { key: "download", label: "Download", action: CityMaster_New }
+];
+
   return (
 
-          <div onSubmit={handleSubmit} >
-           
+          <form onSubmit={handleSubmit} >           
        {userRights.length>0 &&
         <div className='container-fluid animate-zoom ' >           
           {!fetchError ? (
                 <>
        <div  style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>  
-                            <ul className='bloc-tabs' style={{display:"flex", justifyContent: "right" }}>
-                                <li> <button type='submit' className={newButton === 1  ? "tabs active-tabs" : "tabs" } style={{display:`${userRights[0].news}`==='T' ? "block" : "none",backgroundColor:`${colorValue}`}} onClick={() => CityMaster_New()}    >News</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].saves}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CityMaster_Save()}    >Save</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].deletes}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CityMaster_Delete(cityValues.gtcitymastid)}  >Delete</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].searches}` === "T" ? "block" : "none",ackgroundColor:`${colorValue}`}}  onClick={() => CityMaster_Search()}  > Search </button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].prints}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CityMaster_New()} >Prints</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].readonlys}` === "T" ? "none" : "none",backgroundColor:`${colorValue}`}} onClick={() => CityMaster_New()} >Readonlys</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].treebutton}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CityMaster_New()} >TreeButton</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].globalsearch}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CityMaster_New()} > Globalsearch </button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].login}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CityMaster_New()} >Login</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].changepassword}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CityMaster_New()} >Changepassword</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].changeskin}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CityMaster_New()} >Changeskin</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].contact}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}} onClick={() => CityMaster_New()} > Contact </button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].pdf}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={(e) => CityMaster_New()} >Pdf</button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].import}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CityMaster_New()} > Import </button></li>
-                                <li> <button type='submit' className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{display:`${userRights[0].download}` === "T" ? "block" : "none",backgroundColor:`${colorValue}`}}  onClick={() => CityMaster_New()} > Download </button></li>
-                            </ul>      
+     <ul className="boxShadow d-flex justify-content-end">
+                  {menuButtons.map((btn, index) => (
+                    userRights[0][btn.key] === "T" && (
+                      <li key={index}>
+                        <button className={newButton === 1 ? "tabs active-tabs" : "tabs"}
+                          style={{ backgroundColor: colorValue }}onClick={btn.action}  >
+                          {btn.label}
+                        </button>
+                      </li>
+                    )
+                  ))}
+        </ul>     
               <div className='row' >
              <div className='col-md-6'>
                     <div className="content active-content">
@@ -393,12 +378,9 @@ if(re.data)
                   <div className='row py-1' >
                     <label className='col-md-2' > Country </label>
 
-<<<<<<< HEAD
+
                     <select className='col-sm-4' name='country' value={cityValues.country || ""} onChange={handleChange}
-=======
-                    <select className='col-sm-4' name='country' value={cityValues.country}
->>>>>>> 1912bb535d1f56706babbc6780a2732719d3cfd9
-                    ref={el => refs.current[2] = el}  >
+                               ref={el => refs.current[2] = el}  >
                     <option></option>
                       {                       
                         cityCountryData.map((result, index) => (
@@ -457,7 +439,7 @@ if(re.data)
          
       </div>  
 } 
-      </div>
+      </form>
    
   )
 }
