@@ -21,7 +21,7 @@ import BuyerMaster from './Masters/BuyerMaster'
 import StyleGroupMaster from './Masters/StyleGroupMaster'
 import StyleCategoryMaster from './Masters/StyleCategoryMaster'
 import StyleItemMaster from './Masters/StyleItemMaster'
-
+import TaxTemplateMaster from './Masters/TaxTemplateMaster'
 const routes = [
  { path:'/CountryMaster', component:CountryMaster, title:'CountryMaster'},
  { path:'/StateMaster', component:StateMaster, title:'StateMaster'},
@@ -46,6 +46,7 @@ const routes = [
  { path:'/StyleGroupMaster', component:StyleGroupMaster, title:'StyleGroupMaster'},
  { path:'/StyleCategoryMaster', component:StyleCategoryMaster, title:'StyleCategoryMaster'},
  { path:'/StyleItemMaster', component:StyleItemMaster, title:'StyleItemMaster'},
+ { path:'/TaxTemplateMaster', component:TaxTemplateMaster, title:'TaxTemplateMaster'} 
 ]
 
 const MasterRoutes = routes.map(r => ({

@@ -3,39 +3,35 @@ import DataContext from '../context/CreateUserContext';
 import DataTable from '../Custom/DataTable';
 import axios from 'axios';
 import Search from '../Custom/Search';
-const FabricMaster = ({ title, subTitle, colorValue }) => {
-  const { newButton, setNewButton, inputref, handleSubmit,
+import { toast } from 'react-toastify';
+const FabricMaster = ({ title, subTitle }) => {
+  const { newButton, setNewButton, inputref, handleSubmit,userRights,setUserRights,
     API_URL, totalItems, setTotalItems, currentPage, setCurrentPage, sorting, setSorting,
-    ITEM_PER_PAGE,
+    ITEM_PER_PAGE,defaultDetails,colorValue,
     searchLable1, searchLable2, searchLable3, color1, fab, setFab,
     setSearchLable1, setSearchLable2, setSearchLable3 } = useContext(DataContext)
-  const [fab_Search, setFab_Search] = useState([]);
+  const [fab_Search, setFab_Search] = useState("");
   const [fabTypeData, setFabTypeData] = useState([]);
   const [fabYarnBlend, setFabYarnBlend] = useState([]);
-  const [checkall, setCheckAll] = useState(false)
-  const [active, setActive] = useState(false)
-  const [organic, setOraganic] = useState(false)
+  const [checkall, setCheckAll] = useState(false);
+  const [active, setActive] = useState(false);
+  const [organic, setOraganic] = useState(false);
   const [fab_FilterSearch, setFab_FilterSearch] = useState([]);
-  const [fabItems, setFabItems] = useState([])
-  const [searchCompCode, setSearchCompCode] = useState([])
-  const [searchUserName, setSearchUserName] = useState([])
-  const [fetchError, setFetchError] = useState(null)
-  const [artists, setArtists] = useState({
-    asptblfabmasid: "0", fabrictype: "", per1: "", per2: "", per3: "", per4: "", per5: "",
-    yarnblend1: "", yarnblend2: "", yarnblend3: "", yarnblend4: "", yarnblend5: "", fabric: "",
-    aliasname: "", hsn: "", per: 0,organic:false
-  })
 
-  const GetYarnBlendMaster = API_URL + "/YarnBlendMasters/GetYarnBlendMaster";
-  const GetFabricTypeMaster = API_URL + "/FabricTypeMasters/GetFabricTypeMaster";
-  const insert_update = API_URL + "/FabricMasters/PostFabricMaster";
-  const deleteData = API_URL + "/FabricMasters/DeleteFabricMaster";
-  const GridData = API_URL + "/FabricMasters/GetFabricMaster";
+  const [searchCompCode, setSearchCompCode] = useState([]);
+  const [searchUserName, setSearchUserName] = useState([]);
+  const [fetchError, setFetchError] = useState(null);
+
+  const GetYarnBlendMaster =`${API_URL}/YarnBlendMasters/GetYarnBlendMaster`;
+  const GetFabricTypeMaster=`${API_URL}/FabricTypeMasters/GetFabricTypeMaster`;
+  const insert_update = `${API_URL}/FabricMasters/PostFabricMaster`;
+  const deleteData = `${API_URL}/FabricMasters/DeleteFabricMaster`;
+  const GridData = `${API_URL}/FabricMasters/GetFabricMaster`;
+  const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
   const heights = "400px";
   setSearchLable1("Search"); setSearchLable2(""); setSearchLable3("")
-  const HeadersColumn =
-    [
-      { headername: "id", field: "asptblfabmasid", visible: "none" },
+  const HeadersColumn =[
+      { headername: "ID", field: "asptblfabmasid", visible: "none" },
       { headername: "Fabric Type", field: "fabrictype" },
       { headername: "Fabric", field: "fabric" },
       { headername: "Active", field: "active" }
@@ -43,80 +39,66 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
 
 
   let totalper = 0;
-  const handleChange = (e) => {
-    const { name, value, options, type, checked } = e.target;
+  const [fabItems, setFabItems] = useState([]);
+  const [artists, setArtists] = useState({
+    asptblfabmasid: "0", fabrictype: "", per1: "", per2: "", per3: "", per4: "", per5: "",
+    yarnblend1: "", yarnblend2: "", yarnblend3: "", yarnblend4: "", yarnblend5: "", fabric: "",
+    aliasname: "", hsncode: "", per: 0,organic:false
+  })
 
-    setFab((fab) => {
-      if (type === "text") { return { ...fab, [name]: value } }
-      if (type === "select-one") { return { ...fab, [name]: options.selectedIndex === 0 ? "" : value } }
-      if (type === "checkbox") { return { ...fab, "active": checked === true ? setActive(true) : setActive(false) } }
-      if (type === "checkbox") { return { ...fab, "organic": checked === true ? setOraganic(true) : setOraganic(false) } }
+const handleChange = (e) => {
+  const { name, value, type, checked,options } = e.target;
+      let fieldValue = type === "checkbox" ? checked :  value;
+    if (type !== "checkbox" && !/^[a-zA-Z0-9%() ]*$/.test(fieldValue)) {
+    return;
+  }
+
+  setArtists((prev) => {
+    const updated = { ...prev, [name]: type === "select-one" ? options[options.selectedIndex].text : fieldValue };
+    const perValues = [
+      parseInt(updated.per1 || 0),
+      parseInt(updated.per2 || 0),
+      parseInt(updated.per3 || 0),
+      parseInt(updated.per4 || 0),
+      parseInt(updated.per5 || 0),
+    ];
+
+    const yarnValues = [
+      updated.yarnblend1,
+      updated.yarnblend2,
+      updated.yarnblend3,
+      updated.yarnblend4,
+      updated.yarnblend5,
+    ];
+
+    let totalper = perValues.reduce((a, b) => a + b, 0);
+
+    let blend = "";
+    perValues.forEach((p, i) => {
+      if (p && yarnValues[i]) {
+        blend += `${p}%${yarnValues[i]} `;
+      }
     });
 
-    setArtists((artists) => {
-      if (type === "text") { return { ...artists, [name]: value } }
-      if (type === "select-one") { return { ...artists, [name]: options.selectedIndex === 0 ? "" : options[value].text } }
-    });
-
-
-    if (artists.fabrictype !== '') { fab.fabric = artists.fabrictype; }
-    if (artists.fabrictype !== '' && artists.per1 !== '' ) {
-      fab.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + ")";
-      artists.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + ")";
-      totalper = parseInt(artists.per1);
-      artists.per = totalper; if (totalper > 100) { alert(artists.per + " Yarn  PerCentage Exceed.Maximum 100 % only Allowed . per1 Field" + artists.per1); }
+    let fabricText = "";
+    blend !== "" && updated.organic === true ? fabricText = `ORGANIC COTTON (${blend.trim()})` :  fabricText = `${updated.fabrictype} (${blend.trim()})`;
+    if (totalper > 100) {
+      toast.error(`Yarn Percentage Exceed. Maximum 100% allowed (${totalper}%)`);
     }
+    return {
+      ...updated,
+      fabric: fabricText,
+      per: totalper
+    };
+  });
 
-    if (artists.fabrictype !== '' && artists.per1 !== '' && artists.per2 !== '') {
-      fab.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + artists.per2 + "%" + artists.yarnblend2 + ")";
-      artists.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + artists.per2 + "%" + artists.yarnblend2 + ")";
-      totalper = parseInt(artists.per1) + parseInt(artists.per2);
-      artists.per = totalper;
-      if (totalper > 100) {
-        alert(artists.per + " Yarn  PerCentage Exceed.Maximum 100 % only Allowed . per2 Field" + artists.per2);
-      }
-    }
-
-    if (artists.fabrictype !== '' && artists.per1 !== ''
-      && artists.per2 !== '' && artists.per3 !== '') {
-        fab.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + artists.per2 + "%" + artists.yarnblend2 + artists.per3 + "%" + artists.yarnblend3 + ")";
-        artists.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + artists.per2 + "%" + artists.yarnblend2 + artists.per3 + "%" + artists.yarnblend3 + ")";
-
-      totalper = parseInt(artists.per1) + parseInt(artists.per2) + parseInt(artists.per3);
-      artists.per = totalper;
-      if (totalper > 100) {
-        alert(artists.per + " Yarn  PerCentage Exceed.Maximum 100 % only Allowed . per3 Field" + artists.per3);
-      }
-
-    }
-
-    if (artists.fabrictype !== '' && artists.per1 !== ''
-      && artists.per2 !== '' && artists.per3 !== '' && artists.per4 !== '') {
-        fab.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + artists.per2 + "%" + artists.yarnblend2 + artists.per3 + "%" + artists.yarnblend3 + artists.per4 + "%" + artists.yarnblend4 + ")";
-        artists.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + artists.per2 + "%" + artists.yarnblend2 + artists.per3 + "%" + artists.yarnblend3 + artists.per4 + "%" + artists.yarnblend4 + ")";
-
-        totalper = parseInt(artists.per1) + parseInt(artists.per2) + parseInt(artists.per3) + parseInt(artists.per4);
-      artists.per = totalper;
-      if (totalper > 100) {
-        alert(artists.per + " Yarn  PerCentage Exceed.Maximum 100 % only Allowed . per4 Field" + artists.per4);
-      }
-    }
-
-    if (artists.fabrictype !== '' && artists.per1 !== '' && artists.per2 !== '' && artists.per3 !== '' && artists.per4 !== '' && artists.per5 !== '') {
-      fab.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + artists.per2 + "%" + artists.yarnblend2 + artists.per3 + "%" + artists.yarnblend3 + artists.per4 + "%" + artists.yarnblend4 + artists.per5 + "%" + artists.yarnblend5 + ")";
-      artists.fabric = artists.fabrictype + "(" + artists.per1 + "%" + artists.yarnblend1 + artists.per2 + "%" + artists.yarnblend2 + artists.per3 + "%" + artists.yarnblend3 + artists.per4 + "%" + artists.yarnblend4 + artists.per5 + "%" + artists.yarnblend5 + ")";
-
-      totalper = parseInt(artists.per1) + parseInt(artists.per2) + parseInt(artists.per3) + parseInt(artists.per4) + parseInt(artists.per5);
-      artists.per = totalper;
-      if (totalper > 100) {
-        alert(artists.per + " Yarn  PerCentage Exceed.Maximum 100 % only Allowed . per5 Field" + artists.per5);
-      }
-
-    }
-  };
-
-
-
+     setFab((prev) => ({
+    ...prev,
+    [name]: fieldValue.trim() 
+  }));
+ 
+  
+};
 
 
 
@@ -139,34 +121,69 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
 
 
 
+useEffect(() => {
 
-  useEffect(() => {
-    axios.get(`${GridData}`).then((res) => {
-      setFabItems(res.data);
-      axios.get(`${GetYarnBlendMaster}`).then((res) => {
-        setFabYarnBlend(res.data);
-        axios.get(`${GetFabricTypeMaster}`).then((res) => { setFabTypeData(res.data); })
-          .catch((error) => { setFetchError(error); });
-      }).catch((error) => { setFetchError(error) });
-    }).catch((error) => { setFetchError(error); });
-  }, [])
+  const fetchData = async () => {
+    try {
+      const [        
+        userRightsRes,
+        fabYarnBlendRes,
+        fabTypeDataRes,
+        gridRes
+      ] = await Promise.all([       
+        axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
+         axios.get(GetYarnBlendMaster),
+         axios.get(GetFabricTypeMaster),
+          axios.get(GridData)
+      ]);     
+     
+      setUserRights(userRightsRes?.data ?? []);
+       setFabYarnBlend(fabYarnBlendRes?.data ?? []);
+       setFabTypeData(fabTypeDataRes?.data ?? []);
+        setFabItems(gridRes?.data ?? []);
 
-  useEffect(() => {
-    const filterResult = fabItems.filter((item) => ((item.fabrictype).includes(fab_Search)) || ((item.fabric).includes(fab_Search)))
-    setFab_FilterSearch(filterResult.reverse());
-  }, [fabItems, fab_Search]);
+    } catch (error) {      
+      toast.error(error?.message || "Error fetching data");
+      setFetchError(error?.message || "Unknown error");
+    }
+  };
+
+  fetchData();
+
+}, [defaultDetails?.Compcode, defaultDetails?.User, title]);
+
+useEffect(() => {
+
+  const text = fab_Search.toLowerCase() || "";
+  const filterResult = fabItems.filter((post) =>
+    post.fabric?.toLowerCase().includes(text)
+  );
+  setFab_FilterSearch([...filterResult].reverse());
+}, [fabItems, fab_Search]);
+
+// useEffect(() => {
+//   const search = fab_Search?.toLowerCase() || "";
+//   const filterResult = fabItems?.filter((item) =>
+//     !search ||
+//     item?.fabrictype?.toLowerCase().includes(search) ||
+//     item?.fabric?.toLowerCase().includes(search)
+//   ) || [];
+
+//   setTotalItems(filterResult.length);
+//   setFab_FilterSearch([...filterResult].reverse());
+
+// }, [fabItems, fab_Search]);
 
   const FabMasterCheck = (id) => {
     try {
       axios.get(`${GridData}/${id.asptblfabmasid}`)
         .then((res) => {
           if (res.data.length === 0) { alert("Invalid Data") } else {
-            setActive(res.data[0].active === "T" ? true : false);
-            setOraganic(res.data[0].organic === "T" ? true : false);
+            // setActive(res.data[0].active === "T" ? true : false);
+            // setOraganic(res.data[0].organic === "T" ? true : false);
             setFab({
               asptblfabmasid: res.data[0].asptblfabmasid,
-              fabrictype: res.data[0].asptblfabrictypemasid,
-              per: res.data[0].per,
+              fabrictype: res.data[0].asptblfabrictypemasid,            
               per1: res.data[0].per1,
               per2: res.data[0].per2,
               per3: res.data[0].per3,
@@ -179,17 +196,16 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
               yarnblend5: res.data[0].yarn5,
               fabric: res.data[0].fabric,
               aliasname: res.data[0].aliasname,
-              hsn: res.data[0].hsn,
-              active: active,
-              organic: organic
+              hsncode: res.data[0].hsncode,
+              active: res.data[0].active === "T" ? true : false,
+              organic: res.data[0].organic === "T" ? true : false
             });
 
 
             //==========================
 
             setArtists({
-              fabrictype: res.data[0].fabrictype,
-              per: res.data[0].per,
+              fabrictype: res.data[0].fabrictype,          
               per1: res.data[0].per1,
               per2: res.data[0].per2,
               per3: res.data[0].per3,
@@ -202,7 +218,7 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
               yarnblend5: res.data[0].yarnblend5,
               fabric: res.data[0].fabric,
               aliasname: res.data[0].aliasname,
-              hsn: res.data[0].hsn,
+              hsncode: res.data[0].hsncode,
             });
 
 
@@ -223,65 +239,56 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
   }
 
 
-  const FabricMaster_Save = async () => {
-    if (parseInt(artists.per) === 100) {
-      try {
+const FabricMaster_Save = async () => {
 
-        const CountryData = {
-          asptblfabmasid: fab.asptblfabmasid > 0 ? fab.asptblfabmasid : 0,
-          fabrictype: fab.fabrictype,
-          per: fab.per,
-          per1: fab.per1,
-          per2: fab.per2 === "" ? undefined : fab.per2,
-          per3: fab.per3 === "" ? undefined : fab.per3,
-          per4: fab.per4 === "" ? undefined : fab.per4,
-          per5: fab.per5 === "" ? undefined : fab.per5,
-          yarnblend1: fab.yarnblend1 === "" ? undefined : fab.yarnblend1,
-          yarnblend2: fab.yarnblend2 === "" ? undefined : fab.yarnblend2,
-          yarnblend3: fab.yarnblend3 === "" ? undefined : fab.yarnblend3,
-          yarnblend4: fab.yarnblend4 === "" ? undefined : fab.yarnblend4,
-          yarnblend5: fab.yarnblend5 === "" ? undefined : fab.yarnblend5,
-          fabric: artists.fabric,
-          aliasname: fab.aliasname,
-          hsn: fab.hsn,
-          active: active === true ? "T" : "F",
-          organic: organic === true ? "T" : "F"
-        };
-        axios.post(`${insert_update}`, CountryData)
-          .then((respose) => {
-            if (respose.data.asptblfabmasid === 0) {
-              alert("Record Saved Successfully");
-            }
-            else {
-              alert("Record Updated Successfully");
-            }
-            axios.get(`${GridData}`)
-              .then((res) => { setFabItems(res.data); })
-              .catch((error) => { setFetchError(error) });
+  const totalPer = parseInt(artists.per || 0);
 
-          }).catch((error) => {
-            alert(error);
-            setFetchError(error)
-          });
-      }
-      catch (err) {
-        console.log(`Error . ${err}`);
-      }
-      finally {
-        FabricMaster_New();
-      }
+  if (totalPer !== 100) {
+    if (totalPer > 100) {
+      toast.error(`Maximum % Exceed ${totalPer}`);
     } else {
-      if (parseInt(artists.per) > 100) {
-        alert("Maximum % Exceed" + artists.per);
-        return;
-      }
-      if (parseInt(artists.per) < 100) {
-        alert("Minimum % Bleow" + artists.per);
-        return;
-      }
+      toast.error(`Minimum % Below ${totalPer}`);
+    }
+    return;
+  }
+
+  try {
+
+    const CountryData = {
+      asptblfabmasid: fab.asptblfabmasid > 0 ? fab.asptblfabmasid : 0,
+      FABRICTYPE: fab.fabrictype,
+       per1: fab.per1,
+       per2: fab.per2 || 0,
+       per3: fab.per3 || 0,
+       per4: fab.per4 || 0,
+       per5: fab.per5 || 0,
+       yarnblend1: fab.yarnblend1 || 0,
+       yarnblend2: fab.yarnblend2 || 0,
+       yarnblend3: fab.yarnblend3 || 0,
+       yarnblend4: fab.yarnblend4 || 0,
+       yarnblend5: fab.yarnblend5 || 0,
+       fabric: artists.fabric,
+       aliasname: fab.aliasname,
+       hsncode: fab.hsncode,
+       active: fab.active ? "T" : "F",
+       organic: fab.organic ? "T" : "F"
+    };
+
+    const response = await axios.post(insert_update, CountryData);
+
+    if (response.data.asptblfabmasid === 0) {
+      toast.success("Record Saved Successfully");
+    } else {
+      toast.success("Record Updated Successfully");
     }
 
+    const gridRes = await axios.get(GridData);
+    setFabItems(gridRes.data);
+
+  } catch (err) {
+    toast.error(`Error: ${err}`);
   }
+};
 
 
 
@@ -329,15 +336,16 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
 
   }
 
-
   const commentsData = useMemo(() => {
+ let searchs=String(fab_Search || "").toLowerCase();
     let computedComments = fabItems;
-    if (fab_Search) {
-      computedComments = computedComments.filter((item) => ((item.fabrictype).includes(fab_Search)) || ((item.fabric)).includes(fab_Search)
-      )
+    if (searchs) {
+      computedComments = computedComments.filter((item) => {
+      let fabric=String(item.fabric || "").toLowerCase();
+      return fabric.includes(searchs)})
     }
-    setTotalItems(computedComments.length);
-    //sorting comments
+
+
     if (sorting.field) {
       const reversed = sorting.order === "asc" ? 1 : -1;
       computedComments = computedComments.sort((a, b) =>
@@ -349,25 +357,47 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
   }, [fabItems, currentPage, fab_Search, sorting])
 
 
+  const menuButtons = [
+  { key: "news", label: "News", action: FabricMaster_New },
+  { key: "saves", label: "Save", action: FabricMaster_Save },
+  { key: "deletes", label: "Delete", action: FabricMaster_Delete },
+  { key: "searches", label: "Search", action: FabricMaster_Search },
+  { key: "prints", label: "Prints", action: FabricMaster_New },
+  { key: "treebutton", label: "TreeButton", action: FabricMaster_New },
+  { key: "globalsearch", label: "Globalsearch", action: FabricMaster_New },
+  { key: "login", label: "Login", action: FabricMaster_New },
+  { key: "changepassword", label: "Changepassword", action: FabricMaster_New },
+  { key: "changeskin", label: "Changeskin", action: FabricMaster_New },
+  { key: "contact", label: "Contact", action: FabricMaster_New },
+  { key: "pdf", label: "Pdf", action: FabricMaster_New },
+  { key: "import", label: "Import", action: FabricMaster_New },
+  { key: "download", label: "Download", action: FabricMaster_New }
+];
+
+
   return (
-    <form onSubmit={handleSubmit} >
+   
+    <>
+      {userRights?.length > 0  ? (
       <div className='container-fluid animate-zoom' style={{ textAlign: "left", borderTop: "1px solid var(--bs-white)" }} >
-        <div className='row' style={{ textAlign: "right" }}>
-          <ul >
-            <li> <button type='submit' onClick={() => FabricMaster_New()} style={{ backgroundColor: `${color1[0]}` }}>News</button></li>
-            <li> <button type='submit' onClick={() => FabricMaster_Save()} style={{ backgroundColor: `${color1[1]}` }}>Save</button></li>
-            <li> <button type='submit' onClick={() => FabricMaster_Delete()} style={{ backgroundColor: `${color1[2]}` }}>Delete</button></li>
-            <li> <button type='submit' onClick={() => FabricMaster_Search()} style={{ backgroundColor: `${color1[3]}` }}> Search </button></li>
-          </ul>
+                    <div className='row' style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
+              <ul className="d-flex justify-content-end">
+                  {menuButtons.map((btn, index) => (
+                    userRights[0][btn.key] === "T" && (
+                      <li key={index}>
+                        <button className={newButton === 1 ? "tabs active-tabs" : "tabs"}
+                          style={{ backgroundColor: colorValue }}onClick={btn.action}  >
+                          {btn.label}
+                        </button>
+                      </li>
+                    )
+                  ))}
+        </ul>
         </div>
-        <div className='row'>
-          <div className='col-md-5' style={{ backgroundColor: "var(--bs-white)", padding: "0" }}>
-
-            <div className='bloc-tabs' >
-              <div className="tabs active-tabs" style={{ color: `${colorValue}` }}> {title} </div>
-            </div>
-            <div className='content active-content' style={{ backgroundColor: "var(--bs-light)", paddingBottom: "30px" }}>
-
+        <div className='row pt-1'>
+          <div className='col-md-7'>
+          
+            <div className='content active-content'>
               <fieldset><legend></legend>
                 <div className='container-fluid'>
                   <div className='row' style={{ display: HeadersColumn[0].visible }}>
@@ -377,14 +407,14 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
                   <div className='row'>
                     <label className='col-md-2'  > Organic </label>
                     <label className='checkbox' style={{ padding: "0px", width: "60px" }}>
-                      <input type="checkbox" name='organic' checked={organic} onChange={(e) => setOraganic(e.target.checked)} />
+                      <input type="checkbox" name='organic' checked={fab.organic} onChange={handleChange} />
                       <span></span>
                       <i className='indicator'></i>
                     </label>
                   </div>
                   <div className='row py-1' >
                     <label className='col-md-2' > FabricType </label>
-                    <select className='col-md-10' name='fabrictype' id="fabrictype" autoFocus value={fab.fabrictype || ""} onChange={handleChange} >
+                    <select className='col-md-10' name='fabrictype'  autoFocus value={fab.fabrictype || ""} onChange={handleChange} >
                       <option></option>
                       {
                         fabTypeData !== null &&
@@ -397,11 +427,11 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
                   </div>
                   <div className='row' >
                     <label className='col-md-2' > Per1 </label>
-                    <input className='col-md-2' type='text' name="per1" id="per1"
+                    <input className='col-md-2' type='number'  min="0" max="100" name="per1" id="per1"
                       value={fab.per1 || ""} onChange={handleChange}
                     />
                     <label className='col-md-3' > Yarn Blend </label>
-                    <select className='col-md-5' name='yarnblend1' id="yarnblend1" value={fab.yarnblend1 || ""} onChange={handleChange} >
+                    <select className='col-md-5' name='yarnblend1'  value={fab.yarnblend1 || ""} onChange={handleChange} >
                       <option></option>
                       {
                         fabYarnBlend !== null &&
@@ -415,10 +445,10 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
 
                   <div className='row py-1' >
                     <label className='col-md-2' > Per2 </label>
-                    <input className='col-md-2' type='text' name="per2" id="per2"
+                    <input className='col-md-2' type='number'  min="0" max="100" name="per2" id="per2"
                       value={fab.per2 || ""} onChange={handleChange} />
                     <label className='col-md-3' > Yarn Blend </label>
-                    <select className='col-md-5' name='yarnblend2' id="yarnblend2" value={fab.yarnblend2 || ""} onChange={handleChange} >
+                    <select className='col-md-5' name='yarnblend2'  value={fab.yarnblend2} onChange={handleChange} >
                       <option></option>
                       {
                         fabYarnBlend !== null &&
@@ -432,11 +462,11 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
 
                   <div className='row' >
                     <label className='col-md-2' > Per3 </label>
-                    <input className='col-md-2' type='text' name="per3" id="per3"
+                    <input className='col-md-2' type='number'  min="0" max="100" name="per3" id="per3"
                       value={fab.per3 || ""} onChange={handleChange}
                     />
                     <label className='col-md-3' > Yarn Blend </label>
-                    <select className='col-md-5' name='yarnblend3' id="yarnblend3" value={fab.yarnblend3 || ""} onChange={handleChange} >
+                    <select className='col-md-5' name='yarnblend3'  value={fab.yarnblend3 || ""} onChange={handleChange} >
                       <option></option>
                       {
                         fabYarnBlend !== null &&
@@ -449,11 +479,11 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
                   </div>
                   <div className='row py-1' >
                     <label className='col-md-2' > Per4 </label>
-                    <input className='col-md-2' type='text' name="per4" id='per4'
+                    <input className='col-md-2' type='number'  min="0" max="100" name="per4" id='per4'
                       value={fab.per4 || ""} onChange={handleChange}
                     />
                     <label className='col-md-3' > Yarn Blend </label>
-                    <select className='col-md-5' name='yarnblend4' id="yarnblend4" value={fab.yarnblend4 || ""} onChange={handleChange} >
+                    <select className='col-md-5' name='yarnblend4'  value={fab.yarnblend4 || ""} onChange={handleChange} >
                       <option></option>
                       {
                         fabYarnBlend !== null &&
@@ -466,7 +496,7 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
                   </div>
                   <div className='row' >
                     <label className='col-md-2' > Per5 </label>
-                    <input className='col-md-2' type='text' name="per5" id='per5'
+                    <input className='col-md-2' type='number'  min="0" max="100" name="per5" id='per5'
                       value={fab.per5 || ""} onChange={handleChange}
                     />
                     <label className='col-md-3' > Yarn Blend </label>
@@ -483,26 +513,26 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
                   </div>
                   <div className='row py-1' >
                     <label className='col-md-2' > Fabric  </label>
-                    <input className='col-md-10' type='text' name="fabric" id='tel'
+                    <input multiple={true} className='col-md-10' type='text' placeholder='Enter Fabric' name="fabric" id='tel'
                       value={artists.fabric || ""}
                     />
                   </div>
                   <div className='row' >
                     <label className='col-md-2' > AliasName </label>
-                    <input className='col-md-10' type='text' name="aliasname"
+                    <input multiple={true} className='col-md-10' type='text' placeholder='Enter Alias Name' name="aliasname"
                       value={fab.aliasname || ""} onChange={handleChange}
                     />
                   </div>
                   <div className='row py-1' >
                     <label className='col-md-2' > HSN </label>
-                    <input className='col-md-10' type='text' name="hsn"
-                      value={fab.hsn || ""} onChange={handleChange}
+                    <input className='col-md-10' type='text' name="hsncode"
+                      value={fab.hsncode || ""} onChange={handleChange}
                     />
                   </div>
                   <div className='row'>
                     <label className='col-md-2'  > Active </label>
                     <label className='checkbox' style={{ padding: "0px", width: "60px" }}>
-                      <input type="checkbox" name='active' checked={active} onChange={(e) => setActive(e.target.checked)} />
+                      <input type="checkbox" name='active' placeholder='active' checked={fab.active} onChange={(e) => setFab({...fab, active: e.target.checked})} />
                       <span></span>
                       <i className='indicator'></i>
                     </label>
@@ -518,10 +548,8 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
             </div>
           </div>
 
-          <div className='col-md-7' style={{ backgroundColor: "var(--bs-white)", padding: "0" }}>
-            <div className='bloc-tabs' >
-              <div className="tabs active-tabs" style={{ color: `${colorValue}` }}> {subTitle} </div>
-            </div>
+          <div className='col-md-5'>
+         
             <div className='content-tabs' >
               <Search colorValue={colorValue} searchs={fab_Search} setsearchs={setFab_Search}
                 SearchLable1={searchLable1} SearchLable2={searchLable2}
@@ -541,13 +569,13 @@ const FabricMaster = ({ title, subTitle, colorValue }) => {
             </div>
           </div>
         </div>
-
-
-
-
       </div>
-
-    </form>
+       ):(
+        <div className='container-fluid animate-zoom' style={{ textAlign: "center", borderTop: "1px solid var(--bs-white)" }} >
+          <h3 style={{ color: colorValue, padding: "50px" }}>You Don't Have Access To This Page</h3>
+        </div>
+      )} 
+    </>
   )
 }
 

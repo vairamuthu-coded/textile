@@ -193,7 +193,7 @@ const commentsData=useMemo(()=>{
   {
     computedComments=computedComments.filter((item)=>((item.fabrictype).includes(search))   )  
   } 
-  setTotalItems(computedComments.length);
+ // setTotalItems(computedComments.length);
   //sorting comments
   if(sorting.field){
       const reversed=sorting.order==="asc" ? 1 : -1;

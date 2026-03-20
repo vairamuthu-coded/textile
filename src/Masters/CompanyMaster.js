@@ -33,7 +33,7 @@ const CompanyMaster = ({ title, subTitle,   }) => {
   let defaultimage='';
   const [searchCompCode, setSearchCompCode] = useState([])
   const [searchUserName, setSearchUserName] = useState([])
-var  imagesrc='',imageFile='';
+var  imagesrc='',imageFile='',filetype="";
 const [images, setImage] = useState(imagesrc);
 
 
@@ -51,10 +51,12 @@ const showPreview = (e) => {
 
   const reader = new FileReader();
   reader.onloadend = () => {
+
     setImage({
       ...images,
       imageFile: file,
-      imagesrc: reader.result
+      imagesrc: reader.result,
+      filetype: file.type
     });
   };
 
@@ -80,6 +82,7 @@ const handleChange = (e) => {
   }));
 
   if (name === "city") {
+    
     handleStateChange(value);
   }
 
@@ -94,12 +97,14 @@ const handleStateChange = async (id) => {
   try {
     const res = await axios.get(`${StateParam}/${id}`);
     const data = res.data;
-    setStateItems(data);
+    setStateItems(data);    
     const stateId = data?.[0]?.gtstatemastid;
+    const Country = data?.[0]?.gtcountrymastid;
     setCompanyValues(prev => ({
       ...prev,
       city: id,
-      state: stateId
+      state: stateId,
+      country: Country
     }));
 
     if (stateId) {
@@ -117,6 +122,7 @@ const handleCountryChange = async (id) => {
   if (!id) return;
   try {
     const { data } = await axios.get(`${CountryParam}/${id}`);
+    
     setCountryItems(data.reverse());
   } catch (error) {
     setFetchError(error?.message || "Failed to load country");
@@ -201,6 +207,14 @@ const CompanyMaster_Exit=()=>{
       {headername:"Active",field:"active" }
     ]
 
+const byteArrayToBase64 = (bytes) => {
+  let binary = "";
+  let len = bytes.length;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+};
 
 const CompanyMasterCheck = async (row) => {
   try {
@@ -211,8 +225,11 @@ const CompanyMasterCheck = async (row) => {
       return;
     }
     const data = res.data[0];
+const imageSrc = `${data.filetype},${data.companylogo}`;
+alert(imageSrc)
     setImage({
-      imagesrc: data.companylogoo
+      imagesrc:imageSrc,
+      filetype: data.filetype
     });
 
     setCompanyValues({
@@ -262,19 +279,20 @@ const CompanyMasterCheck = async (row) => {
     city: companyValues.city,
     state: companyValues.state,
     country: companyValues.country,
-    displayname: companyValues.displayname,
-    images: images.imagesrc,
-    filenames: images.imageFile,
+    displayname: companyValues.displayname ===undefined ? "" : companyValues.displayname,
+     images: images.imagesrc,
+     filetype: images.filetype,
     address: companyValues.address,
-    gstno: companyValues.gstno,
-    gstdate: companyValues.gstdate,
-    website: companyValues.website,
-    email: companyValues.email,
-    accno: companyValues.accno,
-    bankname: companyValues.bankname,
-    ifsc: companyValues.ifsc,
-    phoneno: companyValues.phoneno,
-    contactname: companyValues.contactname,
+    gstno: companyValues.gstno ===undefined ? 0 : companyValues.gstno,
+    gstdate: companyValues.gstdate ===undefined ? 0 : companyValues.gstdate,
+    website: companyValues.website ===undefined ? 0 : companyValues.website,
+    pincode: companyValues.pincode===undefined ? 0 : companyValues.pincode,
+    email: companyValues.email ===undefined ? 0 : companyValues.email,
+    accno: companyValues.accno ===undefined ? 0 : companyValues.accno,
+    bankname: companyValues.bankname ===null ? "1" : companyValues.bankname,
+    ifsc: companyValues.ifsc ===null ? 0 : companyValues.ifsc,
+    phoneno: companyValues.phoneno ===undefined ? 0 : companyValues.phoneno,
+    contactname: companyValues.contactname ===undefined ? "" : companyValues.contactname,
     active: companyValues.active ? "T" : "F"
   };
 
@@ -283,7 +301,7 @@ const CompanyMasterCheck = async (row) => {
     const res = await axios.get(CompanyMasterParam);
     setCompanyItems(res.data);
     toast.success(response.data);
-    CompanyMaster_New();
+     CompanyMaster_New();
   }
 
 } catch (error) {
@@ -332,12 +350,14 @@ const CompanyMasterCheck = async (row) => {
 
   }
 
-  const CompanyMaster_New = () => {
-     
+  const CompanyMaster_New = () => {     
     setStateItems([]);setCountryItems([])
      setCompanyValues([]); 
-     setNewButton(1);   
-    setImage(''); 
+     setNewButton(1);   setImage({
+      imagesrc: null,
+      filetype: ""
+    });
+ 
       CompanyMasterClear();
   }
 
@@ -571,7 +591,7 @@ const menuButtons = [
 
                 <div className='col-md-2'   >
                   <div style={{ padding: "0px", border: "1px solid var(--bs-white)",alignItems:"right" }} >
-                    <img src={images.imagesrc} style={{height:"100px" , width:"100px",textAlign:"right"}} />                        
+                    <img  src={images.imagesrc} style={{height:"100px" , width:"100px",textAlign:"right"}} />                        
                     <input type='file' id='imageuploader'   onChange={showPreview} accept='image/' 
                         className="form-control">
                         </input>

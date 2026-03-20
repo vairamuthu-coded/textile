@@ -61,7 +61,7 @@ const constirng1 = `${API_URL}/UserMaster/Headings/${defaultDetails.Compcode}/${
 
    const [sidebarData, setSidebarData] = useState([]); 
 
-   const titlename = "Pinnacle Systems";
+   const titlename = "Anugraha Fashion Mill Private Limited";
   const [error,setError]=useState();
   const headerSidebarClose = (e) => {
     setSidebar(false); 
