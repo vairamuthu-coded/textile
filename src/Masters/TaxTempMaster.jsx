@@ -7,10 +7,10 @@ import Search from '../Custom/Search';
 import { toast } from 'react-toastify';
 import { utilityState } from './../utilityState';
 
-const CountryMaster = ({ title, subTitle }) => {
+const TaxTempMaster = ({ title, subTitle }) => {
   const {   foreValue, newButton, setNewButton,  handleSubmit,userRights,setUserRights,
      currentPage, setCurrentPage, API_URL,colorValue,defaultDetails,
-     countryValues, setCountryValues,handlepage,setError,
+      handlepage,setError,
     sorting, setSorting, tabindex, state_CountryData, CityParam,
     searchLable1,searchLable2,searchLable3,isloading,setIsLoading,
     setSearchLable1,setSearchLable2,setSearchLable3, color1,
@@ -18,10 +18,11 @@ const CountryMaster = ({ title, subTitle }) => {
 
   let ITEM_PER_PAGE = 20;  
   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
-  const CountryParam = `${API_URL}/CountryMaster/GridLoad`;
-  const insert_update = `${API_URL}/CountryMaster/Saves`;
-  const deleteData = `${API_URL}/CountryMaster/DeleteCommond`;
+  const CountryParam = `${API_URL}/TaxTempMasters`;
+  const insert_update = `${API_URL}/TaxTempMasters`;
+  const deleteData = `${API_URL}/TaxTempMasters`;
   let validcheck = true;
+    const [taxTempValues,setTaxTempValues]=useState([]);
   const [totalItems,setTotalItems]=useState([]);
   const [fetchError, setFetchError] = useState(null);
   const [search, setSearch] = useState('');
@@ -30,17 +31,12 @@ const CountryMaster = ({ title, subTitle }) => {
   const [searchCompCode, setSearchCompCode] = useState([])
   const [searchUserName, setSearchUserName] = useState([])
    const [checkall,setCheckAll]=useState(false)   
-   const [checkchild,setCheckchild]=useState(false)  
-
-
-
-  
+   const [checkchild,setCheckchild]=useState(false)    
   const [country_FilterSearch, setCountry_FilterSearch] = useState([]);
 
 useEffect(() => {
 
  if (!defaultDetails?.Compcode) return;
-
  const loadData = async () => {
    try {
 
@@ -67,7 +63,7 @@ useEffect(() => {
 
   const text = (search || "").toLowerCase();
   const filterResult = items.filter((post) =>
-    post.countryname?.toLowerCase().includes(text)
+    post.taxName?.toLowerCase().includes(text)
   );
   setCountry_FilterSearch([...filterResult].reverse());
 }, [items, search]);
@@ -75,8 +71,8 @@ useEffect(() => {
   const HeadersColumn =
     [
       { headername: "", field: "visible" },
-      { headername: "ID", field: "gtcountrymastid" },
-      { headername: "Country", field: "countryname" },
+      { headername: "ID", field: "asptblTaxTemMasid" },
+      { headername: "TaxName", field: "taxName" },
       { headername: "Active", field: "active" }
     ]
 
@@ -85,35 +81,33 @@ useEffect(() => {
 
 
 const handleChange = (e) => {
-  utilityState(e, setCountryValues);
-  // const { name, value, checked, type } = e.target;
+  utilityState(e, setTaxTempValues);
+//   const { name, value, checked, type } = e.target;
 
-  // const finalValue =
-  //   type === "checkbox"
-  //     ? checked
-  //     : type === "number"
-  //     ? Number(value)
-  //     : value.trimStart();
+//   const finalValue =
+//     type === "checkbox"
+//       ? checked
+//       : type === "number"
+//       ? Number(value)
+//       : value.trimStart();
 
-  // setCountryValues((prev) => ({
-  //   ...prev,
-  //   [name]: finalValue,
-  // }));
+//   setTaxTempValues((prev) => ({
+//     ...prev,
+//     [name]: finalValue,
+//   }));
 };
 
 
 
-const validate = (countryValues) => {
-
-  const name = countryValues.countryname?.trim();
-
+const validate = (taxTempValues) => {
+  const name = taxTempValues.TaxName?.trim();
   if (!name) {
-    toast.error("Country Name is required");
+    toast.error("Tax Name is required");
     return false;
   }
 
   // Only alphabets and spaces
-  const regex = /^[A-Za-z\s]+$/;
+  const regex = /^[a-zA-Z \s]+$/;
 
   if (!regex.test(name)) {
     toast.error("Only alphabets allowed");
@@ -121,19 +115,19 @@ const validate = (countryValues) => {
   }
 
   // Minimum length check
-  if (name.length < 3) {
-    toast.error("Country name must be at least 3 characters");
+  if (name.length < 1) {
+    toast.error("Tax name must be at least 3 characters");
     return false;
   }
 
   return true;
 };
 
-const CountryMaster_Check = (row) => {
+const TaxMaster_Check = (row) => {
 
-  setCountryValues({
-    gtcountrymastid: row.gtcountrymastid,
-    countryname: row.countryname,
+  setTaxTempValues({
+    asptblTaxTemMasid: row.asptblTaxTemMasid,
+    TaxName: row.taxName,
     active: row.active === "T"
   });
 
@@ -142,53 +136,53 @@ const CountryMaster_Check = (row) => {
 
 
 
-const CountryMaster_Save = async () => {
+const TaxTempMaster_Save = async () => {
 
-  if (!validate(countryValues)) return;
+  if (!validate(taxTempValues)) return;
 
   try {
 
     const CountryData = {
-      gtcountrymastid: countryValues.gtcountrymastid > 0 ? countryValues.gtcountrymastid : 0,
-      countryname: countryValues.countryname,
-      active: countryValues.active ? "T" : "F"
+      asptblTaxTemMasid: taxTempValues.asptblTaxTemMasid > 0 ? taxTempValues.asptblTaxTemMasid : 0,
+      taxName: taxTempValues.TaxName,
+      active: taxTempValues.active ? "T" : "F"
     };
 
     const response = await axios.post(insert_update, CountryData);
     if (response.data !== "") {
       const res = await axios.get(CountryParam);
-      setItems(res.data.reverse());
+      setItems(res.data);
       setNewButton(2);
-      toast.success("Saved Successfully");
+      toast.success("Record Saved Successfully");
     } else {
-      toast.error("Save Failed");
+      toast.error(response.data);
     }
 
   } catch (error) {
     setFetchError(error);
-    toast.error("Service error");
+    toast.error(error.data);
   } finally {
-    setCountryValues({});
+    setTaxTempValues({});
   }
 };
 
   
 
-const CountryMaster_Delete = async () => {
-  if (!countryValues.gtcountrymastid) {
+const TaxTempMaster_Delete = async () => {
+  if (!taxTempValues.asptblTaxTemMasid) {
     toast.error("Select a record to delete");
     return;
   }
 
   try {
-    const id = countryValues.gtcountrymastid;
+    const id = taxTempValues.asptblTaxTemMasid;
     const response = await axios.delete(`${deleteData}/${id}`);
 
-    if (response.data.message != null) {
+    if (response.data != null) {
       const res = await axios.get(CountryParam);
-      setItems(res.data.reverse());
-      toast.success(response.data.message);
-      CountryMasterClear();
+      setItems(res.data);
+      toast.success(response.data);
+      TaxTempMaster_Clear();
     } else {
       toast.error(response.data.message);
     }
@@ -203,14 +197,14 @@ const CountryMaster_Delete = async () => {
 
   const inputref = useRef();
 
-  const CountryMasterClear = () => {
-    setCountryValues([]);
+  const TaxTempMaster_Clear = () => {
+    setTaxTempValues([]);
   }
 
-  const CountryMasterNew = () => {
-   setCountryValues([]);CountryMasterClear(); 
-
-    setNewButton(tabindex); 
+  const TaxTempMaster_New = () => {
+   setTaxTempValues([]);
+   TaxTempMaster_Clear(); 
+   setNewButton(tabindex); 
   }
 
 
@@ -222,7 +216,7 @@ const CountryMaster_Delete = async () => {
     let computedComments = items;
     if (searchs) {
       computedComments = computedComments.filter((item) => {
-      let country=String(item.countryname || "").toLowerCase();
+      let country=String(item.taxName || "").toLowerCase();
       return country.includes(searchs)})
     }
     setTotalItems(computedComments.length);
@@ -239,20 +233,20 @@ const CountryMaster_Delete = async () => {
 
 
 const menuButtons = [
-  { key: "news", label: "News", action: CountryMasterNew },
-  { key: "saves", label: "Save", action: CountryMaster_Save },
-  { key: "deletes", label: "Delete", action: CountryMaster_Delete },
-  { key: "searches", label: "Search", action: CountryMasterNew },
-  { key: "prints", label: "Prints", action: CountryMasterNew },
-  { key: "treebutton", label: "TreeButton", action: CountryMasterNew },
-  { key: "globalsearch", label: "Globalsearch", action: CountryMasterNew },
-  { key: "login", label: "Login", action: CountryMasterNew },
-  { key: "changepassword", label: "Changepassword", action: CountryMasterNew },
-  { key: "changeskin", label: "Changeskin", action: CountryMasterNew },
-  { key: "contact", label: "Contact", action: CountryMasterNew },
-  { key: "pdf", label: "Pdf", action: CountryMasterNew },
-  { key: "import", label: "Import", action: CountryMasterNew },
-  { key: "download", label: "Download", action: CountryMasterNew }
+  { key: "news", label: "News", action: TaxTempMaster_New },
+  { key: "saves", label: "Save", action: TaxTempMaster_Save },
+  { key: "deletes", label: "Delete", action: TaxTempMaster_Delete },
+  { key: "searches", label: "Search", action: TaxTempMaster_New },
+  { key: "prints", label: "Prints", action: TaxTempMaster_New },
+  { key: "treebutton", label: "TreeButton", action: TaxTempMaster_New },
+  { key: "globalsearch", label: "Globalsearch", action: TaxTempMaster_New },
+  { key: "login", label: "Login", action: TaxTempMaster_New },
+  { key: "changepassword", label: "Changepassword", action: TaxTempMaster_New },
+  { key: "changeskin", label: "Changeskin", action: TaxTempMaster_New },
+  { key: "contact", label: "Contact", action: TaxTempMaster_New },
+  { key: "pdf", label: "Pdf", action: TaxTempMaster_New },
+  { key: "import", label: "Import", action: TaxTempMaster_New },
+  { key: "download", label: "Download", action: TaxTempMaster_New }
 ];
 
   return (
@@ -282,18 +276,18 @@ const menuButtons = [
             </div>  
               
                     <div className='row py-1'>
-                      <label className='col-md-2' > CountryID </label>
-                      <input className='col-md-6' type='text' name='gtcountrymastid' value={countryValues.gtcountrymastid || ""} readOnly />
+                      <label className='col-md-2' > TaxID </label>
+                      <input className='col-md-6' type='text' name='asptblTaxTemMasid' value={taxTempValues.asptblTaxTemMasid || ""} readOnly />
                     </div>
                     <div className='row' >
-                      <label className='col-md-2' > countryname </label> 
-                      <input className='col-md-6' type='text' name='countryname'   value={countryValues.countryname || ""} onChange={handleChange}  required />
+                      <label className='col-md-2' > TaxName </label> 
+                      <input className='col-md-6' type='text' name='TaxName'   value={taxTempValues.TaxName || ""} onChange={handleChange}  required />
 
                     </div>
                     <div className='row py-1' >
                       <label className='col-sm-2' > Active </label>
                       <label className='checkbox' style={{ padding: "0px", width: "60px" }}>
-                        <input type="checkbox" name='active' checked={countryValues.active} onChange={handleChange} />
+                        <input type="checkbox" name='active' checked={taxTempValues.active} onChange={handleChange} />
                         <span></span>
                         <i className='indicator'></i>
                       </label>
@@ -309,7 +303,7 @@ const menuButtons = [
             </div>   
              <Search colorValue={colorValue} searchs={search} setsearchs={setSearch}
               SearchLable1={searchLable1} SearchLable2={searchLable2} stylecolor={foreValue}
-              SearchLable3={searchLable3} handleChange={handleChange} ChangeValues={countryValues}
+              SearchLable3={searchLable3} handleChange={handleChange} ChangeValues={taxTempValues}
               searchCompCode={searchCompCode} searchUserName={searchUserName} />
 
             
@@ -319,7 +313,7 @@ const menuButtons = [
                 totalItems={totalItems} setTotalItems={setTotalItems}
                 currentPage={currentPage} setCurrentPage={setCurrentPage}
                 sorting={sorting} setSorting={setSorting} ITEM_PER_PAGE={ITEM_PER_PAGE}
-                EditData={CountryMaster_Check}
+                EditData={TaxMaster_Check}
                 commentsData={commentsData} setCheckchild={setCheckchild} setCheckAll={setCheckAll} checkall={checkall}
                 SearchLable1={searchLable1} SearchLable2={searchLable2} SearchLable3={searchLable3}
               />  
@@ -340,4 +334,7 @@ const menuButtons = [
   )
 }
 
-export default CountryMaster
+
+
+
+export default TaxTempMaster

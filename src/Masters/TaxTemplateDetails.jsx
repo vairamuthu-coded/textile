@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import SocialMissing from '../Social/SocialMissing';
 
 
-const TaxTemplateMaster = ({ title, subTitle }) => {
+const TaxTemplateDetails = ({ title, subTitle }) => {
   const { newButton, setNewButton, inputref,foreValue, handleSubmit, colorValue,defaultDetails,cityValues,setCityValues,
      setCityStateData, cityCountryData, setCityCountryData, selectedTitle,userRights,setUserRights,
     API_URL, currentPage, setCurrentPage, sorting, setSorting, ITEM_PER_PAGE,
@@ -657,4 +657,4 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
 }
 
 
-export default TaxTemplateMaster
+export default TaxTemplateDetails
