@@ -19,7 +19,7 @@ const [error,setError]=useState('');
     //const [sequenceTable, setSequenceTable] = useState("asptblautogeneratemas");
 
   const [menuNameValues, setMenuNameValues] = useState([]);  
-  const tabindex = 1; let ITEM_PER_PAGE = 5;
+  const tabindex = 1; let ITEM_PER_PAGE = 100;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState();
   const [sorting, setSorting] = useState({ field: "", order: "" });

@@ -8,8 +8,6 @@ const DataTable = ({heights,colorValue,headers,comments,setComments,searches,set
   totalItems,setTotalItems ,currentPage,setCurrentPage,sorting,setSorting,ITEM_PER_PAGE,handleChange,
   EditData,commentsData,setCheckAll,checkchild, checkall,setCheckchild,mode,foreValue
 }) => {
-
-
   return (
     <>
 

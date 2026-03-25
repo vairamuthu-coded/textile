@@ -12,7 +12,7 @@ const TreeViewMaster = ({ title, subTitle, }) => {
     sorting, setSorting, color1, navi_Items1, setNaviItems1, navi_Items, setNaviItems, defaultDetails,
     currentPage1, setCurrentPage1, totalItems1, setTotalItems1, sorting1, setSorting1,
     searchLable1, searchLable2, searchLable3, setSearchLable1, setSearchLable2, setSearchLable3,
-    colorValue,userRightValues,setUserRightValues ,setNewButton,newButton,foreValue
+    colorValue,userRightValues,setUserRightValues ,setNewButton,newButton,foreValue,ITEM_PER_PAGE,
   } = useContext(DataContext)
   // const [navi_active, setNaviActive] = useState(false);
   const [navi_naviSearch, setNaviSearch] = useState([]);
@@ -40,17 +40,20 @@ const TreeViewMaster = ({ title, subTitle, }) => {
   const deleteparam = API_URL + '/UserRights/UserRights';
   const UserRightsFilter = API_URL + "/UserRights/UserRightsDetails";
   
-  const heights = "380px"; let ITEM_PER_PAGE = 40; let ITEM_PER_PAGE1 = 40;
+
 
 
 const HeadersColumn = [
-  { headername: "", field: "visible" },
-  { headername: "ID", field: "menuid" },
-  { headername: "Menu Name", field: "menuname" },
-  { headername: "Nav URL", field: "navurl" },
-  { headername: "PID", field: "parentmenuid" },
-  { headername: "Menu ID", field: "menunameid" },
-   { headername: "Aliasname", field: "aliasname" }
+      { headername: "", field: "visible" },
+      { headername: "ID", field: "menuid" },
+      { headername: "MenuName", field: "menuname" },
+       { headername: "AliasName", field: "aliasname" },
+      { headername: "Nav Url", field: "navurl" },
+      { headername: "PID", field: "parentmenuid" },
+      { headername: "compcode", field: "compcode" },
+      { headername: "username", field: "username" },
+       { headername: "active", field: "active" }
+
 ];
 
 
@@ -58,11 +61,13 @@ const HeadersColumn = [
     [
       { headername: "", field: "visible" },
       { headername: "ID", field: "menuid" },
-      { headername: "MenuName", field: "menuname" },
+ { headername: "MenuName", field: "menuname" },
+ { headername: "AliasName", field: "aliasname" },
       { headername: "Nav Url", field: "navurl" },
       { headername: "PID", field: "parentmenuid" },
-      { headername: "Menu ID", field: "menunameid" },
-      { headername: "Aliasname", field: "aliasname" }
+      { headername: "compcode", field: "compcode" },
+      { headername: "username", field: "username" },
+       { headername: "active", field: "active" }
 
     ]
 
@@ -132,73 +137,136 @@ useEffect(() => {
 // }, [navi_Items, navi_naviSearch, navi_Items1, navi_naviSearch1]);
 
 
-  const TreeViewCheck1 = (id) => {
-    try {
-      if (checkall1 === true) {
-        setNaviDelete(navi_Items1);
-      } else {     
-        if(id.userrightsid==0){
-        const filterResult = navi_Items1.filter(post => post.menuid !== id.menuid)
-        setNaviItems1(filterResult)
-        }else{
-        const filterResult1 = navi_Items1.filter(post => post.userrightsid === id.userrightsid)
-        setNaviDelete(previousData => [...previousData, ...filterResult1]);
-      }}
-    }
-    catch (err) {
-      if (err.response) {
-        console.log(`Error ${err.message}`);
-      }
-    }
-    finally {
+const TreeViewCheck1 = (id) => {
+  try {
+    if (checkall1) {
+      // Move all to delete + clear main list
+      setNaviDelete(navi_Items1);
+      setNaviItems1([]);
+      return;
     }
 
+    // Case 1: New item (not saved yet)
+    if (id.userrightsid === 0) {
+      setNaviItems1(prev =>
+        prev.filter(item => item.menuid !== id.menuid)
+      );
+      return;
+    }
+
+    // Case 2: Existing item → move to delete list
+    setNaviDelete(prev => {
+      const alreadyExists = prev.some(
+        item => item.userrightsid === id.userrightsid
+      );
+
+      if (alreadyExists) return prev;
+
+      return [...prev, id];
+    });
+
+  } catch (err) {
+    console.log("Error:", err.message);
   }
+};
 
 
   const TreeViewCheck = (id) => {
+try {
+  if (checkall) {
+    setNaviItems1(navi_Items);
+    return;
+  }
 
-    try {
-      if (checkall === true) {
-        setNaviItems1([]); setNaviItems1(navi_Items);
-      } else {
-        const filterResult = navi_Items.filter(post => post.menuid === id.menuid)
-        let filterResult1 = navi_Items1.filter(post => post.menuid === filterResult[0].menuid)
-        if (filterResult1.length === 1) { }
-      else{
-          const newData = filterResult.map(object => ({
-            userrightsid: 0,
-            menuid: object.menuid,
-            menuname: object.menuname,
-            aliasname: object.aliasname,
-            navurl: object.navurl,
-            parentmenuid: object.parentmenuid,
-            menunameid: object.menunameid,
-            compcode: object.compcode,
-            username: object.username,
-            active: object.active,
-          }));
-          setNaviItems1(previousData => [...previousData, ...newData]);
-       }
+  // find item directly
+  const selectedItem = navi_Items.find(
+    post => post.menuid === id.menuid
+  );
 
-      }
-    }
-    catch (err) {
-      if (err.response) {
-        console.log(`Error ${err.message}`);
-      }
-    }
-    finally {
-    }
+  if (!selectedItem) return; // safety check
+
+  // check if already exists
+  const alreadyExists = navi_Items1.some(
+    post => post.menuid === id.menuid
+  );
+
+  if (alreadyExists) return;
+
+  const newItem = {
+    userrightsid: 0,
+    menuid: selectedItem.menuid,
+    menuname: selectedItem.menuname,
+    aliasname: selectedItem.aliasname,
+    navurl: selectedItem.navurl,
+    parentmenuid: selectedItem.parentmenuid,
+    compcode: selectedItem.compcode,
+    username: selectedItem.username,
+    active: selectedItem.active,
+  };
+
+  setNaviItems1(prev => [...prev, newItem]);
+
+} catch (err) {
+  console.log("Error:", err.message);
+}
+//     try {
+//       if (checkall === true) {
+//         setNaviItems1([]); setNaviItems1(navi_Items);
+//       } 
+//  if (checkall === false) {       
+       
+//         const filterResult = navi_Items.filter(post => post.menuid === id.menuid)
+//         let filterResult1 = navi_Items1.filter(post => post.menuid === filterResult[0].menuid)
+//         if (filterResult1.length === 1) { }
+//       else{
+//           const newData = filterResult.map(object => ({
+//             userrightsid: 0,
+//             menuid: object.menuid,
+//             menuname: object.menuname,
+//             aliasname: object.aliasname,
+//             navurl: object.navurl,
+//             parentmenuid: object.parentmenuid,            
+//             compcode: object.compcode,
+//             username: object.username,
+//             active: object.active,
+//           }));
+//           setNaviItems1(previousData => [...previousData, ...newData]);
+//        }
+
+//       }
+//     }
+//     catch (err) {
+//       if (err.response) {
+//         console.log(`Error ${err.message}`);
+//       }
+//     }
+//     finally {
+//     }
   }
 
 
 
+const fetchUsernames = async (value) => {
+  try {
+    const res = await axios.get(`${usernameparam}/${value}`);
+    setSearchUserName(res.data);
+  } catch (err) {
+    toast.error("Error: " + err.message);
+  }
+};
+
+const fetchUserRights = async (value) => {
+  try {
+    const res = await axios.get(`${UserRightsFilter}/${value}`);
+    setNaviItems1(res.data);
+    setNaviDelete([]);
+  } catch (err) {
+    toast.error("Error: " + err.message);
+  }
+};
 
 
-
-
-  const handleChange = (e) => {
+const handleChange = (e) => {
   const { name, value } = e.target;
 
   setUserRightValues(prev => ({
@@ -206,20 +274,14 @@ useEffect(() => {
     [name]: value,
   }));
 
+  if (!value) return; // ✅ avoid empty calls
+
   if (name === "compcode") {
-    axios.get(`${usernameparam}/${value}`)
-    .then(res => setSearchUserName(res.data))
-    .catch(err => toast.error("Error: " + err));
+    fetchUsernames(value);
   }
 
   if (name === "username") {
-    axios.get(`${UserRightsFilter}/${value}`)
-    .then(res => {
-      setNaviItems1(res.data);
-      setNaviDelete([]);
-      
-    })
-    .catch(err => toast.error("Error: " + err));
+    fetchUserRights(value);
   }
 };
 
@@ -407,8 +469,8 @@ const commentsData1 = useMemo(() => {
 
   // Pagination
   return computedComments1.slice(
-    (currentPage1 - 1) * ITEM_PER_PAGE1,
-    (currentPage1 - 1) * ITEM_PER_PAGE1 + ITEM_PER_PAGE1
+    (currentPage1 - 1) * ITEM_PER_PAGE,
+    (currentPage1 - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE
   );
 
 }, [navi_Items1, currentPage1, navi_naviSearch1, sorting1]);
@@ -451,16 +513,14 @@ const commentsData1 = useMemo(() => {
                     searchCompCode={searchCompCode} searchUserName={searchUserName} />
                    
                     </div>
-          <div className='row pt-2'>
+          <div className='row pt-2' >
    
-              <div className='col-md-6' style={{padding: "0" }}>
-                {/* <div className="tabs active-tabs" style={{  backgroundColor: `${colorValue}`,color: `${foreValue}` }}> {subTitle} </div> */}
-
+              <div className='col-md-6' style={{height:'450px', overflow:"auto" }}>
                
-                  <div className="row">
+                  <div className="row"  >
                     {navi_Items.length > 0 ? (
                       <>
-                        <DataTable heights={heights} colorValue={colorValue} headers={HeadersColumn}
+                        <DataTable heights={400} colorValue={colorValue} headers={HeadersColumn}
                           comments={navi_Items} setComments={setNaviItems} foreValue={foreValue}
                           searches={navi_naviSearch} setSearches={setNaviSearch}
                           totalItems={totalItems} setTotalItems={setTotalItems}
@@ -475,19 +535,19 @@ const commentsData1 = useMemo(() => {
                   </div>
               
               </div>
-              <div className='col-md-6' style={{float: "left", padding: "0" }}>
+              <div className='col-md-6' style={{height:'450px', overflow:"auto" }}>
                
 
                
-                  <div className="content active-content border-start" >
+                  <div className="row"  >
                     {navi_Items1.length > 0 ? (
                       <>
-                        <DataTable heights={heights} colorValue={colorValue} headers={HeadersColumn1}
+                        <DataTable heights={400} colorValue={colorValue} headers={HeadersColumn1}
                           comments={navi_Items1} setComments={setNaviItems1} foreValue={foreValue}
                           searches={navi_naviSearch1} setSearches={setNaviSearch1}
                           totalItems={totalItems1} setTotalItems={setTotalItems1}
                           currentPage={currentPage1} setCurrentPage={setCurrentPage1}
-                          sorting={sorting1} setSorting={setSorting1} ITEM_PER_PAGE={ITEM_PER_PAGE1}
+                          sorting={sorting1} setSorting={setSorting1} ITEM_PER_PAGE={ITEM_PER_PAGE}
                           EditData={TreeViewCheck1} commentsData={commentsData1}
                           checkall={checkall1} setCheckAll={setCheckAll1}
                           checkchild={checkchild1} setCheckchild={setCheckchild1}

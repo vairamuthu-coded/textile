@@ -2,7 +2,7 @@ import { EditableText } from '@blueprintjs/core'
 import React from 'react' 
 const TableRow = ({item,columns,EditData,index,checkall,setCheckchild,checkchild}) => {
   return (
-   <tr key={index}  onClick={()=>EditData(item)}   >
+   <tr key={index}  onClick={()=>EditData(item)}  style={{height:"100%",overflow:"auto"}}  >
   {  columns.map((columnitem,indx)=>{
     return <td key={indx} >      
     

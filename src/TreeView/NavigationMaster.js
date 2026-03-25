@@ -10,7 +10,7 @@ import {toast} from 'react-toastify';
 const NavigationMaster = ({ title, subTitle,  }) => {
   const {
     inputref,color1,handleSubmit, colorValue,defaultDetails,naviValues,setNaviValues,
-    totalItems, setTotalItems, currentPage, setCurrentPage, API_URL,
+    totalItems, setTotalItems, currentPage, setCurrentPage, API_URL,ITEM_PER_PAGE,
     sorting, setSorting, newButton,foreValue,searchLable1,searchLable2,searchLable3,
     setSearchLable1,setSearchLable2,setSearchLable3
   } = useContext(DataContext)
@@ -32,7 +32,7 @@ const NavigationMaster = ({ title, subTitle,  }) => {
   const NavigationMaster_Detete = API_URL + "/NavigationMaster/NavigationMaster_Delete";
   const userrightsMenuCheck = API_URL + "/UserRights/userrightsMenuCheck";
   setSearchLable1("Search");  setSearchLable2("Com");  setSearchLable3("User")
-  const heights = "450px"; let ITEM_PER_PAGE = 16;
+  const heights = "380px"; //let ITEM_PER_PAGE = 100;
   const [searchCompCode, setSearchCompCode] = useState([])
   const [searchUserName, setSearchUserName] = useState([])
   const [userRights1, setUserRights1] = useState([])

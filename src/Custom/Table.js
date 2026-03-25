@@ -4,7 +4,7 @@ import DataTableHeader from './DataTableHeader'
 
 const Table = ({FilterSearch,EditData,columns,heights,onSorting,setCheckAll,checkchild,
   setCheckchild,checkall,mode,foreValue}) => {    
-  
+
   return (
     <div className='container-fluid'  style={{height:`${heights}`,overflow:"auto"}}>
     <table className='table table-responsive table-striped table-hover' data-bs-theme={mode}>

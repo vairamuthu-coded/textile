@@ -13,7 +13,7 @@ const MenuNameMaster = ({ title, subTitle }) => {
     colorValue,  menuNameValues,setMenuNameValues,foreValue,
     totalItems, setTotalItems, currentPage, setCurrentPage, API_URL,
     sorting, setSorting, tabindex,color1, searchLable1, searchLable2, searchLable3,
-    setSearchLable1, setSearchLable2, setSearchLable3
+    setSearchLable1, setSearchLable2, setSearchLable3,ITEM_PER_PAGE
   } = useContext(DataContext)
     const [userRights1, setUserRights1] = useState([])
   const [menu_active, setMenuActive] = useState(false)
@@ -29,7 +29,7 @@ const MenuNameMaster = ({ title, subTitle }) => {
   const [searchUserName, setSearchUserName] = useState([])
   const menunameparam = API_URL + "/MenuNameMaster/MenuNameMaster";
   const userrightsMenuCheck = API_URL + "/UserRights/userrightsMenuCheck";
-  const heights = "380px"; let ITEM_PER_PAGE = 17;
+  const heights = "399px"; 
 
   useEffect(() => {
    
