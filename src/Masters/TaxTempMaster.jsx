@@ -18,15 +18,15 @@ const TaxTempMaster = ({ title, subTitle }) => {
 
   let ITEM_PER_PAGE = 20;  
   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
-  const CountryParam = `${API_URL}/TaxTempMasters`;
   const insert_update = `${API_URL}/TaxTempMasters`;
-  const deleteData = `${API_URL}/TaxTempMasters`;
+
   let validcheck = true;
     const [taxTempValues,setTaxTempValues]=useState([]);
   const [totalItems,setTotalItems]=useState([]);
   const [fetchError, setFetchError] = useState(null);
   const [search, setSearch] = useState('');
   const [items, setItems] = useState([])
+
 
   const [searchCompCode, setSearchCompCode] = useState([])
   const [searchUserName, setSearchUserName] = useState([])
@@ -42,11 +42,12 @@ useEffect(() => {
 
      const [rightsRes, countryRes] = await Promise.all([
        axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
-       axios.get(CountryParam)
+       axios.get(insert_update)      
      ]);
 
      setUserRights(rightsRes.data);
      setItems(countryRes.data);
+  
      setNewButton(1);
 
    } catch (error) {
@@ -150,7 +151,7 @@ const TaxTempMaster_Save = async () => {
 
     const response = await axios.post(insert_update, CountryData);
     if (response.data !== "") {
-      const res = await axios.get(CountryParam);
+      const res = await axios.get(insert_update);
       setItems(res.data);
       setNewButton(2);
       toast.success("Record Saved Successfully");
@@ -176,10 +177,10 @@ const TaxTempMaster_Delete = async () => {
 
   try {
     const id = taxTempValues.asptblTaxTemMasid;
-    const response = await axios.delete(`${deleteData}/${id}`);
+    const response = await axios.delete(`${insert_update}/${id}`);
 
     if (response.data != null) {
-      const res = await axios.get(CountryParam);
+      const res = await axios.get(insert_update);
       setItems(res.data);
       toast.success(response.data);
       TaxTempMaster_Clear();

@@ -15,26 +15,28 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
     searchLable1,searchLable2,searchLable3,color1,handlepage,
     setSearchLable1,setSearchLable2,setSearchLable3 } = useContext(DataContext)
    const [taxValues, setTaxValues] = useState([])
-   const [taxnameValue, setTaxNameValue] = useState([])
+   const [checkall,setCheckAll]=useState(false)  
    const [taxnameDescValue, setTaxNameDescValue] = useState([])
   const [company_items, setCompanyItems] = useState([])
     const [totalItems,setTotalItems]=useState([]);
-  const [city_Search, setCity_Search] = useState([]);
-  const [city_FilterSearch, setCity_FilterSearch] = useState([]);
-  const [cityItems, setCityItems] = useState([])
+  const [taxDetails_Search, setTaxDetails_Search] = useState([]);
+  const [taxDetails_FilterSearch, setTaxDetails_FilterSearch] = useState([]);
+  const [taxDetailsItems, setTaxDetailsItems] = useState([])
   const [searchCompCode, setSearchCompCode] = useState([])
   const [searchUserName, setSearchUserName] = useState([])
   const [city_active, setCityActive] = useState(false)
   const [fetchError, setFetchError] = useState(null)
-  const [checkall, setCheckAll] = useState(false)
+  const [taxAdName, setTaxAdName] = useState([])
   const [checkchild, setCheckchild] = useState(false)
    const userrightsMenuCheck =`${API_URL}/UserRights/userrightsMenuCheck`;
   //const CompanyMasterGrid=`${API_URL}/CompanyMaster/CompanyMaster`;
    const CompanyMasterGrid=`${API_URL}/CompanyMaster/GridLoad`;
      const CountryParam = `${API_URL}/StateMaster/GridLoad`;
    const CityParam = `${API_URL}/  TaxTemplate/GridLoad`;
-  // const StateParam = `${API_URL}/StateMaster/SelectCommond`;
-  // const insert_update = `${API_URL}/  TaxTemplate/Saves`;
+  const TaxTempMasters = `${API_URL}/TaxTempMasters`;
+   const insert_update = `${API_URL}/TaxTemFullDto`;
+      const getCompcode = `${API_URL}/TaxTemFullDto/compcode`;
+            const getDetails = `${API_URL}/TaxTemFullDto/details`;
   // const deleteData = `${API_URL}/  TaxTemplate/DeleteCommond`;
   const heights = "380px";
 
@@ -47,11 +49,9 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
   const HeadersColumn =
     [
       { headername: "", field: "visible" },
-      { headername: "id", field: "ASPTBLTAXTEMMASID" },
-      { headername: "FINYEAR", field: "FINYEAR" },
-      { headername: "TAXNAME", field: "TAXNAME" },
-      { headername: "TAXNAMEDESC", field: "TAXNAMEDESC" },
-      { headername: "ACTIVE", field: "ACTIVE" }
+      { headername: "id", field: "asptbltaxtemdetmasid" },     
+      { headername: "TAXNAME", field: "taxName" },   
+      { headername: "ACTIVE", field: "active" }
     ]
 
   
@@ -59,26 +59,26 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
 const refs = useRef([]);
 
 
+const handleChange = (e) => {
+  const { name, value, checked, type } = e.target;
 
+  let finalValue;
 
+  if (type === "checkbox") {
+    finalValue = checked ? 'T' : 'F';
+  } 
+  else if (name === "compCode") {
+    finalValue = value === "" ? 0 : Number(value); // ✅ safe for backend
+  } 
+  else {
+    finalValue = value;
+  }
 
-
-// const handleChange = (e) => {
-//    const { name, value, checked, type } = e.target;
-//   const finalValue =
-//     type === "checkbox"
-//       ? checked
-//       : type === "number"
-//       ? Number(value)
-//       : value;
-
-//   setCityValues((prev) => ({
-//     ...prev,
-//     [name]: finalValue,
-//   }));
-// // utilityState(e, setCityValues);
-//   if (name === "state") handleStateChange(value);
-// };
+  setTaxValues((prev) => ({
+    ...prev,
+    [name]: finalValue,
+  }));
+};
 
 
 
@@ -86,34 +86,33 @@ const refs = useRef([]);
   let validcheck = true;
 const validate = (taxValues) => {
 
-  if (!taxValues.cityname?.trim()) {
+  if (!taxValues.taxName?.trim()) {
     toast.error("Invalid City Name");
     return false;
   }
 
-  if (!/^[a-zA-Z\s]+$/.test(taxValues.cityname)) {
+  if (!/^[0-9\s]+$/.test(taxValues.taxName)) {
     toast.error("Special Character not allowed");
     return false;
   }
 
   return true;
 };
-// ASPTBLTAXTEMMASID,FINYEAR,TAXNAME,TAXNAMEDESC,ACTIVE
+// AsptbltaxtemDetid,FINYEAR,TAXNAME,TAXNAMEDESC,ACTIVE
 useEffect(() => {
   const fetApi = async () => {
     try {
-      const [menuRes,comRes,taxRes,taxDescRes] = await Promise.all([
+      const [menuRes,comRes,taxAdNameRes,taxItemsRes] = await Promise.all([
         axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
-        axios.get(CompanyMasterGrid),
-        axios.get(CompanyMasterGrid),
-        axios.get(CountryParam)
-
+        axios.get(CompanyMasterGrid),    
+         axios.get(TaxTempMasters),
+         axios.get(insert_update)
       ]);
 
       setUserRights(menuRes.data);
-      setCompanyItems(comRes.data);
-       setTaxNameValue(taxRes.data);
-     setTaxNameDescValue(taxDescRes.data);
+      setCompanyItems(comRes.data);   
+     setTaxAdName(taxAdNameRes.data);
+     setTaxDetailsItems(taxItemsRes.data)
     } catch (error) {
       setFetchError(error);
     } finally{setNewButton(1)}
@@ -125,47 +124,104 @@ useEffect(() => {
 
 
 
-// useEffect(() => {
-//   if (!city_Search) {
-//     setCity_FilterSearch(cityItems);
-//     return;
-//   }
+useEffect(() => {
+  if (!taxDetails_Search) {
+    setTaxDetails_FilterSearch(taxDetailsItems);
+    return;
+  }
   
-//   const search = String(city_Search || '').toLowerCase();
-//   const filtered = cityItems
-//     .filter((item) =>
-//       item.cityname?.toLowerCase().includes(search) ||
-//       item.country?.toLowerCase().includes(search) ||
-//       item.state?.toLowerCase().includes(search)
-//     ) ;
+  const search = String(taxDetails_Search || '').toLowerCase();
+  const filtered = taxDetailsItems
+    .filter((item) =>
+      item.taxName?.toLowerCase().includes(search)      
+    ) ;
 
-//   setCity_FilterSearch(filtered);
-// }, [cityItems, city_Search]);
+  setTaxDetails_FilterSearch(filtered);
+}, [taxDetailsItems, taxDetails_Search]);
 
-// ASPTBLTAXTEMMASID,FINYEAR,TAXNAME,TAXNAMEDESC,ACTIVE
+// AsptbltaxtemDetid,FINYEAR,TAXNAME,TAXNAMEDESC,ACTIVE
+// const handleChange1 = (e, index) => {
+//   const value = Number(e.target.value);
+//   const updated = [...addCompcodes];
+//   const selected = company_items.find((item) => item.gtcompmastid === value);
+//   updated[index] = {
+//     ...updated[index],
+//     compCode: value,
+//     compName: selected?.compname?.toUpperCase() || ""
+//   };
+
+//   setAddCompcodes(updated);
+// };
+
+
+const handleCompChange = (index, e) => {
+  const { value } = e.target;
+
+  const values = [...addCompcodes];
+  const selected = company_items.find((item) => item.gtcompmastid === Number(value)  );
+  values[index] = {
+    ...values[index],
+    compcode: Number(value),
+    compname: selected?.compname?.toUpperCase() || ""
+  };
+  setAddCompcodes(values);
+};
+
+const handleDetailChange = (index, e) => {
+  const { name, value, type, checked } = e.target;
+  const values = [...details];
+  const finalValue = type === "checkbox" ? checked : type === "number" ? Number(value) : value;
+
+  values[index] = {
+    ...values[index],
+    [name]: finalValue
+  };
+
+  // Special logic for dropdown
+  if (name === "adName") {
+    const selected = taxAdName.find((item) => item.asptblTaxTemMasid === Number(value) );
+    values[index].aliasname = selected?.taxName?.toUpperCase() || "";
+  }
+
+  setDetails(values);
+};
+
+
+
+
+const [addCompcodes, setAddCompcodes] = useState([  { id:1, compcode: 0, compname: "",notes:""  }]);
+
+
+const addCompRow = () => {
+  setAddCompcodes([ ...addCompcodes,{ id:1, compcode: "", compname: "",notes:"" } ]);
+};
+
+const [details, setDetails] = useState([  {sNo:1,asptbltaxtemDetailsid: 0, adName: 0,adType: "", aliasname: "",idNo: "",formula: "",sugg: "",    notes: ""  }]);
+
+const addDetailRow = () => {
+  setDetails([    ...details,    {      sNo: 1,      asptbltaxtemDetailsid: 0,      adName: 0,      adType: "",      aliasname: "",      idNo: "",      formula: "",      sugg: "",      notes: ""    }  ]);};
+
+
 
 const TaxTemplateCheck = async (id) => {
   try {
-    const res = await axios.get(`${CityParam}/${id.ASPTBLTAXTEMMASID}`);
-    if (res?.data?.length > 0) {
-      const row = res.data[0];
-      setTaxValues({
-        ASPTBLTAXTEMMASID: row.ASPTBLTAXTEMMASID,
-        FINYEAR: row.FINYEAR,
-        TAXNAME: row.TAXNAME,
-        TAXNAMEDESC: row.TAXNAMEDESC,
-        ACTIVE: row.active === "T",
-      });
+    const masterId = id.asptbltaxtemdetmasid;
 
-     // handleStateChange(row.gtstatemastid);
-    }
-  } 
-  catch (error) {
-    setFetchError(
-      "Service isn't running. Please check City Master API in Country Controller."
-    );
-  } 
-  finally {
+    const [res, res1, res2] = await Promise.all([
+      axios.get(`${insert_update}/${masterId}`),
+      axios.get(`${getCompcode}/${masterId}`),
+      axios.get(`${getDetails}/${masterId}`)
+    ]);
+
+    const row = res?.data;
+    if (!row) return;
+    setTaxValues(res?.data || []);
+    setAddCompcodes(res1?.data || []);
+    setDetails(res2?.data || []);
+
+  } catch (error) {
+    console.error(error);
+  } finally {
     setNewButton(1);
   }
 };
@@ -173,93 +229,43 @@ const TaxTemplateCheck = async (id) => {
 
 
   const TaxTemplate_Save = async () => {
-   // Step 1: Validate values
-  validate(taxValues);
-  if (validcheck !== true) return;
-
+const data = {
+    Master: taxValues,
+    Compcodes: addCompcodes,
+    Details: details
+  };
   try {
-    // Step 2: Check country dropdown data
-    if (!taxnameDescValue?.length) {
-      toast.error("No country selected");
-      return;
+    const response = await axios.post(insert_update,data);
+    if (response.data !== "") {      
+      setNewButton(1);
+      toast.success("Record Saved Successfully");
+    } else {
+      toast.error(response.data);
     }
-   let countryExists = taxnameDescValue.filter(c => c.ASPTBLTAXTEMMASID === taxValues.TAXNAME);
-    // Step 3: Build payload (clean and consistent)
-    const payload = {
-      ASPTBLTAXTEMMASID: Number(taxValues.ASPTBLTAXTEMMASID) || 0,
-      FINYEAR: taxValues.FINYEAR?.trim(),
-      TAXNAME: taxValues.TAXNAME?.trim(),
-      TAXNAMEDESC: taxValues.TAXNAMEDESC?.trim(), 
-      ACTIVE: taxValues.ACTIVE ? "T" : "F",
-    };
-// ASPTBLTAXTEMMASID,FINYEAR,TAXNAME,TAXNAMEDESC,ACTIVE
-    // Step 4: API call (Insert/Update)
-    // const response = await axios.post(insert_update, payload);
 
-    // if (!response?.data) {
-    //   toast.error("Insert/Update failed.");
-    //   return;
-    // }
-
-    // Step 5: Refresh Grid
-    // const list = await axios.get(CityParam);
-    // setCityItems(list.data);
-
-    //toast.success(response.data);
-  } 
-  catch (error) {
+  } catch (error) {
     console.error(error);
-    setFetchError(error);
-    toast.error("Something went wrong. Check City Master API.");
-  }
-  finally {
-    // Step 6: Always reset form after process
-    TaxTemplate_New();
   }
 
   }
 
-// const handleStateChange = async (id) => {
-
-//   if (!id) return;
-//   try {
-//      const res = await axios.get(`${CountryParam}/${id}`); 
-//      setTaxNameDescValue(res.data);
-//   } 
-//   catch (error) {
-//     setFetchError("Service not running. Check API.");
-//   }
-// };
 
 
-const TaxTemplate_Delete = async (id) => {
-  
-  try {
-    if(id === undefined){
-      toast.error("Please select a record to delete");
-      return;
-    }
-    // const { data } = await axios.delete(`${deleteData}/${id}`);
+const TaxTemplate_Delete = async (index) => {  
+  try { 
+  const updated = [...details];
+  updated.splice(index, 1);
+  const reordered = updated.map((item, i) => ({
+    ...item,
+    sNo: i + 1
+  }));
+  setDetails(reordered);
 
-    // if (data === true || data === "true") {
-    //   setCityItems(prev => prev.filter(x => x.gtcitymastid !== id));
-    //   toast.success("Record Deleted Successfully");
-    // } else {
-    //   toast.error("Delete failed");
-    // }
   } catch (error) {
     toast.error(error?.message || "Server error");
   }
 
-  try {
-    // const res = await axios.get(`${CountryParam}/${id}`);
- 
-    // setCityCountryData(res.data);
-
-  } 
-  catch (error) {
-    setFetchError("Service not running. Check API.");
-  }
+  
 };
 
 
@@ -268,67 +274,11 @@ const TaxTemplate_Delete = async (id) => {
     setNewButton(1);
     setTaxValues([]);
     setCityCountryData([]);
-    setRows([ {id: 1, adname: "", adtype: "", aliasname: "", formula: "", sugg: "", notes: "" }]);
-    setRows1([ {id: 1, compCode: "", compName: "", notes: "" }]);
+     setDetails([ {sNo: 1,asptbltaxtemDetailsid:"", adName: "", adType: "", aliasname: "", formula: "", sugg: "", notes: "" }]);
+    setAddCompcodes([ {id: 1, compcode: "", compname: "", notes: "" }]);
   }
 
   const TaxTemplate_Search = () => {  }
-
-const [rows1, setRows1] = useState([{ id: 1, compCode: "", compName: "", notes:"" }]);
-const [rows, setRows] = useState([{ id: 1, adname: "", addType: "", aliasname: "", idNo: "" , formula: "", sugg: "",notes:"" }]);
-const [fabricText, setFabricText] = useState("");
-
-const handleChange1 = (e, index) => {
-  const value = Number(e.target.value);
-  const updated = [...rows1];
-  const selected = company_items.find((item) => item.gtcompmastid === value);
-  updated[index] = {
-    ...updated[index],
-    compCode: value,
-    compName: selected?.compname?.toUpperCase() || ""
-  };
-
-  setRows1(updated);
-};
-
-
-const handleChange2 = (index, field, value) => {
-  const updated = [...rows];
-  updated[index][field] = value;
-  setRows(updated);
-};
-
-
-const handleChange = (e) => {
-  const { name, value, checked, type } = e.target;
-    setTaxValues((prev) => ({
-    ...prev,[name]: type === "checkbox" ? checked : value,
-   }));
-  // const updated = [...rows];
-  // updated[index][field] = value;
-  // setRows(updated);
-};
-
-const addRow1=()=>{setRows1(prev => [...prev,  { id: prev.length + 1, CompCode: "", CompName: ""}])}
-
-
-
-const addRow = () => {
-  setRows((prev) => [
-    ...prev,
-    {
-      id: prev.length + 1,
-      adname: "",
-      idNo: "",
-      adtype: "",
-      aliasname: "",
-      formula: "",
-      sugg: "",
-      notes: "",
-    },
-  ]);
-};
-
 
 const handleEnter = (e, index) => {
   if (e.key === "Enter" || e.key === "Tab") {
@@ -351,18 +301,20 @@ const handleKeyDown = (e) => {
 };
 
 const deleteRow = (index) => {
-  const updated = rows.filter((_, i) => i !== index);
-  setRows(updated);
-if(rows.length === 1){
-  setRows([
-    { id: 1, adname: "", addType: "", aliasname: "", idNo: "" , formula: "", sugg: "",notes:"" }
-  ]);
-}};
+  const updated = [...details];
+  updated.slice(index, 1);
+  if (updated.length === 0) { 
+    setDetails([ { sNo: 1, asptbltaxtemDetailsid: 0,  adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", notes: "" }]);
+  } else {
+    const reordered = updated.map((item, i) => ({ ...item,  sNo: i + 1    }));
+    setDetails(reordered);
+  }
+};
 
 const deleteRow1 = (index) => {
-  const updated = rows1.filter((_, i) => i !== index);
-  setRows1(updated);
-if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" }  ]);}
+  const updated = addCompcodes.filter((_, i) => i !== index);
+  setAddCompcodes(updated);
+if(addCompcodes.length === 1){setAddCompcodes([ { id: 1, compcode: 0, compname: "", notes:"" }  ]);}
 };
 
     const TabIndexClick = (inx) => {
@@ -371,29 +323,27 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
       
     }
 
-//   const   commentsData = useMemo(() => {
-//     let search = String(city_Search || '').toLowerCase();
-//      let computedComments = cityItems;
+  const   commentsData = useMemo(() => {
+    let search = String(taxDetails_Search || '').toLowerCase();
+     let computedComments = taxDetailsItems;
 
-//     if (search) {
-//       computedComments = computedComments.filter((item) => {
-//          const country = String(item.country || "").toLowerCase();
-//        const state  = String(item.state || "").toLowerCase();
-//         const cityname  = String(item.cityname || "").toLowerCase();
-//       return country.includes(search) || state.includes(search) || cityname.includes(search);
-//       })
-//     }
+    if (search) {
+      computedComments = computedComments.filter((item) => {
+         const country = String(item.taxName || "").toLowerCase();     
+      return country.includes(search);
+      })
+    }
 
-//     //sorting comments
-//     if (sorting.field) {
-//       const reversed = sorting.order === "asc" ? 1 : -1;
-//       computedComments = computedComments.sort((a, b) =>
-//         reversed * a[sorting.field].localeCompare(b[sorting.field]))
-//     }
-//     return computedComments.slice(
-//       (currentPage - 1) * ITEM_PER_PAGE,
-//       (currentPage - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE);
-//   }, [cityItems, currentPage, city_Search, sorting])
+    //sorting comments
+    if (sorting.field) {
+      const reversed = sorting.order === "asc" ? 1 : -1;
+      computedComments = computedComments.sort((a, b) =>
+        reversed * a[sorting.field].localeCompare(b[sorting.field]))
+    }
+    return computedComments.slice(
+      (currentPage - 1) * ITEM_PER_PAGE,
+      (currentPage - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE);
+  }, [taxDetailsItems, currentPage, taxDetails_Search, sorting])
 
 
   const menuButtons = [
@@ -444,27 +394,18 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
              
                   <div className='row'>
                     <label className='col-md-4' > ID </label>
-                    <input className='col-md-8' type='text' name='ASPTBLTAXTEMMASID' value={taxValues.ASPTBLTAXTEMMASID || ""} readOnly />
-                  </div>
-                 <div className='row py-1' >
-                    <label className='col-md-4' > FinYear </label>
-                    <input className='col-md-8' type='text' name="FINYEAR" 
-                      value={taxValues.FINYEAR || ""} onChange={handleChange}  ref={el => refs.current[0] = el} onKeyDown={e => handleEnter(e,0)} />
-                  </div> 
-                  <div className='row ' >
+                    <input className='col-md-8' type='text' name='asptbltaxtemdetmasid' value={taxValues.asptbltaxtemdetmasid || ""} readOnly />
+                  </div>         
+                  <div className='row pt-1' >
                     <label className='col-md-4' > TaxName </label>
-                    <input type='text' className='col-sm-8' name='TAXNAME' value={taxValues.TAXNAME || ""} onChange={handleChange} 
-                    ref={el => refs.current[1] = el} onKeyDown={e => handleEnter(e,1)} />
-                     
-                 
-                  </div>
+                    <input type='text' className='col-sm-8' name='taxName' value={taxValues.taxName || ""} onChange={handleChange} 
+                    ref={el => refs.current[1] = el} onKeyDown={e => handleEnter(e,1)} />    
+                  </div>            
 
-             
-
-                   <div className='row p-1'>
+                   <div className='row pt-1'>
                     <label className='col-md-4'  > Active </label>
                     <label className='checkbox' style={{ padding: "0px", width: "60px" }} >
-                      <input type="checkbox" name='active' checked={taxValues.ACTIVE} onChange={handleChange}   />
+                      <input type="checkbox" name='active' checked={taxValues.active} onChange={handleChange}   />
                       <span></span>
                       <i className='indicator'></i>
                     </label>
@@ -483,11 +424,12 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
                         </tr>
                       </thead>
                       <tbody className='col-sm-12 col-md-12 col-lg-12'>
-                        {rows1.map((row1, index) => (
+                        {addCompcodes.map((row1, index) => (
                           <tr key={row1.id} className='col-sm-12 col-md-12 col-lg-12' >
                             <td style={{margin:'0px',paddingLeft:'20px',width:'10px'}}>{index + 1}</td>
                           <td className='col-sm-2 col-md-2 col-lg-2' style={{margin:'0px',padding:'0px'}}>
-                              <select className='col-sm-12 col-md-12 col-lg-12' name="compCode"   value={(row1.compCode || "")} onKeyDown={handleKeyDown}  onChange={(e)=>handleChange1(e,index)} >
+                              <select className='col-sm-12 col-md-12 col-lg-12' name="compcode"   value={(row1.compcode || "")}
+                               onKeyDown={handleKeyDown}  onChange={(e)=>handleCompChange(index,e)} >
                                  <option></option>         
                                 {
                                   company_items !== null &&
@@ -499,8 +441,8 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
                               </select>
                             </td>
                             <td  className='col-sm-12 col-md-12 col-lg-12' style={{margin:'0px',padding:'0px'}}>
-                              <input type='text' name="compName" value={(row1.compName || "")}  className='col-sm-12 col-md-12 col-lg-12' style={{padding:'2px'}}  
-                               onKeyDown={handleKeyDown} onChange={(e)=>handleChange1(e,index)}  />
+                              <input type='text' name="compname" value={(row1.compname || "")}  className='col-sm-12 col-md-12 col-lg-12' style={{padding:'2px'}}  
+                               onKeyDown={handleKeyDown} onChange={(e)=>handleCompChange(index,e)}  />
                                                       
                              
                             </td>                        
@@ -514,7 +456,7 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
                             </td>
                           <td style={{margin:'0px',padding:'0px',width:'0px'}} > <input   
                           style={{margin:'0px',padding:'0px',width:'0px',border:'none'}}     onKeyDown={handleKeyDown}                           
-                              onFocus={() => addRow1()}
+                              onFocus={() => addCompRow()}
                               /></td>
                           </tr>
                         ))}
@@ -529,6 +471,7 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
                       <thead style={{backgroundColor:colorValue, color: foreValue}}>
                         <tr style={{backgroundColor:colorValue, color: foreValue}}>
                           <th style={{backgroundColor:colorValue, color: foreValue, textAlign: 'center'}}>SNo</th>
+                           <th style={{backgroundColor:colorValue, color: foreValue, textAlign: 'center'}}>GridID</th>
                           <th style={{backgroundColor:colorValue, color: foreValue,textAlign: 'center'}}>AdName</th>
                           <th style={{backgroundColor:colorValue, color: foreValue,textAlign: 'center'}}>AddType</th>
                           <th style={{backgroundColor:colorValue, color: foreValue,textAlign: 'center'}}>AliasName</th>
@@ -540,16 +483,29 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
                         </tr>
                       </thead>
                       <tbody>
-                        {rows.map((row, index) => (
-                          <tr key={row.id}  >
+                        {details.map((row, index) => (
+                          <tr key={row.index}  >
                             <td style={{margin:'0px',padding:'0px'}}>{index + 1}</td>
+                            <td style={{margin:'0px',padding:'0px',width:"100px"}}>
+                              <input  type="text" name='asptbltaxtemDetailsid'  style={{padding:'2px'}}
+                               className='col-sm-12 col-md-12 col-lg-12'
+                                value={row.asptbltaxtemDetailsid}    />
+                            </td>
                           <td style={{margin:'0px',padding:'0px'}}>
-                              <select   className="col-md-12"  value={row.adname} onKeyDown={handleKeyDown} onChange={(e) =>handleChange2(index, "adname", e.target.value) } >
-                                <option value=""></option>                               
+                              <select   className="col-md-12" name='adName'  value={row.adName} onKeyDown={handleKeyDown} 
+                              onChange={(e) =>handleDetailChange(index, e) } >
+                                <option value=""></option>   
+                                {
+                                taxAdName !== null  && 
+                                taxAdName.map((d,index)=> (
+                                  <option key={index} value={d.asptblTaxTemMasid} >{d.taxName}</option>
+                                ))
+                                }                            
                               </select>
                             </td>
                             <td style={{margin:'0px',padding:'0px'}}>
-                              <select  className='col-sm-12 col-md-12 col-lg-12'  value={row.adtype} onKeyDown={handleKeyDown} onChange={(e) =>handleChange2(index, "adtype", e.target.value) } >
+                              <select  className='col-sm-12 col-md-12 col-lg-12' name='adType'  value={row.adType} 
+                              onKeyDown={handleKeyDown} onChange={(e) =>handleDetailChange(index,e)} >
                                 <option value=""></option>
                                 <option value="Plus">Plus</option>
                                 <option value="Minus">Minus</option>
@@ -558,36 +514,32 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
                             </td>
                             <td style={{margin:'0px',padding:'0px'}}>
                               <input
-                                type="text"  style={{padding:'2px'}}
-                               className='col-sm-12 col-md-12 col-lg-12'
+                                type="text"  style={{padding:'2px'}} name='aliasname'
+                               className='col-sm-12 col-md-12 col-lg-12' readOnly={true}
                                 value={row.aliasname} onKeyDown={handleKeyDown}
-                                onChange={(e) =>
-                                  handleChange2(index, "aliasname", e.target.value)
-                                }
+                                onChange={(e) =>handleDetailChange(index,e)}
                               />
                             </td>
-                            <td style={{margin:'0px',padding:'0px'}}>
+                            <td style={{margin:'0px',padding:'0px',width:"80px"}}>
                               <input
-                                type="text"  style={{padding:'2px'}}
+                                type="text"  style={{padding:'2px'}} name='idNo'
                               className='col-sm-12 col-md-12 col-lg-12'
-                                value={row.id} onKeyDown={handleKeyDown}
-                                onChange={(e) =>
-                                  handleChange2(index, "id", e.target.value)
-                                }
+                                value={row.idNo} onKeyDown={handleKeyDown}
+                               onChange={(e) =>handleDetailChange(index,e)}
                               />
                             </td>
-                          <td style={{margin:'0px',padding:'0px'}}>
+                          <td style={{margin:'0px',padding:'0px',width:"25%"}}>
                               <input
-                                type="text"  style={{padding:'2px'}}
+                                type="text"  style={{padding:'2px'}} name='formula'
                                className='col-sm-12 col-md-12 col-lg-12'
                                 value={row.formula} onKeyDown={handleKeyDown}
-                                onChange={(e) =>
-                                  handleChange2(index, "formula", e.target.value)
-                                }
+                               onChange={(e) =>handleDetailChange(index,e)}
                               />
                             </td>
                             <td style={{margin:'0px',padding:'0px'}}>
-                              <select className='col-sm-12 col-md-12 col-lg-12'  value={row.sugg} onKeyDown={handleKeyDown} onChange={(e) =>handleChange2(index, "sugg", e.target.value) } >
+                              <select className='col-sm-12 col-md-12 col-lg-12'  value={row.sugg} 
+                              onKeyDown={handleKeyDown}  name='sugg'
+                             onChange={(e) =>handleDetailChange(index,e)} >
                                 <option value=""></option>
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
@@ -596,12 +548,10 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
                             </td>
                             <td style={{margin:'0px',padding:'0px'}}>
                               <input
-                                type="text" style={{padding:'2px'}}
+                                type="text" style={{padding:'2px'}} name='notes'
                                  className='col-sm-12 col-md-12 col-lg-12'
                                 value={row.notes} onKeyDown={handleKeyDown}
-                                onChange={(e) =>
-                                  handleChange2(index, "notes", e.target.value)
-                                }  
+                               onChange={(e) =>handleDetailChange(index,e)}
                               />
                             </td>
                             <td style={{margin:'0px',padding:'0px'}}>
@@ -613,7 +563,7 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
                             </td>
                           <td style={{margin:'0px',padding:'0px',width:'0px'}} > <input   
                           style={{margin:'0px',padding:'0px',width:'0px',border:'none'}}                               
-                              onFocus={() => addRow()}
+                              onFocus={() => addDetailRow()}
                               /></td>
                           </tr>
                         ))}
@@ -627,21 +577,20 @@ if(rows1.length === 1){setRows1([ { id: 1, compCode: "", compName: "", notes:"" 
              
             
 
-                <Search colorValue={colorValue} searchs={city_Search} setsearchs={setCity_Search}
+                <Search colorValue={colorValue} searchs={taxDetails_Search} setsearchs={setTaxDetails_Search}
                             SearchLable1={searchLable1} SearchLable2={searchLable2}
                             SearchLable3={searchLable3}  stylecolor={foreValue}
                             handleChange={handleChange} ChangeValues={taxValues}
                             searchCompCode={searchCompCode} searchUserName={searchUserName} />
-
-                {/* <DataTable heights={heights} colorValue={colorValue} headers={HeadersColumn}                 
-                  comments={cityItems} setComments={setCityItems} foreValue={foreValue}
-                  searches={city_Search} setSearches={setCity_Search}
+ <DataTable heights={heights} colorValue={colorValue} headers={HeadersColumn}                 
+                  comments={taxDetailsItems} setComments={setTaxDetailsItems} foreValue={foreValue}
+                  searches={taxDetails_Search} setSearches={setTaxDetails_Search}
                   totalItems={totalItems} setTotalItems={setTotalItems}
                   currentPage={currentPage} setCurrentPage={setCurrentPage}
                   sorting={sorting} setSorting={setSorting} ITEM_PER_PAGE={ITEM_PER_PAGE}
-                  EditData={CityMasterCheck}
+                  EditData={TaxTemplateCheck}
                   commentsData={commentsData} setCheckchild={setCheckchild} checkall={checkall} setCheckAll={setCheckAll} />
- */}
+
               </div>
 
             </div>
