@@ -10,6 +10,7 @@ import DeviceCommunication from './Transactions/Attendance/DeviceCommunication.j
 import AboutMaster from './Registration/AboutMaster.jsx'
 import ProductionStatusReport from './Reports/Lyla/ProductionStatusReport.jsx'
 import OrderCloseEntry from './Transactions/SRG/OrderCloseEntry.js'
+import OrderEntry from "./Transactions/OrderEntry.jsx";
 
 const routes = [
  { path:"/Payment", component:Payment, title:"Payment" },
@@ -24,6 +25,7 @@ const routes = [
  { path:"/ProductionStatusReport", component:ProductionStatusReport, title:"ProductionStatusReport"},
  { path:"/OrderCloseEntry", component:OrderCloseEntry, title:"OrderCloseEntry"},
  { path:"/AboutMaster", component:AboutMaster, title:"AboutMaster"},
+  { path:"/OrderEntry", component:OrderEntry, title:"OrderEntry"},
 ]
 
 const TransactionsRoutes = routes.map(r => ({

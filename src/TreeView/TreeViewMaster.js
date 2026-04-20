@@ -174,6 +174,7 @@ const TreeViewCheck1 = (id) => {
   const TreeViewCheck = (id) => {
 try {
   if (checkall) {
+        setNaviItems1([]);
     setNaviItems1(navi_Items);
     return;
   }
@@ -337,9 +338,7 @@ function ListData(useStateItems) {
   const TreeView_Save = async () => {
     try {
       const users = ListData(navi_Items1);
-
       if (users.length === 0) return;
-
       let lastMessage = "";
       for (let i = 0; i < users.length; i++) {
         const obj = users[i];

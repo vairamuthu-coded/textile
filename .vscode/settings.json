@@ -1,0 +1,10 @@
+{
+  "editor.fontSize": 14,
+  "editor.formatOnSave": true,
+  "prettier.printWidth": 250,
+  "editor.wordWrapColumn": 1000,
+  "editor.wordWrap": "on",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.trailingComma": "all",
+  "editor.wrapOnEscapedLineFeeds": false
+}
