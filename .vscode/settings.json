@@ -6,5 +6,6 @@
   "editor.wordWrap": "on",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "prettier.trailingComma": "all",
-  "editor.wrapOnEscapedLineFeeds": false
+  "editor.wrapOnEscapedLineFeeds": false,
+  "html.format.wrapLineLength": 500
 }

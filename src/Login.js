@@ -1,53 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./Login.css";
+import { toast } from "react-toastify";
 
-const Login = ({ defaultDetails, loginCompCode, loginPage, setLoginPage, setLoginCompCode, loginUser, setLoginUser, loginPass, setLoginPass, handleLoginSubmit }) => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
-
+const Login = ({ defaultDetails, setDefaultDetails, handleLoginSubmit, handleChange, loginPage, closeWindow }) => {
   const [error, setError] = useState("");
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!formData.username || !formData.password) {
-      setError("All fields are required");
-      return;
-    }
-
-    setError("");
-
-    // Dummy login check
-    if (formData.username === "admin" && formData.password === "1234") {
-      alert("Login Successful");
-    } else {
-      setError("Invalid username or password");
-    }
-  };
 
   return (
     <>
       {loginPage === false && (
-        <div className={Login.container}>
-          <form className={Login.form} onSubmit={handleSubmit}>
-            <h2>Login</h2>
-            {error && <p className={Login.error}>{error}</p>}
-            <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} className={Login.input} />
-            <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className={Login.input} />
-            <button type="submit" className={Login.button}>
-              Login
-            </button>
-          </form>
+        <div className="modal bg-light " id="myModal">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content p-3">
+              <div className="modalContainer">
+                <div className="modal-body">
+                  {/* CompCode */}
+                  <div className="row align-items-center mb-1">
+                    <label className="col-12 col-md-4 mb-1 mb-md-0">CompCode</label>
+                    <div className="col-12 col-md-8">
+                      <input type="text" className="form-control" value={defaultDetails.Compcode} onChange={handleChange} name="Compcode" />
+                    </div>
+                  </div>
+
+                  {/* UserName */}
+                  <div className="row align-items-center mb-1">
+                    <label className="col-12 col-md-4 mb-1 mb-md-0">UserName</label>
+                    <div className="col-12 col-md-8">
+                      <input type="text" className="form-control" value={defaultDetails.User} onChange={handleChange} name="User" />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div className="row align-items-center mb-1">
+                    <label className="col-12 col-md-4 ">Password</label>
+                    <div className="col-12 col-md-8">
+                      <input type="password" className="form-control" value={defaultDetails.Pass} style={{ margin: 0, padding: 0 }} onChange={handleChange} name="Pass" />
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="d-flex justify-content-center">
+                    <button className="btn btn-primary  w-md-auto" onClick={handleLoginSubmit}>
+                      Login
+                    </button>
+
+                    <button className="btn btn-secondary  w-md-auto" onClick={closeWindow}>
+                      Exit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </>

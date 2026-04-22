@@ -3,7 +3,7 @@ import DataContext from "../context/CreateUserContext";
 import DataTable from "../Custom/DataTable";
 import axios from "axios";
 import SocialMissing from "../Social/SocialMissing";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 
 const FinYearMaster = ({ title, subTitle }) => {
   const {
@@ -39,7 +39,7 @@ const FinYearMaster = ({ title, subTitle }) => {
   const [finYearItems, setFinYearItems] = useState([]);
   const [finYearValue, setFinYearValue] = useState([]);
   const [totalItems, setTotalItems] = useState([]);
-  const [color_FilterSearch, setColor_FilterSearch] = useState([]);
+  const [finyear_FilterSearch, setFinYear_FilterSearch] = useState([]);
   const [checkall, setCheckAll] = useState(false);
   const [checkchild, setCheckchild] = useState(false);
   const [userRights1, setUserRights1] = useState([]);
@@ -69,8 +69,9 @@ const FinYearMaster = ({ title, subTitle }) => {
   }, [defaultDetails.Compcode, defaultDetails.User, title]);
 
   useEffect(() => {
-    const filterResult = finYearItems.filter((post) => post.FinYear.includes(search));
-    setColor_FilterSearch(filterResult.reverse());
+    const text = (search || "").toLowerCase();
+    const filterResult = finYearItems.filter((post) => post.FinYear?.toLowerCase().includes(text));
+    setFinYear_FilterSearch([...filterResult].reverse());
   }, [finYearItems, search]);
 
   const handleChange = (e) => {
@@ -105,7 +106,7 @@ const FinYearMaster = ({ title, subTitle }) => {
     return validcheck;
   };
 
-  const ColorMaster_Check = (id) => {
+  const FinYearMaster_Check = (id) => {
     try {
       const myitem = finYearItems.filter((item) => item.GtFinancialYearID === id.GtFinancialYearID);
 
@@ -124,12 +125,16 @@ const FinYearMaster = ({ title, subTitle }) => {
       const FinData = {
         GtFinancialYearID: finYearValue.GtFinancialYearID || 0,
         FinYear: finYearValue.FinYear,
+        StartDate: finYearValue?.StartDate.substring(0, 10),
+        EndDate: finYearValue?.EndDate.substring(0, 10),
         CurrentFinYear: finYearValue.CurrentFinYear ? "T" : "F",
         Closed: finYearValue.Closed ? "T" : "F",
         Active: finYearValue.active ? "T" : "F",
       };
-
-      const response = await axios.post(insert_update, FinData);
+      const Data = {
+        Master: FinData,
+      };
+      const response = await axios.post(insert_update, Data);
 
       if (response.data === true) {
         // Fetch updated list
@@ -143,7 +148,7 @@ const FinYearMaster = ({ title, subTitle }) => {
         toast.error("Error " + response.data);
       }
     } catch (error) {
-      toast.error(error?.message || "Something went wrong");
+      toast.error(error?.response?.data);
     }
   };
 
@@ -189,13 +194,17 @@ const FinYearMaster = ({ title, subTitle }) => {
 
   const FinanciYear_New = (tabindex) => {
     setNewButton(tabindex);
-    setFinYearValue({ GtFinancialYearID: "", FinYear: "", StartDate: "", EndDate: "", CurrentFinYear: "", Closed: "", Active: false });
+    setFinYearValue({ GtFinancialYearID: 0, FinYear: "", StartDate: "", EndDate: "", CurrentFinYear: false, Closed: false, Active: false });
   };
 
   const commentsData = useMemo(() => {
+    let searchs = String(search || "").toLowerCase();
     let computedComments = finYearItems;
-    if (search) {
-      computedComments = computedComments.filter((item) => item.FinYear.includes(search));
+    if (searchs) {
+      computedComments = computedComments.filter((item) => {
+        let finYear = String(item.FinYear || "").toLowerCase();
+        return finYear.includes(searchs);
+      });
     }
     setTotalItems(computedComments.length);
 
@@ -242,46 +251,61 @@ const FinYearMaster = ({ title, subTitle }) => {
               })}
             </ul>
             <div className="row pt-2" style={{ backgroundColor: `${foreValue}` }}>
-              <div className="col-md-3">
+              <div className="col-12 col-md-8 col-lg-4">
                 <div className="bloc-tabs">
-                  <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
-                    {" "}
-                    {title}{" "}
+                  <div className="tabs active-tabs text-center p-2" style={{ backgroundColor: colorValue, color: foreValue }}>
+                    {title}
                   </div>
                 </div>
-                <div className="row pt-1">
-                  <label className="col-md-4"> ID </label>
-                  <input className="col-md-8" type="text" name="GtFinancialYearID" value={finYearValue.GtFinancialYearID} />
+
+                {/* ID */}
+                <div className="row align-items-center mb-1">
+                  <label className="col-12 col-md-4">ID</label>
+                  <div className="col-12 col-md-8">
+                    <input className="form-control" type="text" name="GtFinancialYearID" value={finYearValue.GtFinancialYearID} />
+                  </div>
                 </div>
-                <div className="row pt-1">
-                  <label className="col-md-4"> FinYear </label>
-                  <input className="col-md-8" type="text" name="FinYear" ref={inputref} onChange={handleChange} value={finYearValue.FinYear} required />
+
+                {/* FinYear */}
+                <div className="row align-items-center mb-1">
+                  <label className="col-12 col-md-4">FinYear</label>
+                  <div className="col-12 col-md-8">
+                    <input className="form-control" type="text" name="FinYear" ref={inputref} onChange={handleChange} value={finYearValue.FinYear} required />
+                  </div>
                 </div>
-                <div className="row pt-1">
-                  <label className="col-md-4"> StartDate </label>
-                  <input className="col-md-8" type="date" maxLength={10} name="StartDate" ref={inputref} onChange={handleChange} value={finYearValue.StartDate} required />
+
+                {/* Start Date */}
+                <div className="row align-items-center mb-1">
+                  <label className="col-12 col-md-4">StartDate</label>
+                  <div className="col-12 col-md-8">
+                    <input className="form-control" type="date" name="StartDate" onChange={handleChange} value={finYearValue.StartDate} required />
+                  </div>
                 </div>
-                <div className="row pt-1">
-                  <label className="col-md-4"> EndDate </label>
-                  <input className="col-md-8" type="date" maxLength={10} placeholder="" name="EndDate" ref={inputref} onChange={handleChange} value={finYearValue.EndDate} required />
+
+                {/* End Date */}
+                <div className="row align-items-center mb-1">
+                  <label className="col-12 col-md-4">EndDate</label>
+                  <div className="col-12 col-md-8">
+                    <input className="form-control" type="date" name="EndDate" onChange={handleChange} value={finYearValue.EndDate} required />
+                  </div>
                 </div>
-                <div className="row pt-1">
-                  <label className="col-md-4"> CurrentYear </label>
-                  <label className="checkbox" style={{ padding: "0px", width: "60px" }}>
+
+                {/* Checkboxes */}
+                <div className="row mb-2">
+                  <label className="col-6 col-md-4">CurrentYear</label>
+                  <div className="col-6 col-md-2">
                     <input type="checkbox" name="CurrentFinYear" checked={finYearValue.CurrentFinYear} onChange={handleChange} />
-                    <span></span>
-                    <i className="indicator"></i>
-                  </label>
-                  <label className="col-md-3"> Closed </label>
-                  <label className="checkbox" style={{ padding: "0px", width: "60px" }}>
+                  </div>
+
+                  <label className="col-6 col-md-3">Closed</label>
+                  <div className="col-6 col-md-3">
                     <input type="checkbox" name="Closed" checked={finYearValue.Closed} onChange={handleChange} />
-                    <span></span>
-                    <i className="indicator"></i>
-                  </label>
+                  </div>
                 </div>
-                <div className="row pt-1">
-                  <label className="col-md-4"> Active </label>
-                  <label className="checkbox" style={{ padding: "0px", width: "60px" }}>
+
+                <div className="row mb-1">
+                  <label className="col-6 col-md-4">Active</label>
+                  <label className="col-6 col-md-8 checkbox" style={{ padding: "0px", width: "60px" }}>
                     <input type="checkbox" name="Active" checked={finYearValue.Active} onChange={handleChange} />
                     <span></span>
                     <i className="indicator"></i>
@@ -307,7 +331,7 @@ const FinYearMaster = ({ title, subTitle }) => {
                     sorting={sorting}
                     setSorting={setSorting}
                     ITEM_PER_PAGE={ITEM_PER_PAGE}
-                    EditData={ColorMaster_Check}
+                    EditData={FinYearMaster_Check}
                     commentsData={commentsData}
                     setCheckchild={setCheckchild}
                     setCheckAll={setCheckAll}

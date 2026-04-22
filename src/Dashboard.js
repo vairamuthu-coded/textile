@@ -1,73 +1,77 @@
-import { useContext, useEffect, useState } from 'react'
-import axios from 'axios';
-import DataContext from './context/CreateUserContext';
-import Marquee from 'react-fast-marquee';
-import toast from 'react-hot-toast';
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import DataContext from "./context/CreateUserContext";
+import Marquee from "react-fast-marquee";
+import toast from "react-hot-toast";
 
-const Dashboard = ({title,subTitle}) => {
-  const {sidebar,  newButton,setNewButton,API_URL,defaultDetails,handlepage,colorValue,foreValue,menuheader,headerdrop}=useContext(DataContext)
-  const findmenuname1=API_URL+"/UserMaster/FindScreenName";
+const Dashboard = ({ title, subTitle }) => {
+  const { sidebar, newButton, setNewButton, API_URL, defaultDetails, handlepage, colorValue, foreValue, menuheader, headerdrop } = useContext(DataContext);
+  const findmenuname1 = API_URL + "/UserMaster/FindScreenName";
   const [findmenu, setFindMenu] = useState([]);
-  const [fetchError,setFetchError]=useState(null);
-const [loading,setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-useEffect(()=>{
-  if(menuheader.length > 0){
-    handlepage1(0, menuheader[0].menunameid);
-  }
-},[menuheader])
+  useEffect(() => {
+    if (menuheader.length > 0) {
+      handlepage1(0, menuheader[0].menunameid);
+    }
+  }, [menuheader]);
 
-const handlepage1 = async (index,pid)=>{
+  const handlepage1 = async (index, pid) => {
+    try {
+      setLoading(true);
 
-  try{
+      const res = await axios.get(`${findmenuname1}/${pid}`);
 
-    setLoading(true);
+      setFindMenu(res.data);
+      setNewButton(index);
+    } catch (error) {
+      toast.error(error);
+      setFetchError("Failed to load menu");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const res = await axios.get(`${findmenuname1}/${pid}`);
-
-    setFindMenu(res.data);
-    setNewButton(index);
-
-  }catch(error){
-    toast.error(error);
-    setFetchError("Failed to load menu");
-  }
-  finally{
-    setLoading(false);
-  }
-
-}
-
-  return (   
-  <div className="container-fluid">
-   <div style={{borderBottom: `1px solid ${colorValue}`}}>  {
-   menuheader.map((item,index)=>(
-      <h5  key={index}      style={{fontSize:"var(--bs-body-font-size)"}}  className={newButton === index ? "tabs active-tabs" : "tabs panel"}      onClick={()=>handlepage1(index,item.menunameid)}    >
-         <button className="col-md-12 boxShadow" style={{color:colorValue}}>     {item.menuname}     </button>
-      </h5>
-   )) }
-   </div>
-
-   <div className="container-fluid">
-   <div className="row animate-zoom boxShadow">
-   {findmenu.map((item,index)=>(    
-      <div  key={index}   className="col-lg-3 col-md-4 col-sm-6 p-2"   onClick={()=>handlepage(item.menuname)}  >
-     
-      <div className='col-12'  style={{cursor:"pointer", borderRadius:"4px",background:colorValue,color:foreValue,padding:'20px'}}    >
-         <div className="card-body d-flex justify-content-between align-items-center"  style={{background:colorValue,color:foreValue}}        >
-            <div> <h3 style={{margin:"0",color:foreValue}}>        {item.menuname}   </h3> </div>
-            <div>  <img    src={item.companylogoo}    style={{width:"28px",height:"28px"}}  alt=""   />  </div>
-         </div>
-         </div>
-
-   
+  return (
+    <div className="container-fluid">
+      <div className="d-flex flex-wrap gap-2 pb-2" style={{ borderBottom: `1px solid ${colorValue}` }}>
+        {menuheader.map((item, index) => (
+          <p
+            key={index}
+            className={`btn ${newButton === index ? "active-tabs" : "panel"}`}
+            style={{
+              color: newButton === index ? foreValue : colorValue,
+              backgroundColor: newButton === index ? colorValue : "transparent",
+              border: `1px solid ${colorValue}`,
+              fontSize: "var(--bs-body-font-size)",
+            }}
+            onClick={() => handlepage1(index, item.menunameid)}
+          >
+            {item.menuname}
+          </p>
+        ))}
       </div>
-   ))} 
-   </div>
-   </div>
-</div>
-  
-  )
-}
 
-export default Dashboard
+      <div className="container-fluid">
+        <div className="row">
+          {findmenu.map((item, index) => (
+            <div key={index} className="col-12 col-md-3  mt-3" onClick={() => handlepage(item.menuname)}>
+              <div className="card h-100 shadow-sm" style={{ cursor: "pointer", backgroundColor: colorValue, color: foreValue, borderRadius: "8px" }}>
+                <div className="card-body d-flex justify-content-between align-items-center">
+                  <h6 className="mb-0" style={{ color: foreValue }}>
+                    {item.menuname}
+                  </h6>
+
+                  <img src={item.companylogoo} alt="" style={{ width: "32px", height: "32px", objectFit: "contain" }} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
