@@ -17,7 +17,7 @@ import Header from "./Header.js";
 import Footer from "./Footer.js";
 
 import { toast } from "react-toastify";
-
+import Login from "./Login.js";
 import axios from "axios";
 
 if (!localStorage.getItem("cart")) {
@@ -114,42 +114,7 @@ function App({ API_URL, localServerCart, urls }) {
   return (
     <>
       {loginPage === false ? (
-        <div className="modal bg-light" id="myModal">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modalContainer">
-                <div className="modal-body">
-                  <div className="row justify-content-center pt-2">
-                    <label htmlFor="CompCode" className="col-md-3">
-                      CompCode
-                    </label>
-                    <input type="text" className="col-md-6" value={defaultDetails.Compcode} onChange={handleChange} name="Compcode" />
-                  </div>
-                  <div className="row justify-content-center pt-2">
-                    <label htmlFor="UserName" className="col-md-3 ">
-                      UserName
-                    </label>
-                    <input type="text" className="col-md-6" value={defaultDetails.User} onChange={handleChange} name="User" />
-                  </div>
-                  <div className="row  justify-content-center pt-2">
-                    <label htmlFor="Password" className="col-md-3">
-                      Password
-                    </label>
-                    <input type="password" className="col-md-6" value={defaultDetails.Pass} onChange={handleChange} name="Pass" />
-                  </div>
-                  <div className="d-flex justify-content-center p-2 ">
-                    <button className="col-md-2 text-primary" onClick={handleLoginSubmit}>
-                      Login
-                    </button>
-                    <button className="col-md-2 text-primary" onClick={closeWindow}>
-                      Exit
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Login defaultDetails={defaultDetails} setDefaultDetails={setDefaultDetails} handleLoginSubmit={handleLoginSubmit} handleChange={handleChange} loginPage={loginPage} closeWindow={closeWindow} />
       ) : (
         <div className="container-fluid animate-zoom " style={{ backgroundColor: `${foreValue}` }}>
           <div className="row ">
