@@ -33,7 +33,7 @@ function App({ API_URL, localServerCart, urls }) {
   const [sidebar, setSidebar] = useState(false);
   // const showSidebar = () => setSidebar(!sidebar);
   const showSidebar = () => setSidebar((prev) => !prev);
-  const [colorValue, setColorValue] = useState("var(--bs-green)");
+  const [colorValue, setColorValue] = useState("var(--bs-info-text-emphasis)");
   const [foreValue, setForeValue] = useState("white");
   const [bgValue, setBgValue] = useState("whitesmoke");
   const [header_items, setHeaderItems] = useState([]);

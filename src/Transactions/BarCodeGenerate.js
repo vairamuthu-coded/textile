@@ -1287,7 +1287,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   };
 
   const handleFocus = (e) => {
-    e.target.style.backgroundColor = "#eef";
+    e.target.style.backgroundColor = `${foreValue}`;
   };
 
   const handleBlur = (e) => {
@@ -1336,7 +1336,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         <Input
                           type={"text"}
                           className1="col-md-1"
-                          className="col-md-1"
+                          className="form-control col-md-1"
                           id="Asptblpurid"
                           name="Asptblpurid"
                           placeholder=""
@@ -1345,7 +1345,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           barValues={barValues}
                           setBarValues={setBarValues}
                           name1={"id"}
-                          stylecolor={`${colorValue}`}
+                          stylecolor={""}
                           visible={true}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
@@ -1353,7 +1353,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         <Input
                           type={"text"}
                           className1="col-md-1"
-                          className="col-md-1"
+                          className="form-control col-md-1"
                           id="Asptblpur1id"
                           name="Asptblpur1id"
                           placeholder=""
@@ -1362,16 +1362,15 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           barValues={barValues}
                           setBarValues={setBarValues}
                           name1={"Seq"}
-                          stylecolor={colorValue}
+                          stylecolor={""}
                           visible={true}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
-                        <Label className={`col-md-1`} forecolor={`${colorValue}`} labelName={"CompCode"}></Label>
+                        <Label className={`col-md-1`} labelName={"CompCode"}></Label>
                         <select
                           className="col-md-1"
                           name="Compcode"
-                          style={{ color: `${colorValue}` }}
                           defaultValue={"--"}
                           value={barValues.Compcode || ""}
                           onChange={handleChange}
@@ -1389,11 +1388,10 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           ))}
                         </select>
 
-                        <Label className={`col-md-1`} labelName={"Type"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"Type"}></Label>
                         <select
                           className="col-md-2"
                           name="Ordertype"
-                          style={{ color: `${colorValue}` }}
                           value={barValues.Ordertype || ""}
                           onChange={handleChange}
                           tabIndex="1"
@@ -1406,7 +1404,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           <option value={"ORDER"}>ORDER</option>
                           <option value={"EXCESSQTY"}>EXCESSQTY</option>
                         </select>
-                        <Label className={`col-md-1`} name="Pono1" forecolor={`${colorValue}`} labelName={"PoNo"} visible={barValues.Ordertype === "ORDER" ? "none" : "block"}></Label>
+                        <Label className={`col-md-1`} name="Pono1" labelName={"PoNo"} visible={barValues.Ordertype === "ORDER" ? "none" : "block"}></Label>
                         <select
                           className="col-md-2"
                           name="Pono1"
@@ -1428,7 +1426,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         </select>
                       </div>
                       <div className="row py-1">
-                        <Label className={`col-md-1`} labelName={"Pono"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"Pono"}></Label>
                         <input
                           type="text"
                           readOnly
@@ -1443,14 +1441,13 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           onBlur={handleBlur}
                         />
 
-                        <Label className={`col-md-1`} labelName={"Buyer"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"Buyer"}></Label>
                         <select
                           className="col-md-2"
                           tabIndex="3"
                           ref={(el) => (refs.current[3] = el)}
                           onKeyDown={(e) => handleEnter(e, 3)}
                           name="Buyercode"
-                          style={{ color: `${colorValue}` }}
                           value={barValues.Buyercode || ""}
                           onChange={handleChange}
                           onFocus={handleFocus}
@@ -1464,11 +1461,10 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           ))}
                         </select>
 
-                        <Label className={`col-md-1`} labelName={"StyleName"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"StyleName"}></Label>
                         <select
                           className="col-md-2"
                           name="Stylegroup"
-                          style={{ color: `${colorValue}` }}
                           value={barValues.Stylegroup || ""}
                           onChange={handleChange}
                           tabIndex="4"
@@ -1484,10 +1480,10 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                             </option>
                           ))}
                         </select>
-                        <Label className="col-md-1" labelName={"Podate"} forecolor={`${colorValue}`}></Label>
+                        <Label className="col-md-1" labelName={"Podate"}></Label>
                         <input
                           type="date"
-                          className="col-md-2"
+                          className="col-md-1"
                           name="Podate"
                           placeholder=""
                           value={barValues.Podate || ""}
@@ -1499,7 +1495,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         />
                       </div>
                       <div className="row">
-                        <Label className={`col-md-1`} labelName={"Orderno"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"Orderno"}></Label>
                         <input
                           type="text"
                           name="Orderno"
@@ -1511,7 +1507,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
-                        <Label className={`col-md-1`} labelName={"Styleref"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"Styleref"}></Label>
                         <input
                           type="text"
                           name="Styleref"
@@ -1523,11 +1519,10 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
-                        <Label className={`col-md-1`} labelName={"SizeGroup"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"SizeGroup"}></Label>
                         <select
                           className="col-md-2"
                           name="Sizegroup"
-                          style={{ color: `${colorValue}` }}
                           value={barValues.Sizegroup || ""}
                           onChange={handleChange}
                           tabIndex="8"
@@ -1544,12 +1539,11 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                               </option>
                             ))}
                         </select>
-                        <Label className={`col-md-1`} labelName={"Process"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"Process"}></Label>
                         <select
-                          className="col-md-2"
+                          className="col-md-1"
                           name="Processname"
                           tabIndex="11"
-                          style={{ color: `${colorValue}` }}
                           value={barValues.Processname || ""}
                           onChange={handleChange}
                           ref={(el) => (refs.current[9] = el)}
@@ -1567,7 +1561,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         </select>
                       </div>
                       <div className="row py-1">
-                        <Label className={`col-md-1`} labelName={"Orderqty"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"Orderqty"}></Label>
                         <input
                           type="text"
                           name="Orderqty"
@@ -1576,14 +1570,13 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           maxLength={5}
                           value={barValues.Orderqty || " "}
                           className="col-md-1"
-                          style={{ color: `${colorValue}` }}
                           onChange={handleChange}
                           ref={(el) => (refs.current[10] = el)}
                           onKeyDown={(e) => handleEnter(e, 10)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
-                        <Label className={`col-md-1`} labelName={"Excessqty"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"Excessqty"}></Label>
                         <input
                           type="text"
                           name="Excessqty"
@@ -1592,26 +1585,21 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           maxLength={5}
                           value={barValues.Excessqty || " "}
                           className="col-md-1"
-                          style={{ color: `${colorValue}` }}
                           onChange={handleChange}
                           ref={(el) => (refs.current[11] = el)}
                           onKeyDown={(e) => handleEnter(e, 11)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
-                        <Label className={`col-md-1`} labelName={"Active"} forecolor={`${colorValue}`}></Label>
-                        <label className="checkbox" style={{ padding: "0px", width: "60px" }} ref={(el) => (refs.current[12] = el)} onKeyDown={(e) => handleEnter(e, 12)}>
-                          <input type="checkbox" className="col-md-1" name="Active" style={{ color: `${colorValue}` }} checked={barValues.Active} onChange={handleChange} />
-                          <span></span>
-                          <i className="indicator"></i>
-                        </label>
-                        <Label className={`col-md-1`} labelName={"PoActive"} forecolor={`${colorValue}`}></Label>
-                        <label className="checkbox col-md-1" style={{ padding: "0px", width: "60px" }} ref={(el) => (refs.current[13] = el)} onKeyDown={(e) => handleEnter(e, 13)}>
-                          <input type="checkbox" name="poCancel" checked={barValues.Pocancel} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
-                          <span></span>
-                          <i className="indicator"></i>
-                        </label>
-                        <Label className={`col-md-2`} labelName={"Total"} forecolor={`${colorValue}`}></Label>
+                        <Label className={`col-md-1`} labelName={"Active"}></Label>
+
+                        <input type="checkbox" className="col-md-1" name="Active" ref={(el) => (refs.current[12] = el)} onKeyDown={(e) => handleEnter(e, 12)} checked={barValues.Active} onChange={handleChange} />
+
+                        <Label className={`col-md-1`} labelName={"PoActive"}></Label>
+
+                        <input type="checkbox" name="poCancel" className="col-md-1" checked={barValues.Pocancel} onChange={handleChange} onFocus={handleFocus} ref={(el) => (refs.current[13] = el)} onKeyDown={(e) => handleEnter(e, 13)} />
+
+                        <Label className={`col-md-1`} labelName={"Total"}></Label>
                       </div>
                     </div>
                     <div className="col-md-1">
@@ -1645,12 +1633,12 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                                     <tr key={rowIndex}>
                                       {addColumns.map((col, colIndex) =>
                                         col.HeaderVisible === "visible" ? (
-                                          <td key={colIndex} width={rows[colIndex].widths} style={{ margin: 0, padding: 0, border: `1px solid lightgrey`, color: foreValue }}>
+                                          <td key={colIndex} width={rows[colIndex].widths}>
                                             <input
                                               type="text"
                                               disabled={col.disabled}
                                               width={rows[colIndex].widths}
-                                              style={{ color: colorValue }}
+                                              style={{ color: "black" }}
                                               className="col-md-12 ps-2 border-0"
                                               id={col.field + "_" + rowIndex}
                                               name={col.field}

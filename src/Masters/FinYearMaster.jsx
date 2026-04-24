@@ -6,28 +6,8 @@ import SocialMissing from "../Social/SocialMissing";
 import { toast } from "react-toastify";
 
 const FinYearMaster = ({ title, subTitle }) => {
-  const {
-    handleSubmit,
-    API_URL,
-    newButton,
-    tabindex,
-
-    currentPage,
-    setCurrentPage,
-    tablecheck,
-    userRights,
-    setUserRights,
-    defaultDetails,
-    foreValue,
-    colorValue,
-    searchLable1,
-    searchLable2,
-    searchLable3,
-    mode,
-    sorting,
-    setSorting,
-    setNewButton,
-  } = useContext(DataContext);
+  const { handleSubmit, API_URL, newButton, tabindex, currentPage, setCurrentPage, tablecheck, userRights, setUserRights, defaultDetails, foreValue, colorValue, searchLable1, searchLable2, searchLable3, mode, sorting, setSorting, setNewButton } =
+    useContext(DataContext);
   let ITEM_PER_PAGE = 50;
 
   const insert_update = `${API_URL}/FinYearMasters`;
@@ -44,12 +24,12 @@ const FinYearMaster = ({ title, subTitle }) => {
   const [checkchild, setCheckchild] = useState(false);
   const [userRights1, setUserRights1] = useState([]);
   const HeadersColumn = [
-    { headername: "ID", field: "GtFinancialYearID" },
-    { headername: "FinYear", field: "FinYear" },
-    { headername: "CurrentYear", field: "CurrentFinYr" },
-    { headername: "StartDate", field: "StartDate" },
-    { headername: "EndDate", field: "EndDate" },
-    { headername: "Closed", field: "Closed" },
+    { headername: "ID", field: "gtFinancialYearID" },
+    { headername: "FinYear", field: "finYear" },
+    { headername: "StartDate", field: "startDate" },
+    { headername: "EndDate", field: "endDate" },
+    { headername: "CurrentYear", field: "currentFinYear" },
+    { headername: "Closed", field: "closed" },
     { headername: "Active", field: "active" },
   ];
 
@@ -58,8 +38,9 @@ const FinYearMaster = ({ title, subTitle }) => {
   useEffect(() => {
     const fetchMyAPI = async () => {
       try {
-        const [rightsRes, resGetFinYear] = await Promise.all([axios.get(`${userrightsMenuCheck}`)]);
+        const [rightsRes, resGetFinYear] = await Promise.all([axios.get(userrightsMenuCheck), axios.get(insert_update)]);
         setUserRights(rightsRes.data);
+        setFinYearItems(resGetFinYear.data);
       } catch (error) {
         toast.error(error);
       }
@@ -76,6 +57,7 @@ const FinYearMaster = ({ title, subTitle }) => {
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
+
     if (type !== "checkbox") {
       setFinYearValue((previousValue) => {
         return {
@@ -106,11 +88,24 @@ const FinYearMaster = ({ title, subTitle }) => {
     return validcheck;
   };
 
+  const convertToISO = (dateStr) => {
+    if (!dateStr) return "";
+    const [day, month, year] = dateStr.split("-");
+    return `${year}-${month}-${day}`;
+  };
   const FinYearMaster_Check = (id) => {
     try {
-      const myitem = finYearItems.filter((item) => item.GtFinancialYearID === id.GtFinancialYearID);
+      const myitem = finYearItems.filter((item) => item.gtFinancialYearID === id.gtFinancialYearID);
 
-      setFinYearValue({ GtFinancialYearID: myitem[0].GtFinancialYearID, FinYear: myitem[0].FinYear, Active: myitem[0].active === "T" ? true : false });
+      setFinYearValue({
+        GtFinancialYearID: myitem[0].gtFinancialYearID,
+        FinYear: myitem[0].finYear,
+        StartDate: convertToISO(myitem[0].startDate),
+        EndDate: convertToISO(myitem[0].endDate),
+        CurrentFinYear: myitem[0].currentFinYear === "T" ? true : false,
+        Closed: myitem[0].closed === "T" ? true : false,
+        Active: myitem[0].active === "T",
+      });
     } catch (err) {
       if (err.response) {
         setFetchError(err.response);
@@ -129,7 +124,7 @@ const FinYearMaster = ({ title, subTitle }) => {
         EndDate: finYearValue?.EndDate.substring(0, 10),
         CurrentFinYear: finYearValue.CurrentFinYear ? "T" : "F",
         Closed: finYearValue.Closed ? "T" : "F",
-        Active: finYearValue.active ? "T" : "F",
+        Active: finYearValue.Active ? "T" : "F",
       };
       const Data = {
         Master: FinData,
@@ -154,38 +149,28 @@ const FinYearMaster = ({ title, subTitle }) => {
 
   const FinanciYear_Delete = async (id) => {
     try {
-      if (finYearValue.FinYear === "") {
-        toast.error(`Empty Not Allowed`);
+      if (!id) {
+        toast.error("Invalid ID");
         return;
       }
-      if (finYearValue.GtFinancialYearID >= 1) {
-        const id = finYearValue.GtFinancialYearID;
-        await axios
-          .delete(`${insert_update}/${id}`)
-          .then((respose) => {
-            if (respose.data === "true") {
-              axios
-                .get(`${insert_update}`)
-                .then((res) => {
-                  setFinYearItems(res.data);
-                })
-                .catch((error) => {
-                  setFetchError(error);
-                });
-              toast.success("Record Deleted Successfully");
-              setNewButton(2);
-            } else {
-              setFetchError(respose.error);
-              toast.error("Error " + respose.data);
-            }
-          })
-          .catch((error) => {
-            setFetchError(error);
-          });
+
+      const response = await axios.delete(`${insert_update}/${id}`);
+      if (response.status === 200 || response.status === 204) {
+        // ✅ Refresh list properly
+        const res = await axios.get(`${insert_update}`);
+        setFinYearItems(res.data);
+        toast.success("Record Deleted Successfully");
+        setNewButton(2);
+      } else {
+        toast.error("Delete failed");
       }
     } catch (err) {
+      console.error(err);
+
       if (err.response) {
-        console.log(`Error ${err.message}`);
+        toast.error(err.response.data?.message || "Server error");
+      } else {
+        toast.error("Network error");
       }
     }
   };
@@ -236,8 +221,8 @@ const FinYearMaster = ({ title, subTitle }) => {
     <form onSubmit={handleSubmit}>
       {userRights.length > 0 && (
         <div className="container-fluid animate-zoom">
-          <div className="row" style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
-            <ul className="d-flex flex-row-reverse boxShadow">
+          <div className="row pt-1" style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
+            <ul className="d-flex justify-content-end boxShadow">
               {buttonConfig.map((btn, index) => {
                 const isVisible = userRights[0]?.[btn.key] === "T";
                 if (!isVisible) return null;
@@ -262,7 +247,7 @@ const FinYearMaster = ({ title, subTitle }) => {
                 <div className="row align-items-center mb-1">
                   <label className="col-12 col-md-4">ID</label>
                   <div className="col-12 col-md-8">
-                    <input className="form-control" type="text" name="GtFinancialYearID" value={finYearValue.GtFinancialYearID} />
+                    <input className="form-control" type="text" readOnly name="GtFinancialYearID" value={finYearValue.GtFinancialYearID} />
                   </div>
                 </div>
 
@@ -313,7 +298,7 @@ const FinYearMaster = ({ title, subTitle }) => {
                 </div>
               </div>
 
-              <div className="col-md-6 pt-1">
+              <div className="col-md-8 pt-1">
                 <div className="row ">
                   <DataTable
                     heights={heights}
@@ -322,6 +307,7 @@ const FinYearMaster = ({ title, subTitle }) => {
                     comments={finYearItems}
                     setComments={setFinYearItems}
                     mode={mode}
+                    foreValue={foreValue}
                     searches={search}
                     setSearches={setSearch}
                     totalItems={totalItems}
