@@ -10,42 +10,49 @@ const Login = ({ defaultDetails, setDefaultDetails, handleLoginSubmit, handleCha
       {loginPage === false && (
         <div className="modal bg-light " id="myModal">
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content p-3">
-              <div className="modalContainer">
+            <div className="modal-content p-5">
+              <div className="modalContainer" style={{ backgroundColor: "lightgray" }}>
                 <div className="modal-body">
-                  {/* CompCode */}
-                  <div className="row align-items-center mb-1">
-                    <label className="col-12 col-md-4 mb-1 mb-md-0">CompCode</label>
-                    <div className="col-12 col-md-8">
-                      <input type="text" className="form-control" value={defaultDetails.Compcode} onChange={handleChange} name="Compcode" />
+                  <div className="row">
+                    <div className="col-3">
+                      <img src="../Images/Anugraha_logo.jpg" alt="Anugraha Logo" />
                     </div>
-                  </div>
+                    <div className="col-9">
+                      {/* CompCode */}
+                      <div className="row align-items-center mb-2">
+                        <label className="col-12 col-md-3 mb-1 mb-md-0">CompCode</label>
+                        <div className="col-12 col-md-9">
+                          <input type="text" className="form-control px-2" value={defaultDetails.Compcode} onChange={handleChange} name="Compcode" />
+                        </div>
+                      </div>
 
-                  {/* UserName */}
-                  <div className="row align-items-center mb-1">
-                    <label className="col-12 col-md-4 mb-1 mb-md-0">UserName</label>
-                    <div className="col-12 col-md-8">
-                      <input type="text" className="form-control" value={defaultDetails.User} onChange={handleChange} name="User" />
+                      {/* UserName */}
+                      <div className="row align-items-center mb-2">
+                        <label className="col-12 col-md-3 mb-1 mb-md-0">UserName</label>
+                        <div className="col-12 col-md-9">
+                          <input type="text" className="form-control px-2" value={defaultDetails.User} onChange={handleChange} name="User" />
+                        </div>
+                      </div>
+
+                      {/* Password */}
+                      <div className="row align-items-center mb-2">
+                        <label className="col-12 col-md-3 ">Password</label>
+                        <div className="col-12 col-md-9">
+                          <input type="password" className="form-control px-2" value={defaultDetails.Pass} style={{ margin: 0, padding: 0 }} onChange={handleChange} name="Pass" />
+                        </div>
+                      </div>
+
+                      {/* Buttons */}
+                      <div className="d-flex justify-content-center">
+                        <button className="btn btn-primary  w-md-auto" onClick={handleLoginSubmit}>
+                          Login
+                        </button>
+
+                        <button className="btn btn-secondary  w-md-auto" onClick={closeWindow}>
+                          Exit
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Password */}
-                  <div className="row align-items-center mb-1">
-                    <label className="col-12 col-md-4 ">Password</label>
-                    <div className="col-12 col-md-8">
-                      <input type="password" className="form-control" value={defaultDetails.Pass} style={{ margin: 0, padding: 0 }} onChange={handleChange} name="Pass" />
-                    </div>
-                  </div>
-
-                  {/* Buttons */}
-                  <div className="d-flex justify-content-center">
-                    <button className="btn btn-primary  w-md-auto" onClick={handleLoginSubmit}>
-                      Login
-                    </button>
-
-                    <button className="btn btn-secondary  w-md-auto" onClick={closeWindow}>
-                      Exit
-                    </button>
                   </div>
                 </div>
               </div>

@@ -23,10 +23,10 @@ const Header = ({ titlename, TitleCompCode, TitleUser, setColorValue, setMode })
   const modehandleChange = (e) => {
     const { name, value, checked, type } = e.target;
     if (checked === true) {
-      setColorValue("var(--bs-info-text-emphasis)");
+      setColorValue("var(--bs-primary-text-emphasis)");
       setMode("dark");
     } else {
-      setColorValue("var(--bs-primary-text-emphasis)");
+      setColorValue("var(--bs-info-text-emphasis)");
       setMode("light");
     }
   };
