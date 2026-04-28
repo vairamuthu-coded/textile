@@ -80,12 +80,17 @@ const Select = ({ items, setUserRightsSearch, userrights_search, colorValue, han
 
         <div className={`headermenu_data ${drop && "dropShow"}`}>
           <div className="search">
-            <input type="text" value={userrights_search} onChange={(e) => setUserRightsSearch(e.target.value.toLocaleLowerCase())} placeholder="search country"></input>
+            <input type="text" value={userrights_search} onChange={(e) => setUserRightsSearch(e.target.value.toLocaleLowerCase())} placeholder="SEARCH ...."></input>
           </div>
 
           <div className="headermenu">
             {items.map((item, index) => (
-              <span style={{ fontSize: `${"var(--bs-bigfont)"}`, padding: "5px 0 5px 0" }} key={index} onClick={(e) => handlepage(item.menuname)} className={`${item.menuname.toLocaleLowerCase().startsWith(userrights_search) ? "block" : "hidden"}`}>
+              <span
+                style={{ fontSize: `${"var(--bs-bigfont)"}`, padding: "5px 0 5px 0", textAlign: "left" }}
+                key={index}
+                onClick={(e) => handlepage(item.menuname)}
+                className={`${item.menuname.toLocaleLowerCase().startsWith(userrights_search) ? "block" : "hidden"}`}
+              >
                 {" "}
                 <a style={{ textDecoration: "none", color: `${colorValue}` }} key={index} onClick={(e) => handlepage(item.menuname)}>
                   {" "}

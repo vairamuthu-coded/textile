@@ -39,8 +39,14 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
     setSearchLable1,
     setSearchLable2,
     setSearchLable3,
+    taxTempDetails,
+    setTaxTempDetails,
+    addCompcodes,
+    setAddCompcodes,
+    details,
+    setDetails,
   } = useContext(DataContext);
-  const [taxValues, setTaxValues] = useState([]);
+
   const [checkall, setCheckAll] = useState(false);
   const [taxnameDescValue, setTaxNameDescValue] = useState([]);
   const [company_items, setCompanyItems] = useState([]);
@@ -80,17 +86,17 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
   const refs = useRef([]);
 
   const handleChange = (e) => {
-    utilityState(e, setTaxValues);
+    utilityState(e, setTaxTempDetails);
   };
 
   let validcheck = true;
-  const validate = (taxValues) => {
-    if (!taxValues.taxName?.trim()) {
+  const validate = (taxTempDetails) => {
+    if (!taxTempDetails.taxName?.trim()) {
       toast.error("Invalid City Name");
       return false;
     }
 
-    if (!/^[0-9\s]+$/.test(taxValues.taxName)) {
+    if (!/^[0-9\s]+$/.test(taxTempDetails.taxName)) {
       toast.error("Special Character not allowed");
       return false;
     }
@@ -166,8 +172,8 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
     setDetails(values);
   };
 
-  const [addCompcodes, setAddCompcodes] = useState([{ id: 1, compcode: 0, compname: "", notes: "" }]);
-  const [details, setDetails] = useState([{ sNo: 1, asptbltaxtemDetailsid: 0, adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", notes: "" }]);
+  // const [addCompcodes, setAddCompcodes] = useState([{ id: 1, compcode: 0, compname: "", notes: "" }]);
+  // const [details, setDetails] = useState([{ sNo: 1, asptbltaxtemDetailsid: 0, adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", notes: "" }]);
   const addCompRow = () => {
     setAddCompcodes([...addCompcodes, { id: 1, compcode: "", compname: "", notes: "" }]);
   };
@@ -184,7 +190,7 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
       const row = res?.data;
       if (!row) return;
       let updatedData = { ...row, active: row.active === "T" };
-      setTaxValues(updatedData);
+      setTaxTempDetails(updatedData);
       setAddCompcodes(res1?.data || []);
       setDetails(res2?.data || []);
     } catch (error) {
@@ -196,7 +202,7 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
 
   const TaxTemplate_Save = async () => {
     const data = {
-      Master: taxValues,
+      Master: taxTempDetails,
       Compcodes: addCompcodes,
       Details: details,
     };
@@ -240,7 +246,7 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
 
   const TaxTemplate_New = () => {
     setNewButton(1);
-    setTaxValues([]);
+    setTaxTempDetails([]);
     setCityCountryData([]);
     setDetails([{ sNo: 1, asptbltaxtemDetailsid: "", adName: "", adType: "", aliasname: "", formula: "", sugg: "", notes: "" }]);
     setAddCompcodes([{ id: 1, compcode: "", compname: "", notes: "" }]);
@@ -375,17 +381,17 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
                 <div className="col-md-3  float-start">
                   <div className="row">
                     <label className="col-md-4"> ID </label>
-                    <input className="col-md-8" type="text" name="asptbltaxtemdetmasid" value={taxValues.asptbltaxtemdetmasid || ""} readOnly />
+                    <input className="col-md-8" type="text" name="asptbltaxtemdetmasid" value={taxTempDetails.asptbltaxtemdetmasid || ""} readOnly />
                   </div>
                   <div className="row pt-1">
                     <label className="col-md-4"> TaxName </label>
-                    <input type="text" className="col-sm-8" name="taxName" value={taxValues.taxName || ""} onChange={handleChange} ref={(el) => (refs.current[1] = el)} onKeyDown={(e) => handleEnter(e, 1)} />
+                    <input type="text" className="col-sm-8" name="taxName" value={taxTempDetails.taxName || ""} onChange={handleChange} ref={(el) => (refs.current[1] = el)} onKeyDown={(e) => handleEnter(e, 1)} />
                   </div>
 
                   <div className="row pt-1">
                     <label className="col-md-4"> Active </label>
                     <label className="checkbox" style={{ padding: "0px", width: "60px" }}>
-                      <input type="checkbox" name="active" checked={taxValues.active || false} onChange={handleChange} />
+                      <input type="checkbox" name="active" checked={taxTempDetails.active || false} onChange={handleChange} />
                       <span></span>
                       <i className="indicator"></i>
                     </label>
@@ -522,7 +528,7 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
                     SearchLable3={searchLable3}
                     stylecolor={foreValue}
                     handleChange={handleChange}
-                    ChangeValues={taxValues}
+                    ChangeValues={taxTempDetails}
                     searchCompCode={searchCompCode}
                     searchUserName={searchUserName}
                   />

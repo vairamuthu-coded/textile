@@ -43,14 +43,17 @@ const Login = ({ defaultDetails, setDefaultDetails, handleLoginSubmit, handleCha
                       </div>
 
                       {/* Buttons */}
-                      <div className="d-flex justify-content-center">
-                        <button className="btn btn-primary  w-md-auto" onClick={handleLoginSubmit}>
-                          Login
-                        </button>
-
-                        <button className="btn btn-secondary  w-md-auto" onClick={closeWindow}>
-                          Exit
-                        </button>
+                      <div className="row align-items-center m-2">
+                        <div className="col-md-4 col-sm-12 ">
+                          <button className="btn  col-md-12 col-sm-3 form-control" onClick={handleLoginSubmit}>
+                            Login
+                          </button>
+                        </div>
+                        <div className="col-md-4 col-sm-12 ">
+                          <button className="btn  col-md-12 col-sm-3 form-control " onClick={closeWindow}>
+                            Exit
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -28,32 +28,27 @@ const AgentMaster = ({ title, subTitle }) => {
     searchLable1,
     searchLable2,
     searchLable3,
-    userRights,
-    setUserRights,
+
     setSearchLable1,
     setSearchLable2,
     setSearchLable3,
     color1,
     colorValue,
     defaultDetails,
+    agentValue,
+    setAgentValue,
+    agentDetValue,
+    setAgentDetValue,
   } = useContext(CreateUserContext);
+  const [userRights, setUserRights] = useState([]);
   const insert_update = `${API_URL}/AgentMasters`;
   const getDetails = `${API_URL}/AgentMasters/details`;
-  const buyerDetails = `${API_URL}/BuyerMaster/BuyerMaster`;
+  const buyerDetails = `${API_URL}/BuyerMasters`;
   const StateParam = `${API_URL}/CityMaster/GridLoad`;
   const CountryParam = `${API_URL}/StateMaster/GridLoad`;
   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
   const [fetchError, setFetchError] = useState(null);
-  const [agentValue, setAgentValue] = useState([]);
 
-  const [agentDetValue, setAgentDetValue] = useState([
-    {
-      Asptblagedetid: 0,
-      BuyerCode: 0,
-      BuyerName: 0,
-      Notes: "",
-    },
-  ]);
   const [categoryItems, setCategoryItems] = useState([
     { gtcategorymastid: 1, categoryname: "ShippingAgent" },
     { gtcategorymastid: 2, categoryname: "BuyeingAgent" },
@@ -148,35 +143,24 @@ const AgentMaster = ({ title, subTitle }) => {
   };
 
   useEffect(() => {
-    let isMounted = true;
     const fetchData = async () => {
       try {
         const [userRightsRes, ageRes, stateRes, buyerRes] = await Promise.all([axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`), axios.get(insert_update), axios.get(StateParam), axios.get(buyerDetails)]);
 
-        if (isMounted) {
-          setUserRights(userRightsRes?.data || []);
-
-          setAgentItems(ageRes?.data || []);
-          setCityItems(stateRes?.data || []);
-          setBuyerItems(buyerRes?.data || []);
-        }
+        setUserRights(userRightsRes?.data);
+        setAgentItems(ageRes?.data);
+        setCityItems(stateRes?.data);
+        setBuyerItems(buyerRes?.data);
       } catch (error) {
         const message = error?.response?.data || error?.message || "API Error";
         toast.error(message);
         setFetchError(message);
       } finally {
         setNewButton(1);
-
-        // Any cleanup o
-        // r final steps can be performed here if needed
       }
     };
 
     fetchData();
-
-    return () => {
-      isMounted = false;
-    };
   }, [defaultDetails.User, defaultDetails.Compcode, title]);
 
   const AgentMaster_Search = () => {};
@@ -263,6 +247,7 @@ const AgentMaster = ({ title, subTitle }) => {
     // ✅ Auto fill BuyerName
     if (name === "BuyerCode") {
       const selected = buyersItems.find((item) => item.asptblbuymasid === Number(value));
+
       updated[index].BuyerName = selected?.buyername || "";
     }
 
@@ -296,8 +281,8 @@ const AgentMaster = ({ title, subTitle }) => {
       const [res, resDetails] = await Promise.all([axios.get(`${insert_update}/${row.asptblagemasid}`), axios.get(`${getDetails}/${row.asptblagemasid}`)]);
 
       const data = res?.data;
-      const details = resDetails?.data || [];
 
+      const details = resDetails?.data || [];
       if (!data) return;
 
       setAgentValue({
@@ -324,8 +309,12 @@ const AgentMaster = ({ title, subTitle }) => {
         BuyerName: d.buyername, // ✅ correct
         Notes: d.notes,
       }));
-      setGetBuyerName(formattedDetails.map((d) => ({ asptblbuymasid: d.BuyerCode, buyername: d.BuyerName })));
-      setAgentDetValue(formattedDetails);
+      if (formattedDetails.length > 0) {
+        setGetBuyerName(formattedDetails.map((d) => ({ asptblbuymasid: d.BuyerCode, buyername: d.BuyerName })));
+        setAgentDetValue(formattedDetails);
+      } else {
+        setAgentDetValue([{ Asptblagedetid: 0, BuyerCode: 0, BuyerName: 0, Notes: "" }]);
+      }
     } catch (error) {
       toast.error(error?.message || "Failed to load Buyer");
     } finally {
@@ -564,10 +553,10 @@ const AgentMaster = ({ title, subTitle }) => {
                         <tr key={row.index} className="col-md-12">
                           <td style={{ margin: "0px", padding: "0px" }}>{index + 1}</td>
                           <td style={{ margin: "0px", padding: "0px", width: "100px" }}>
-                            <input type="text" name="Asptblagedetid" style={{ padding: "2px" }} className="col-sm-12 col-md-12 col-lg-12" value={row.Asptblagedetid} />
+                            <input type="text" name="Asptblagedetid" style={{ padding: "2px" }} className="col-sm-12 col-md-12 col-lg-12" value={row.Asptblagedetid || "0"} />
                           </td>
                           <td style={{ margin: "0px", padding: "0px" }}>
-                            <select className="col-12 " name="BuyerCode" value={row.BuyerCode} onChange={(e) => handleDetailChange(index, e)}>
+                            <select className="col-12 " name="BuyerCode" value={row.BuyerCode || ""} onChange={(e) => handleDetailChange(index, e)}>
                               <option value=""></option>
                               {buyersItems?.map((d) => (
                                 <option key={d.asptblbuymasid} value={d.asptblbuymasid}>
@@ -578,20 +567,14 @@ const AgentMaster = ({ title, subTitle }) => {
                           </td>
 
                           <td style={{ margin: "0px", padding: "0px" }}>
-                            <select className="col-sm-12 col-md-12 col-lg-12" name="BuyerName" value={row.BuyerName || ""} onChange={(e) => handleDetailChange(index, e)}>
-                              {getBuyerName?.map((d) => (
-                                <option key={d.asptblbuymasid} value={d.buyername}>
-                                  {d.buyername}
-                                </option>
-                              ))}
-                            </select>
+                            <input type="text" style={{ padding: "2px" }} name="BuyerName" className="col-sm-12 col-md-12 col-lg-12" value={row.BuyerName || ""} onKeyDown={handleKeyDown} onChange={(e) => handleDetailChange(index, e)} readOnly />
                           </td>
 
                           <td style={{ margin: "0px", padding: "0px" }}>
                             <input type="text" style={{ padding: "2px" }} name="notes" className="col-sm-12 col-md-12 col-lg-12" value={row.notes || ""} onKeyDown={handleKeyDown} onChange={(e) => handleDetailChange(index, e)} />
                           </td>
                           <td style={{ margin: "0px", padding: "0px" }}>
-                            <button style={{ margin: "0px", padding: "0px", textAlign: "center", color: "red" }} className="btn btn-danger fa-trash  fa fa-lg" onClick={() => deleteRow(index)}></button>
+                            <button style={{ margin: "0px", padding: "0px", textAlign: "center", color: "red" }} className="col-md-12 btn-danger fa-trash  fa fa-lg p-1" onClick={() => deleteRow(index)}></button>
                           </td>
                           <td style={{ margin: "0px", padding: "0px", width: "0px" }}>
                             {" "}

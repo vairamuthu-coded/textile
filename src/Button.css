@@ -231,7 +231,7 @@ blink {
   background-color: var(--bs-mouseover);
   display: inline-block;
   color: var(--bs-primary);
-  border: none;
+  border: 1px solid var(--bs-primary);
   /* filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.315)); */
   border-radius: 5px;
   outline: none;

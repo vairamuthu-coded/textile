@@ -50,9 +50,9 @@ const Dashboard = ({ title, subTitle }) => {
                   borderRadius: "10px",
                 }}
               >
-                <h3 className="mb-0 text-truncate" style={{ color: foreValue, fontSize: "16px", fontFamily: "Roboto" }}>
+                <strong className="mb-0 text-truncate" style={{ color: foreValue, fontSize: "16px", fontFamily: "Roboto" }}>
                   {item.menuname}
-                </h3>
+                </strong>
 
                 <img src={item.companylogoo || "/no-image.png"} alt="" style={{ width: "32px", height: "32px", objectFit: "contain" }} />
               </div>

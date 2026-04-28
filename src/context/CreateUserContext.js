@@ -1,5 +1,8 @@
 import React, { createContext, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import TaxMaster from "../Masters/TaxMaster";
+import TaxTempMaster from "../Masters/TaxTempMaster";
+import TaxTemplateDetails from "../Masters/TaxTemplateDetails";
 
 const DataContext = createContext({});
 export const DataProvider = ({
@@ -145,6 +148,7 @@ export const DataProvider = ({
   const [checkValues, setCheckValues] = useState([]);
   const [addRows3, setAddRows3] = useState([]);
   const [buyerValues, setBuyerValues] = useState([]);
+
   //const [countsValues, setCountsValues] = useState([]);
   //const [remarksValues, setRemarksValues] = useState([]);
   //const [loginCompCode, setLoginCompCode] = useState("PSS");
@@ -163,6 +167,22 @@ export const DataProvider = ({
   //const [menuNameValues, setMenuNameValues] = useState([])
   //const [naviValues, setNaviValues] = useState([]);
   // const [userRightValues, setUserRightValues] = useState([]);
+  const [agentValue, setAgentValue] = useState([]);
+
+  const [agentDetValue, setAgentDetValue] = useState([
+    {
+      Asptblagedetid: 0,
+      BuyerCode: "",
+      BuyerName: "",
+      Notes: "",
+    },
+  ]);
+
+  const [addCompcodes, setAddCompcodes] = useState([{ id: 1, compcode: 0, compname: "", notes: "" }]);
+  const [details, setDetails] = useState([{ sNo: 1, asptbltaxtemDetailsid: 0, adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", notes: "" }]);
+  const [taxValues, setTaxValues] = useState([]);
+  const [taxTempDetails, setTaxTempDetails] = useState([]);
+  const [taxTempValues, setTaxTempValues] = useState([]);
   const [sequenceTable, setSequenceTable] = useState("asptblautogeneratemas");
 
   const handlepage = async (selectedTitle) => {
@@ -202,9 +222,9 @@ export const DataProvider = ({
     let listitems = [...selectedValue];
     listitems.splice(index, 1);
     lists = listitems[0];
-    // FIXED: listitems <= 0  → listitems.length <= 0
+
     if (listitems.length <= 0) {
-      setSelectedValue([]); // FIX: cannot set string
+      setSelectedValue([]);
       setSelectedTitle(name);
     } else {
       setSelectedValue(listitems);
@@ -212,51 +232,51 @@ export const DataProvider = ({
       navigate(`/${lists}`);
     }
 
-    if (name === "CountryMaster") {
-      setCountryValues([]);
-      return;
-    }
-    if (name === "StateMaster") {
-      setStateValues([]);
-      return;
-    }
-    if (name === "CityMaster") {
-      setCityValues([]);
-      return;
-    }
-    if (name === "CompanyMaster") {
-      setCompanyValues([]);
-      return;
-    }
-    if (name === "BarcodeGenerate") {
-      setBarValues([]);
-      setAddRows([]);
-      return;
-    }
-    if (name === "ProductionEntry") {
-      setprodValues([]);
-      setAddRows1([]);
-      return;
-    }
-    if (name === "DefectEntry") {
-      setDefectValues([]);
-      return;
-    }
-    if (name === "CheckingEntry") {
-      setCheckValues([]);
-      setAddRows3([]);
-      return;
-    }
-    if (name === "BuyerMaster") {
-      setBuyerValues([]);
-      return;
-    }
-    if (name === "AutoGenerateMaster") {
-      setAutoValues([]);
-      return;
-    }
+    resetActions[name]?.();
   }
 
+  const resetActions = {
+    CountryMaster: () => setCountryValues([]),
+    StateMaster: () => setStateValues([]),
+    CityMaster: () => setCityValues([]),
+    CompanyMaster: () => setCompanyValues([]),
+    BarcodeGenerate: () => {
+      setBarValues([]);
+      setAddRows([]);
+    },
+    ProductionEntry: () => {
+      setprodValues([]);
+      setAddRows1([]);
+    },
+    DefectEntry: () => setDefectValues([]),
+    CheckingEntry: () => {
+      setCheckValues([]);
+      setAddRows3([]);
+    },
+    BuyerMaster: () => setBuyerValues([]),
+    AutoGenerateMaster: () => setAutoValues([]),
+    AgentMaster: () => {
+      setAgentValue([]);
+      setAgentDetValue([
+        {
+          Asptblagedetid: 0,
+          BuyerCode: "",
+          BuyerName: "",
+          Notes: "",
+        },
+      ]);
+    },
+
+    TaxMaster: () => {
+      setTaxValues([]);
+    },
+    TaxTempMaster: () => setTaxTempValues([]),
+    TaxTemplateDetails: () => {
+      setTaxTempDetails([]);
+      setAddCompcodes([{ id: 1, compcode: 0, compname: "", notes: "" }]);
+      setDetails([{ sNo: 1, asptbltaxtemDetailsid: 0, adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", notes: "" }]);
+    },
+  };
   return (
     <DataContext.Provider
       value={{
@@ -404,6 +424,20 @@ export const DataProvider = ({
         addColumns3,
         setAddColumns3,
         HeadersColumn3,
+        agentValue,
+        setAgentValue,
+        agentDetValue,
+        setAgentDetValue,
+        taxValues,
+        setTaxValues,
+        taxTempValues,
+        setTaxTempValues,
+        taxTempDetails,
+        setTaxTempDetails,
+        addCompcodes,
+        setAddCompcodes,
+        details,
+        setDetails,
       }}
     >
       {children}
