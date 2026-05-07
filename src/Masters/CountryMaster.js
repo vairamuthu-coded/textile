@@ -245,7 +245,7 @@ const CountryMaster = ({ title, subTitle }) => {
   return (
     <div onSubmit={handleSubmit}>
       {userRights.length > 0 && (
-        <div className="container-fluid animate-zoom ">
+        <div className="container-fluid animate-zoom">
           {!fetchError ? (
             <>
               <div style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>

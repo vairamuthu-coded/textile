@@ -452,6 +452,7 @@ tr {
   border-color: inherit;
   border-style: solid;
   border-width: 0;
+  background-color: red;
   margin: 0;
   padding: "6px";
 }

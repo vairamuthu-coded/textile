@@ -32,6 +32,7 @@ export const DataProvider = ({
   let lists = "";
   const [countryValues, setCountryValues] = useState("");
   const [po, setPo] = useState([]);
+  const [loading, setLoading] = useState([]);
   const [defpo, setDefPo] = useState([]);
   const [propo, setProPo] = useState([]);
   const [chkpo, setChkPo] = useState([]);
@@ -57,7 +58,7 @@ export const DataProvider = ({
   const [employeeValues, setEmployeeValues] = useState([]);
   const [sizeValues, setSizeValues] = useState([]);
   const [styleCatValues, setStyleCatValues] = useState([]);
-  const [sizeGroup, setSizeGroup] = useState([]);
+  const [sizeGroupValues, setSizeGroupValues] = useState([]);
   const [fabtype, setFabType] = useState([]);
   const [finYearData, setFinyear] = useState([]);
   const [yarnBlend, setYarnBlend] = useState([]);
@@ -73,7 +74,13 @@ export const DataProvider = ({
   const [counts, setCounts] = useState([]);
   const [lastindex1, setlastindex1] = useState(null);
   const [lastindex, setlastindex] = useState(null);
-
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    row: null,
+    index: null,
+  });
   const treeviewdata = [];
   //BarCodeGenerate
   const [color1, setColor1] = useState(["var(--bs-white)", "var(--bs-success)", "var(--bs-primary-text-emphasis)", "var(--bs-primary)"]);
@@ -185,6 +192,8 @@ export const DataProvider = ({
   const [taxTempValues, setTaxTempValues] = useState([]);
   const [sequenceTable, setSequenceTable] = useState("asptblautogeneratemas");
 
+  const [sizeGroupDetails, setsizeGroupDetails] = useState([{ asptblsizgrpDetid: "0", sizeGroupGrid: "0", sizename: "", sizeGroupRow: "" }]);
+
   const handlepage = async (selectedTitle) => {
     setHeaderSearch("");
     setHeaderDrop(false);
@@ -280,6 +289,10 @@ export const DataProvider = ({
   return (
     <DataContext.Provider
       value={{
+        loading,
+        contextMenu,
+        setContextMenu,
+        setLoading,
         handleClose,
         tabpageClick,
         lastindex,
@@ -367,8 +380,8 @@ export const DataProvider = ({
         setBuyerValues,
         sizeValues,
         setSizeValues,
-        sizeGroup,
-        setSizeGroup,
+        sizeGroupValues,
+        setSizeGroupValues,
         colorValues,
         setColorValues,
         employeeValues,
@@ -438,6 +451,8 @@ export const DataProvider = ({
         setAddCompcodes,
         details,
         setDetails,
+        sizeGroupDetails,
+        setsizeGroupDetails,
       }}
     >
       {children}

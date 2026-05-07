@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useRef } from "react";
 import SocialMissing from "../Social/SocialMissing";
 import { utilityState } from "../utilityState";
+import ActionButtton from "../ActionButtton";
 
 const TaxTemplateDetails = ({ title, subTitle }) => {
   const {
@@ -327,40 +328,30 @@ const TaxTemplateDetails = ({ title, subTitle }) => {
     return computedComments.slice((currentPage - 1) * ITEM_PER_PAGE, (currentPage - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE);
   }, [taxDetailsItems, currentPage, taxDetails_Search, sorting]);
 
-  const menuButtons = [
-    { key: "news", label: "News", action: TaxTemplate_New },
-    { key: "saves", label: "Save", action: TaxTemplate_Save },
-    { key: "deletes", label: "Delete", action: TaxTemplate_Delete },
-    { key: "searches", label: "Search", action: TaxTemplate_Search },
-    { key: "prints", label: "Prints", action: TaxTemplate_New },
-    { key: "treebutton", label: "TreeButton", action: TaxTemplate_New },
-    { key: "globalsearch", label: "Globalsearch", action: TaxTemplate_New },
-    { key: "login", label: "Login", action: TaxTemplate_New },
-    { key: "changepassword", label: "Changepassword", action: TaxTemplate_New },
-    { key: "changeskin", label: "Changeskin", action: TaxTemplate_New },
-    { key: "contact", label: "Contact", action: TaxTemplate_New },
-    { key: "pdf", label: "Pdf", action: TaxTemplate_New },
-    { key: "import", label: "Import", action: TaxTemplate_New },
-    { key: "download", label: "Download", action: TaxTemplate_New },
-  ];
-
   return (
     <>
       {userRights?.length > 0 && (
         <div className="container-fluid animate-zoom p-1">
           <div className="row" style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
-            <ul className="boxShadow d-flex justify-content-end">
-              {menuButtons.map(
-                (btn, index) =>
-                  userRights[0][btn.key] === "T" && (
-                    <li key={index}>
-                      <button className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{ backgroundColor: colorValue }} onClick={btn.action}>
-                        {btn.label}
-                      </button>
-                    </li>
-                  ),
-              )}
-            </ul>
+            <ActionButtton
+              news={TaxTemplate_New}
+              saves={TaxTemplate_Save}
+              deletes={TaxTemplate_Delete}
+              searches={TaxTemplate_New}
+              prints={TaxTemplate_New}
+              treebutton={TaxTemplate_New}
+              globalsearch={TaxTemplate_New}
+              login={TaxTemplate_New}
+              changepassword={TaxTemplate_New}
+              changeskin={TaxTemplate_New}
+              contact={TaxTemplate_New}
+              pdf={TaxTemplate_New}
+              imports={TaxTemplate_New}
+              download={TaxTemplate_New}
+              userRights={userRights}
+              colorValue={colorValue}
+              newButton={newButton}
+            />
             <ul className="" style={{ backgroundColor: `${colorValue}` }}>
               <li className="ps-2">
                 {" "}

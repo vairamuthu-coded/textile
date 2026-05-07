@@ -11,6 +11,8 @@ import { utilityState } from "../utilityState";
 const AgentMaster = ({ title, subTitle }) => {
   const {
     newButton,
+    setSelectedTitle,
+    selectedTitle,
     setNewButton,
     tabindex,
     API_URL,

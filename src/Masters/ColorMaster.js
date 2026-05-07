@@ -249,7 +249,7 @@ const ColorMaster = ({ title, subTitle }) => {
   return (
     <form onSubmit={handleSubmit}>
       {userRights.length > 0 && (
-        <div className="container-fluid animate-zoom">
+        <div className="container-fluid animate-zoom ">
           <div className="row" style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
             <ul className="d-flex flex-row-reverse boxShadow">
               {buttonConfig.map((btn, index) => {

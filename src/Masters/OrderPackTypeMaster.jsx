@@ -104,7 +104,7 @@ const OrderPackTypeMaster = ({ title, subTitle }) => {
 
       const payload = {
         asptblordpactypmasid: isUpdate ? orderPackTypeValues.asptblordpactypmasid : 0,
-        orderPackType: orderPackTypeValues.orderPackType,
+        orderPackType: orderPackTypeValues.orderPackType.toUpperCase(),
         noOfPcs: orderPackTypeValues.noOfPcs,
         active: orderPackTypeValues.active ? "T" : "F",
       };
