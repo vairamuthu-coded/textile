@@ -3453,7 +3453,8 @@ img {
   right: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: top;
+  padding-top: 7%;
   align-items: center;
   align-content: center;
   width: 100%;

@@ -7,7 +7,8 @@ import { toast } from "react-toastify";
 import "../ContextMenu.css";
 import ContextMenu from "../ContextMenu";
 import ActionButtton from "../ActionButtton";
-
+import Popup from "../Popup.jsx";
+import imagebutton from "../Images/win.png";
 const OrderEntry = ({ title, subTitle }) => {
   const {
     API_URL,
@@ -60,7 +61,9 @@ const OrderEntry = ({ title, subTitle }) => {
   const PayTermsParam = `${API_URL}/PayTermMasters`;
   const CurrencyMastersParam = `${API_URL}/CurrencyMasters`;
   const StyleCategoryParams = `${API_URL}/StyleCategoryMasters`;
-
+  const StyleItemMastersParams = `${API_URL}/StyleItemMasters`;
+  const [popupType, setPopupType] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
   const [order, setOrder] = useState([]);
   const [userRights1, setUserRights1] = useState([]);
   const [items, setItems] = useState([]);
@@ -76,10 +79,11 @@ const OrderEntry = ({ title, subTitle }) => {
   const [payTermItems, setPayTermItems] = useState([]);
   const [currencyItems, setCurrencyItems] = useState([]);
   const [styleCategoryItems, setStyleCategoryItems] = useState([]);
+  const [styleItems, setStyleItems] = useState([]);
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [userRes, sizeGroupRes, sizeRes, styleGroupRes, colorRes, comboRes, buyerRes, agentRes, uomRes, orderPackTypeRes, payTermRes, currencyRes, styleCategoryRes] = await Promise.all([
+        const [userRes, sizeGroupRes, sizeRes, styleGroupRes, colorRes, comboRes, buyerRes, agentRes, uomRes, orderPackTypeRes, payTermRes, currencyRes, styleCategoryRes, styleitemRes] = await Promise.all([
           axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
           axios.get(insert_update),
           axios.get(SizeParam),
@@ -93,6 +97,7 @@ const OrderEntry = ({ title, subTitle }) => {
           axios.get(PayTermsParam),
           axios.get(CurrencyMastersParam),
           axios.get(StyleCategoryParams),
+          axios.get(StyleItemMastersParams),
         ]);
         setUserRights1(userRes.data);
         setItems(sizeGroupRes.data || []);
@@ -107,6 +112,7 @@ const OrderEntry = ({ title, subTitle }) => {
         setPayTermItems(payTermRes.data || []);
         setCurrencyItems(currencyRes.data || []);
         setStyleCategoryItems(styleCategoryRes.data || []);
+        setStyleItems(styleitemRes.data);
       } catch (error) {
         setFetchError(error);
         toast.error(error);
@@ -138,7 +144,7 @@ const OrderEntry = ({ title, subTitle }) => {
     setNewButton(1);
   };
   const OrderEntry_Search = () => {
-    setNewButton(1);
+    setNewButton(3);
   };
   const OrderEntry_Prints = () => {
     setNewButton(1);
@@ -213,7 +219,6 @@ const OrderEntry = ({ title, subTitle }) => {
 
   const handleInsertBefore = () => {
     if (contextMenu.index == null) return;
-
     let values = [...orderSizeValues];
     values.splice(contextMenu.index, 0, { AsptblOrdSizid: "", AsptblOrdid: "", Sizename: "", BuyerPrice: "", Notes: "" });
 
@@ -263,8 +268,15 @@ const OrderEntry = ({ title, subTitle }) => {
   };
 
   const handleComboChange = (index, field, value) => {
-    // setOrderOrdValues((prev) => prev.map((row, i) => (i === rowIndex ? { ...row, [field]: value } : row)));
     const updated = [...orderOrdValues];
+
+    // if (value === "Yes" && field === "StyleDetails") {
+    //   setShowPopup(true);
+    // }
+    // if (field === "sNo") {
+    //   updated[index][field] = Number(index);
+    //   toast.info(JSON.stringify(updated[index].sNo));
+    // }
     updated[index][field] = value;
 
     setOrderOrdValues(updated);
@@ -273,7 +285,9 @@ const OrderEntry = ({ title, subTitle }) => {
   const SizeGropupMaster_Check = async (id) => {
     try {
       if (id !== "") {
+        setOrderSizeValues([]);
         var res = await axios.get(`${insert_update}/${id}`);
+        setPopupDataCopy([]);
         setOrderSizeValues(res?.data);
       }
     } catch (err) {
@@ -284,36 +298,83 @@ const OrderEntry = ({ title, subTitle }) => {
   };
 
   const orderSizeHeaders = [
-    { field: "sNo", label: "SNo", visible: "true", type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "asptblOrdSizid", label: "AsptblOrdSizid", type: "text", visible: "true", widths: "50px", pattern: "", disabled: true },
-    { field: "asptblOrdid", label: "AsptblOrdid", visible: "true", type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "sizename", label: "SizeName", visible: "true", type: "select", widths: "250px", pattern: "", disabled: true },
-    { field: "buyerPrice", label: "BuyerPrice", visible: "true", type: "text", widths: "250px", pattern: "", disabled: false },
-    { field: "notes", label: "Notes", visible: "true", type: "text", widths: "50px", pattern: "", disabled: false },
+    { field: "sNo", label: "SNo", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "asptblOrdSizid", label: "AsptblOrdSizid", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
+    { field: "asptblOrdid", label: "AsptblOrdid", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "sizename", label: "SizeName", visible: true, type: "select", widths: "250px", pattern: "", disabled: true },
+    { field: "buyerPrice", label: "BuyerPrice", visible: true, type: "text", widths: "250px", pattern: "", disabled: false },
+    { field: "notes", label: "Notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
   ];
 
   const [orderOrdValues, setOrderOrdValues] = useState([
-    { sNo: "", AsptblOrdDetailsid: "", AsptblOrdid: "", StyleGroup: "", BPono: "", BPoDate: "", Combo: "", Color: "", RatioYN: "", Ratio: "", Ratio: "", ColorQty: "", TotalQty: "", StyleDetails: "", Notes: "" },
+    {
+      sNo: "",
+      AsptblOrdDetailsid: "",
+      AsptblOrdid: "",
+      StyleGroup: "",
+      BPono: "",
+      BPoDate: "",
+      Combo: "",
+      Color: "",
+      RatioYN: "",
+      Ratio: "",
+      Ratio: "",
+      ColorQty: "",
+      TotalQty: "",
+      StyleDetails: "",
+      Notes: "",
+    },
   ]);
 
   const orderComboHeaders = [
-    { field: "sNo", label: "S.No", visible: "true", type: "text", widths: "50px", pattern: "" },
-    { field: "asptblOrdDetailsid", label: "ID", visible: "true", type: "text", disabled: true, widths: "50px", pattern: "" },
-    { field: "AsptblOrdid", label: "OrderID", visible: "true", type: "text", disabled: true, widths: "50px", pattern: "" },
-    { field: "StyleGroup", label: "StyleGroup", visible: "true", type: "select", widths: "250px", pattern: "" },
-    { field: "BPono", label: "BPono", visible: "true", type: "select", widths: "250px", pattern: "" },
-    { field: "BPoDate", label: "Date", visible: "true", type: "date", widths: "150px", pattern: "" },
-    { field: "Combo", label: "Combo", visible: "true", type: "select", widths: "350px", pattern: "" },
-    { field: "Color", label: "Color", visible: "true", type: "select", widths: "350px", pattern: "" },
-    { field: "RatioYN", label: "RatioY/N", visible: "true", type: "selectYN", widths: "50px", pattern: "" },
-    { field: "Ratio", label: "Ratio", visible: "true", type: "text", widths: "50px", pattern: "" },
-    { field: "ColorQty", label: "ColorQty", visible: "true", type: "text", widths: "50px", pattern: "" },
-    { field: "TotalQty", label: "TotalQty", visible: "true", type: "text", widths: "50px", pattern: "" },
-    { field: "StyleDetails", label: "StyleDetails", visible: "true", type: "selectYN", widths: "150px", pattern: "" },
-    { field: "Notes", label: "Notes", visible: "true", type: "text", widths: "20px", pattern: "" },
-    { field: "Action", label: "Add", visible: true, type: "button", width: "20px" },
-    ,
+    { field: "sNo", label: "S.No", visible: true, type: "text", widths: "50px", pattern: "" },
+    { field: "asptblOrdDetailsid", label: "ID", value: "0", visible: false, type: "text", disabled: true, widths: "50px", pattern: "" },
+    { field: "AsptblOrdid", label: "OrderID", value: "0", visible: false, type: "text", disabled: true, widths: "50px", pattern: "" },
+    { field: "StyleGroup", label: "StyleGroup", visible: true, type: "select", widths: "250px", pattern: "" },
+    { field: "BPono", label: "BPono", visible: true, type: "select", widths: "250px", pattern: "" },
+    { field: "BPoDate", label: "Date", visible: true, type: "date", widths: "150px", pattern: "" },
+    { field: "Combo", label: "Combo", visible: true, type: "select", widths: "350px", pattern: "" },
+    { field: "Color", label: "Color", visible: true, type: "select", widths: "350px", pattern: "" },
+    { field: "RatioYN", label: "RatioY/N", visible: true, type: "selectYN", widths: "50px", pattern: "" },
+    { field: "Ratio", label: "Ratio", value: "10", visible: true, type: "text", widths: "50px", pattern: "" },
+    { field: "ColorQty", label: "ColorQty", value: "1000", visible: true, type: "text", widths: "50px", pattern: "" },
+    { field: "TotalQty", label: "TotalQty", value: "5000", visible: true, type: "text", widths: "50px", pattern: "" },
+    { field: "StyleDetails", label: "Det", visible: true, type: "img", widths: "10px", pattern: "" },
+    { field: "Notes", label: "Notes", value: "10", visible: true, type: "text", widths: "20px", pattern: "" },
+    { field: "Action", label: "Add", visible: true, type: "button", widths: "20px" },
   ];
+
+  const orderPopUpHeaders = [
+    { field: "sNo", label: "SNo", visible: true, type: "text", widths: "50px", disabled: true },
+    { field: "rowIndex", label: "Row", visible: true, type: "text", widths: "10px", disabled: true },
+    { field: "AsptblPopUpOrdid", label: "asptblPopUpOrdid", visible: false, type: "text", widths: "50px", disabled: true },
+    { field: "AsptblOrdSizid", label: "AsptblOrdSizid", visible: false, type: "text", widths: "50px", disabled: true },
+    { field: "AsptblOrdid", label: "AsptblOrdid", visible: false, type: "text", widths: "50px", disabled: true },
+    { field: "Styleitem", label: "Styleitem", visible: true, type: "select", widths: "250px", disabled: false },
+    { field: "Sizename", label: "SizeName", visible: true, type: "select", widths: "250px", disabled: false },
+    { field: "AssortQty", label: "AssortQty", visible: true, type: "text", widths: "120px", disabled: false },
+    { field: "ShipQty", label: "ShipQty", visible: true, type: "text", widths: "120px", disabled: false },
+    { field: "ExcessQty", label: "ExcessQty", visible: true, type: "text", widths: "120px", disabled: false },
+    { field: "ProdQty", label: "ProdQty", visible: true, type: "text", widths: "120px", disabled: false },
+    { field: "Notes", label: "Notes", visible: true, type: "text", widths: "150px", disabled: false },
+    { field: "Action", label: "Add", visible: true, type: "button", widths: "20px", disabled: false },
+  ];
+
+  const [popupData, setPopupData] = useState([]);
+
+  const handlePopupChange = (e, rowIndex, field) => {
+    const updated = [...popupData];
+    updated[rowIndex][field] = e.target.value;
+
+    // Auto calculate ExcessQty
+    const assort = Number(updated[rowIndex].AssortQty || 0);
+    const ship = Number(updated[rowIndex].ShipQty || 0);
+    updated[rowIndex].ExcessQty = ship - assort;
+
+    setPopupData(updated);
+  };
+
+  const [showModal, setShowModal] = useState(false);
 
   const handleAddRow = (index) => {
     const newRow = {
@@ -335,12 +396,135 @@ const OrderEntry = ({ title, subTitle }) => {
 
     const updated = [...orderOrdValues];
     updated.splice(index + 1, 0, newRow);
-
     setOrderOrdValues(updated);
   };
+
   const handleDeleteRow = (index) => {
     const updated = orderOrdValues.filter((_, i) => i !== index);
     setOrderOrdValues(updated);
+  };
+  const [sequence, setSquence] = useState();
+  const [popupDataCopy, setPopupDataCopy] = useState("");
+
+  const addRow = (index) => {
+    const newRow = {
+      sNo: "",
+      rowIndex: Number(sequence),
+      AsptblPopUpOrdid: "0",
+      AsptblOrdSizid: "0",
+      AsptblOrdid: "0",
+      Styleitem: "",
+      Sizename: "",
+      AssortQty: "",
+      ShipQty: "",
+      ExcessQty: "",
+      ProdQty: "",
+      Notes: "",
+    };
+
+    const updated = [...popupData];
+    updated.splice(index + 1, 0, newRow);
+    setPopupData(updated);
+  };
+
+  const handleStyleDetails = (row, rowIndex) => {
+    const finid = Number(rowIndex) + 1;
+
+    if (popupDataCopy.length >= 1) {
+      const filteredData = popupDataCopy.filter((item) => item.rowIndex === finid);
+      if (filteredData.length >= 1) {
+        setSquence(finid);
+        setPopupData(filteredData);
+        setShowPopup(true);
+      } else {
+        const seq = finid;
+        setSquence(seq);
+        setPopupData([]);
+        const newrow = orderSizeValues.map((item) => ({
+          sNo: "",
+          rowIndex: seq,
+          AsptblPopUpOrdid: "0",
+          AsptblOrdSizid: "0",
+          AsptblOrdid: "0",
+          Styleitem: "",
+          Sizename: item.sizename,
+          AssortQty: "",
+          ShipQty: "",
+          ExcessQty: "",
+          ProdQty: "",
+          Notes: "",
+        }));
+
+        setPopupData((prev) => [...prev, ...newrow]);
+        setShowPopup(true);
+      }
+    } else {
+      const seq = finid;
+      setSquence(seq);
+      setPopupData([]);
+      const newrow = orderSizeValues.map((item) => ({
+        sNo: "",
+        rowIndex: seq,
+        AsptblPopUpOrdid: "0",
+        AsptblOrdSizid: "0",
+        AsptblOrdid: "0",
+        Styleitem: "",
+        Sizename: item.sizename,
+        AssortQty: item.ratio,
+        ShipQty: "",
+        ExcessQty: "",
+        ProdQty: "",
+        Notes: "",
+      }));
+
+      setPopupData((prev) => [...prev, ...newrow]);
+
+      setShowPopup(true);
+    }
+  };
+
+  const handlePopupPopulate = () => {
+    setShowPopup(true);
+    setPopupData([]);
+    const finid = Number(sequence);
+    if (orderSizeValues.length >= 1) {
+      const finid = Number(sequence);
+      const filteredData = popupDataCopy.filter((item) => item.rowIndex === finid);
+      if (filteredData.length >= 1) {
+        setPopupData(filteredData);
+      }
+    } else {
+      toast.error("Invalid Row");
+    }
+  };
+
+  const handlePopupSave = () => {
+    setShowPopup(false);
+    setPopupData([]);
+    const finid = Number(sequence);
+    if (popupDataCopy.length >= 1) {
+      const filteredData = popupDataCopy.filter((item) => item.rowIndex === finid);
+      if (filteredData.length === 0) {
+        setPopupDataCopy((prev) => [...prev, ...popupData]);
+      }
+    } else {
+      setPopupDataCopy((prev) => [...prev, ...popupData]);
+    }
+  };
+
+  const handlePopupClear = () => {
+    setShowPopup(true);
+    setPopupData([]);
+    const finid = Number(sequence);
+    if (popupDataCopy.length >= 1) {
+      const finid = Number(sequence);
+
+      setPopupData((prev) => prev.filter((item) => item.rowIndex !== finid));
+      // const filteredData = popupDataCopy.filter((item) => item.rowIndex === finid);
+      // if (filteredData.length === 0) {
+      //   setPopupDataCopy((prev) => [...prev, ...popupData]);
+      // }
+    }
   };
 
   return (
@@ -366,20 +550,6 @@ const OrderEntry = ({ title, subTitle }) => {
             colorValue={colorValue}
             newButton={newButton}
           />
-
-          {/* <ul className="boxShadow" style={{ display: "flex", justifyContent: "flex-end", margin: "0 0 5px 0", flexWrap: "wrap", gap: "5px" }}>
-            {buttons.map((btn, index) => {
-              const isVisible = userRights1?.[0]?.[btn.key] === "T";
-              if (!isVisible) return null;
-              return (
-                <li key={index}>
-                  <button type="button" className={newButton === index ? "tabs active-tabs" : "tabs"} style={{ backgroundColor: colorValue }} onClick={btn.action}>
-                    {btn.label}
-                  </button>
-                </li>
-              );
-            })}
-          </ul> */}
 
           <div className="col-md-12">
             <div className="row  pt-1">
@@ -435,7 +605,7 @@ const OrderEntry = ({ title, subTitle }) => {
                 </div>
                 <div className="row pt-1">
                   <label className="col-4"> OrderQty </label>
-                  <input type="text" className="col-8" name="OrderQty" value={order.OrderQty || ""} onChange={handleChange} ref={(el) => (inputRefs.current[10] = el)} onKeyDown={(e) => handleKeyDown(e, 10)} />
+                  <input type="text" className="col-8" name="OrderQty" value={5000 || ""} onChange={handleChange} ref={(el) => (inputRefs.current[10] = el)} onKeyDown={(e) => handleKeyDown(e, 10)} />
                 </div>
 
                 <div className="row pt-1">
@@ -617,7 +787,7 @@ const OrderEntry = ({ title, subTitle }) => {
               </div>
               <div className="col-md-3">
                 <label className="col-md-4"> SizeTemplate </label>
-                <select className="col-md-8" name="Sizegroup" value={order.Sizegroup || ""} onChange={handleChange} ref={(el) => (inputRefs.current[26] = el)} onKeyDown={(e) => handleKeyDown(e, 26)}>
+                <select className="col-md-8" name="Sizegroup" value={order.sizeGroup || ""} onChange={handleChange} ref={(el) => (inputRefs.current[26] = el)} onKeyDown={(e) => handleKeyDown(e, 26)}>
                   <option></option>
                   {items?.map((item, i) => (
                     <option key={i} value={item.asptblsizgrpDetid}>
@@ -705,7 +875,7 @@ const OrderEntry = ({ title, subTitle }) => {
                                   .map((col, colIndex) => {
                                     const value = row[col.field] || "";
 
-                                    if (col.field === "SNo") {
+                                    if (col.field === "sNo") {
                                       return (
                                         <td key={colIndex} className="text-center p-0" style={{ width: col.widths, disabled: col.disabled }}>
                                           {rowIndex + 1}
@@ -750,9 +920,9 @@ const OrderEntry = ({ title, subTitle }) => {
                 <div className={newButton === 2 ? "content active-content" : "content"}>
                   <div className="row animate-zoom">
                     <div className="table-responsive">
-                      <div className="table-responsive" style={{ maxHeight: "400px" }}>
+                      <div className="table-responsive" style={{ maxHeight: "300px", overflow: "auto" }}>
                         <table className="table table-bordered table-sm align-middle mb-0">
-                          <thead style={{ backgroundColor: colorValue, color: foreValue }}>
+                          <thead style={{ backgroundColor: colorValue, color: foreValue, position: "sticky" }}>
                             <tr>
                               {orderComboHeaders
                                 .filter((col) => col.visible)
@@ -760,7 +930,7 @@ const OrderEntry = ({ title, subTitle }) => {
                                   <th
                                     key={col.field}
                                     style={{
-                                      width: col.width,
+                                      width: col.widths,
                                       fontFamily: "Roboto",
                                       fontSize: "var(--bs-font-sm)",
                                       backgroundColor: colorValue,
@@ -783,12 +953,16 @@ const OrderEntry = ({ title, subTitle }) => {
                                   .filter((col) => col.visible)
                                   .map((col, colIndex) => {
                                     const value = row[col.field] || "";
-
+                                    const commonStyle = {
+                                      width: col.widths,
+                                      padding: 0,
+                                      margin: 0,
+                                    };
                                     // S.No
-                                    if (col.field === "SNo") {
+                                    if (col.field === "sNo") {
                                       return (
-                                        <td key={colIndex} className="text-center p-0" style={{ width: col.width, margin: "0", padding: "0" }}>
-                                          {rowIndex + 1}
+                                        <td key={colIndex} className="text-center p-0" style={{ width: col.widths, margin: "0", padding: "0" }}>
+                                          <input type="text" className="w-100" style={{ padding: "4px" }} value={rowIndex + 1} disabled={col.disabled} onChange={(e) => handleComboChange(rowIndex, col.field, e.target.value)} />
                                         </td>
                                       );
                                     }
@@ -796,8 +970,8 @@ const OrderEntry = ({ title, subTitle }) => {
                                     // TEXT
                                     if (col.type === "text") {
                                       return (
-                                        <td key={colIndex} className="p-0" style={{ width: col.width, margin: "0", padding: "0px" }}>
-                                          <input type="text" className="w-100" style={{ padding: "4px" }} value={value} disabled={col.disabled} onChange={(e) => handleComboChange(rowIndex, col.field, e.target.value)} />
+                                        <td key={colIndex} className="p-0" style={{ width: col.widths, margin: "0", padding: "0px" }}>
+                                          <input type="text" className="w-100" style={{ padding: "4px" }} value={col.value} disabled={col.disabled} onChange={(e) => handleComboChange(rowIndex, col.field, e.target.value)} />
                                         </td>
                                       );
                                     }
@@ -805,13 +979,11 @@ const OrderEntry = ({ title, subTitle }) => {
                                     // DATE
                                     if (col.type === "date") {
                                       return (
-                                        <td key={colIndex} className="p-0" style={{ width: col.width, margin: "0", padding: "0" }}>
+                                        <td key={colIndex} className="p-0" style={{ width: col.widths, margin: "0", padding: "0" }}>
                                           <input type="date" className="w-100" style={{ padding: "3px" }} value={value} onChange={(e) => handleComboChange(rowIndex, col.field, e.target.value)} />
                                         </td>
                                       );
                                     }
-
-                                    // SELECT (DYNAMIC FIX)
                                     if (col.type === "select") {
                                       let options = [];
 
@@ -840,12 +1012,21 @@ const OrderEntry = ({ title, subTitle }) => {
                                     // YES / NO
                                     if (col.type === "selectYN") {
                                       return (
-                                        <td key={colIndex} className="p-0" style={{ width: col.width, margin: "0", padding: "0" }}>
+                                        <td key={colIndex} className="p-0" style={{ width: col.widths, margin: "0", padding: "0" }}>
                                           <select className="w-100 p-1" value={value} name={col.field} onChange={(e) => handleComboChange(rowIndex, col.field, e.target.value)}>
                                             <option value=""></option>
                                             <option value="Yes">Yes</option>
                                             <option value="No">No</option>
                                           </select>
+                                        </td>
+                                      );
+                                    }
+
+                                    // IMAGE
+                                    if (col.type === "img") {
+                                      return (
+                                        <td key={colIndex} className="text-center p-0" style={{ width: col.widths, margin: "0", padding: "0" }}>
+                                          <img src={imagebutton} className="p-0 m-0" style={{ height: "20px" }} onClick={() => handleStyleDetails(row, rowIndex)} />
                                         </td>
                                       );
                                     }
@@ -867,12 +1048,125 @@ const OrderEntry = ({ title, subTitle }) => {
                     </div>
                   </div>
                 </div>
-                <div className={newButton === 3 ? "content active-content" : "content"}>
-                  <button className="row animate-zoom  button">Shipment Details</button>
-                </div>
+                <div className={newButton === 3 ? "content active-content" : "content"}></div>
               </div>
             </div>
           </div>
+
+          {/* //----------- popup start */}
+          <Popup
+            show={showPopup}
+            onClose={() => setShowPopup(false)}
+            title="Style Details"
+            foreValue={foreValue}
+            colorValue={colorValue}
+            popupDataCopy={popupDataCopy}
+            setPopupDataCopy={setPopupDataCopy}
+            handlePopupPopulate={handlePopupPopulate}
+            handlePopupSave={handlePopupSave}
+            handlePopupClear={handlePopupClear}
+          >
+            <div className="row animate-zoom" style={{ height: "300px" }}>
+              <div className="table-responsive">
+                <div className="table-responsive" style={{ maxHeight: "300px", overflow: "auto" }}>
+                  <table className="table table-bordered table-sm align-middle mb-0">
+                    <thead style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, position: "sticky" }}>
+                      <tr>
+                        {orderPopUpHeaders
+                          .filter((col) => col.visible)
+                          .map((col) => (
+                            <th
+                              key={col.field}
+                              style={{
+                                width: col.widths,
+                                fontFamily: "Roboto",
+                                fontSize: "var(--bs-font-sm)",
+                                backgroundColor: `${colorValue}`,
+                                color: `${foreValue}`,
+                                padding: "0",
+                                margin: "0",
+                              }}
+                              className="p-2"
+                            >
+                              {col.label}
+                            </th>
+                          ))}
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {popupData.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {orderPopUpHeaders
+                            .filter((col) => col.visible)
+                            .map((col, colIndex) => {
+                              const value = row[col.field] || "";
+                              if (col.field === "sNo") {
+                                return (
+                                  <td key={colIndex} className="text-center p-0" style={{ width: col.widths, margin: "0", padding: "0" }} onChange={(e) => handlePopupChange(e, rowIndex, col.field)}>
+                                    <input type="text" className="w-100" style={{ padding: "4px" }} value={rowIndex + 1} disabled={col.disabled} onChange={(e) => handlePopupChange(e, rowIndex, col.field)} />
+                                  </td>
+                                );
+                              }
+                              if (col.field === "rowIndex") {
+                                return (
+                                  <td key={colIndex} className="text-center p-0" style={{ width: col.widths, margin: "0", padding: "0" }} onChange={(e) => handlePopupChange(e, rowIndex, col.field)}>
+                                    <input type="text" className="w-100" style={{ padding: "4px" }} value={value} disabled={col.disabled} onChange={(e) => handlePopupChange(e, rowIndex, col.field)} />
+                                  </td>
+                                );
+                              }
+                              // SELECT
+                              if (col.type === "select") {
+                                let options = [];
+
+                                if (col.field === "Styleitem") {
+                                  options = styleItems;
+                                } else if (col.field === "Sizename") {
+                                  options = sizeItems;
+                                }
+
+                                return (
+                                  <td key={colIndex} className="p-0" style={{ width: col.widths, margin: "0", padding: "0" }}>
+                                    <select className="w-100 p-1" value={value} onChange={(e) => handlePopupChange(e, rowIndex, col.field)}>
+                                      <option value=""></option>
+                                      {options.map((item, i) => (
+                                        <option key={i} value={item.asptblstyleitemmasid || item.asptblsizmasid}>
+                                          {item.styleitem || item.sizename}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </td>
+                                );
+                              }
+
+                              // BUTTON
+                              if (col.type === "button") {
+                                return (
+                                  <td key={colIndex} className="p-0 " style={{ width: col.widths, margin: "0", padding: "0" }}>
+                                    <button className="bg-primary" onFocus={() => addRow(rowIndex)}>
+                                      ADD
+                                    </button>
+                                  </td>
+                                );
+                              }
+
+                              // INPUT
+                              return (
+                                <td key={colIndex} className="p-0" style={{ width: col.widths, margin: "0", padding: "0px" }}>
+                                  <input type={col.type} className="w-100" style={{ padding: "4px" }} value={value} onChange={(e) => handlePopupChange(e, rowIndex, col.field)} />
+                                </td>
+                              );
+                            })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </Popup>
+          {/* 
+          //------------ pop end */}
         </div>
       )}
     </div>
