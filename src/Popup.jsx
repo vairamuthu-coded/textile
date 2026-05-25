@@ -19,6 +19,12 @@ const Popup = ({ show, onClose, title, children, foreValue, colorValue, popupDat
             <div className="position-sticky bottom-0 bg-white">
               <ul className="list-unstyled">
                 <li className="d-flex justify-content-end">
+                  <div className="d-flex justify-content-start gap-2  w-100" style={{ backgroundColor: `${colorValue}` }}>
+                    <button className="bg-primary p-2">Populate</button>
+                    <button className="bg-success p-2">Save</button>
+                    <button className="bg-danger  p-2">Cancel</button>
+                  </div>
+
                   <div className="d-flex justify-content-end gap-2  w-100" style={{ backgroundColor: `${colorValue}` }}>
                     <button className="bg-primary p-2" onClick={handlePopupPopulate}>
                       Populate

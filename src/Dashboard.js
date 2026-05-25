@@ -54,7 +54,7 @@ const Dashboard = ({ title, subTitle }) => {
                   {item.menuname}
                 </strong>
 
-                <img src={item.companylogoo || "/no-image.png"} alt="" style={{ width: "32px", height: "32px", objectFit: "contain" }} />
+                <img src={item.companylogoo || "/no-image.png"} alt="" style={{ width: "40px", height: "32px", objectFit: "contain" }} />
               </div>
             </div>
           ))}

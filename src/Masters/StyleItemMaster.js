@@ -177,7 +177,7 @@ const StyleItemMaster = ({ title, subTitle }) => {
           styleitem: selectText + "/" + selectTextGroup,
           aliasname: styleItemValues.aliasname,
           hsn: styleItemValues.hsn,
-          active: active === true ? "T" : "F",
+          active: styleItemValues.active === true ? "T" : "F",
         };
 
         await axios

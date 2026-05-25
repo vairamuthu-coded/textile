@@ -14,7 +14,7 @@ const Tabpage = ({ title, colorValue }) => {
   return (
     <>
       <div className="container-fluid pb-1">
-        <ul className="bloc-tabs d-flex flex-nowrap flex-md-wrap" style={{ margin: 0, padding: 0, listStyle: "none", overflowX: "auto" }} onClick={handleSubmit}>
+        <ul className="d-flex flex-nowrap flex-md-wrap" style={{ margin: 0, padding: 0, listStyle: "none", overflowX: "auto" }} onClick={handleSubmit}>
           <li className={`tabs ${title === null ? "active-tabs" : ""}`}>
             <Link className="tab-link" to="/AdminDashboard">
               Admin
@@ -34,7 +34,13 @@ const Tabpage = ({ title, colorValue }) => {
               <li key={index} className="d-flex align-items-center" onClick={() => tabpageClick(name, index)}>
                 <button className="d-flex align-items-center  justify-content-between" style={{ backgroundColor: `${colorValue}` }}>
                   <strong className="text-truncate">{name}</strong>
-                  <i className="fa fa-times-circle" onClick={(e) => handleClose(index, name)}></i>
+                  <i
+                    className="fa fa-times-circle ms-0 text-white fw-bold"
+                    onClick={(e) => handleClose(index, name)}
+                    style={{
+                      cursor: "pointer",
+                    }}
+                  ></i>
                 </button>
               </li>
             ))}
