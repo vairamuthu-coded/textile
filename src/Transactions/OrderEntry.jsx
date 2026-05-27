@@ -10,7 +10,8 @@ import ActionButtton from "../ActionButtton";
 import Popup from "../Popup.jsx";
 import imagebutton from "../Images/win.png";
 import MultiSelect from "../Custom/MultiSelect.jsx";
-
+import defaultimage from "../Images/win.png";
+import ImageUploader from "../Custom/ImageUploader.jsx";
 const OrderEntry = ({ title, subTitle }) => {
   const {
     API_URL,
@@ -48,6 +49,16 @@ const OrderEntry = ({ title, subTitle }) => {
     setContextMenu,
     setFetchError,
     fetchError,
+    order,
+    setOrder,
+    orderSizeValues,
+    setOrderSizeValues,
+    orderOrdValues,
+    setOrderOrdValues,
+    ordeShiValues,
+    setOrdeShiValues,
+    popupData,
+    setPopupData,
   } = useContext(DataContext);
   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
   const insert_update = `${API_URL}/SizeGroupMasters`;
@@ -66,15 +77,13 @@ const OrderEntry = ({ title, subTitle }) => {
   const StyleItemMastersParams = `${API_URL}/StyleItemMasters`;
   const [popupType, setPopupType] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-  const [order, setOrder] = useState([]);
+
   const [userRights1, setUserRights1] = useState([]);
   const [items, setItems] = useState([]);
   const [sizeItems, setSizeItems] = useState([]);
   const [colorItems, setColorItems] = useState([]);
   const [comboItems, setComboItems] = useState([]);
-
   const [styleGroupItems, setStyleGroupItems] = useState([]);
-  const [orderSizeValues, setOrderSizeValues] = useState([{ AsptblOrdSizid: "", AsptblOrdid: "", Sizename: "", BuyerPrice: "", Notes: "" }]);
   const [buyerItems, setBuyerItems] = useState([]);
   const [buyerAgent, setBuyerAgent] = useState([]);
   const [UomItems, setUomItems] = useState([]);
@@ -127,15 +136,25 @@ const OrderEntry = ({ title, subTitle }) => {
     loadData();
   }, []);
 
+  const [ordimages, setordImage] = useState({
+    imageFile: null,
+    imagesrc: defaultimage,
+    filetype: "",
+  });
+
   const handleChange = (e) => {
-    const { name, value, checked, type } = e.target;
+    const { name, value, checked, type, files } = e.target;
     const finalValue = type === "checkbox" ? checked : type === "number" ? Number(value) : value;
+    if (name === "Sizegroup") {
+      SizeGropupMaster_Check(finalValue);
+    }
+    if (name === "imageuploader") {
+      ImageUploader(e);
+    }
     setOrder((prev) => ({
       ...prev,
-      [name]: finalValue,
+      [name === "SplCategory" ? "categorySelected" : name]: finalValue,
     }));
-
-    if (name === "Sizegroup") SizeGropupMaster_Check(value);
   };
 
   const OrderEntry_New = () => {
@@ -367,26 +386,6 @@ const OrderEntry = ({ title, subTitle }) => {
     { field: "notes", label: "Notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
   ];
 
-  const [orderOrdValues, setOrderOrdValues] = useState([
-    {
-      sNo: "",
-      AsptblOrdDetailsid: "",
-      AsptblOrdid: "",
-      StyleGroup: "",
-      BPono: "",
-      BPoDate: "",
-      Combo: "",
-      Color: "",
-      RatioYN: "",
-      Ratio: "",
-      Ratio: "",
-      ColorQty: "",
-      TotalQty: "",
-      StyleDetails: "",
-      Notes: "",
-    },
-  ]);
-
   const orderComboHeaders = [
     { field: "sNo", label: "S.No", visible: true, type: "text", widths: "50px", disabled: true, pattern: "" },
     { field: "asptblOrdDetid", label: "ID", visible: false, type: "text", disabled: false, widths: "50px", pattern: "" },
@@ -437,24 +436,6 @@ const OrderEntry = ({ title, subTitle }) => {
     { field: "Action", label: "", visible: true, type: "button", widths: "0px" },
   ];
 
-  const [ordeShiValues, setOrdeShiValues] = useState([
-    {
-      SNo: 1,
-      AsptblOrdShiId: "",
-      AsptblOrdId: "",
-      AssortNo: "",
-      DelDate: "",
-      BPoNo: "",
-      PortofLoading: "",
-      Destination: "",
-      DestinationPort: "",
-      Combo: "",
-      Color: "",
-      ShipQty: "",
-      Notes: "",
-    },
-  ]);
-
   const handleShipChange = (rowIndex, field, value) => {
     const updated = [...ordeShiValues];
     updated[rowIndex][field] = value;
@@ -482,7 +463,6 @@ const OrderEntry = ({ title, subTitle }) => {
     ]);
   };
 
-  const [popupData, setPopupData] = useState([]);
   const [assort, setAssort] = useState([]);
   const [assort1, setAssort1] = useState([]);
 
@@ -782,7 +762,7 @@ const OrderEntry = ({ title, subTitle }) => {
               <div className="col-md-3">
                 <div className="row pt-1">
                   <label className="col-4 col-form-label"> Type </label>
-                  <select className="col-8" name="Type" value={order.Type || ""} onChange={handleChange} ref={(el) => (inputRefs.current[2] = el)} onKeyDown={(e) => handleKeyDown(e, 2)}>
+                  <select className="col-8 form-select" name="Type" value={order.Type || ""} onChange={handleChange} ref={(el) => (inputRefs.current[2] = el)} onKeyDown={(e) => handleKeyDown(e, 2)}>
                     <option></option>
                     <option value={1}>FromEnq</option>
                     <option value={2}>Direct</option>
@@ -921,8 +901,7 @@ const OrderEntry = ({ title, subTitle }) => {
               </div>
               <div className="col-md-1">
                 <div style={{ padding: "0px", border: "1px solid var(--bs-white)", alignItems: "right" }}>
-                  <img style={{ height: "70px", width: "70px", textAlign: "right" }} name="image" value={order.image} />
-                  <input type="file" id="imageuploader" accept="image/" onChange={handleChange} className="form-control"></input>
+                  <ImageUploader images={ordimages} setImage={setordImage} value={order.image} defaultimage={defaultimage} />
                 </div>
               </div>
               <div className="col-md-6 pt-1">
@@ -996,28 +975,26 @@ const OrderEntry = ({ title, subTitle }) => {
               <div className="row pt-1">
                 <label className="col-md-1 col-form-label">SampleNo</label>
 
-                <div className="col-md-2">
-                  <select className="form-select" name="SampleNo" value={order.SampleNo || ""} onChange={handleChange} ref={(el) => (inputRefs.current[27] = el)} onKeyDown={(e) => handleKeyDown(e, 27)}>
-                    <option></option>
+                <select className="col-3 m-0 form-select" name="SampleNo" value={order.SampleNo || ""} onChange={handleChange} ref={(el) => (inputRefs.current[27] = el)} onKeyDown={(e) => handleKeyDown(e, 27)}>
+                  <option></option>
 
-                    <option value="SampleNo - 1">SampleNo-1</option>
+                  <option value="SampleNo - 1">SampleNo-1</option>
 
-                    <option value="SampleNo - 2">SampleNo-2</option>
-                  </select>
-                </div>
+                  <option value="SampleNo - 2">SampleNo-2</option>
+                </select>
 
-                {/* SplCategory */}
                 <label className="col-md-1 col-form-label">SplCategory</label>
-                <div className="col-md-8">
+                <div className="col-md-7 p-0">
                   <MultiSelect
-                    className="w-100"
+                    className="w-100 p-0"
                     name="SplCategory"
                     colorValue={colorValue}
                     styleGroupItems={styleGroupItems}
-                    value={order.SplCategory || []}
-                    onChange={handleChange}
-                    ref={(el) => (inputRefs.current[28] = el)}
-                    onKeyDown={(e) => handleKeyDown(e, 28)}
+                    selectedOptions={order.categorySelected}
+                    setSelectedOptions={setOrder}
+                    handleChange={handleChange}
+                    labelField="productstylegroup"
+                    valueField="asptblstygrpmasid"
                   />
                 </div>
               </div>
@@ -1038,9 +1015,7 @@ const OrderEntry = ({ title, subTitle }) => {
                   </button>
                 </li>
                 <li className="ps-2">
-                  {" "}
                   <button className={newButton === 3 ? "tabs active-tabs btn" : "tabs "} onClick={() => TabIndexClick(3)} style={{ backgroundColor: `${colorValue}`, width: "100%", fontWeight: "bold" }}>
-                    {" "}
                     Shipment Details{" "}
                   </button>
                 </li>

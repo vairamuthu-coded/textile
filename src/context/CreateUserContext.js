@@ -81,6 +81,11 @@ export const DataProvider = ({
     row: null,
     index: null,
   });
+  const [images, setImage] = useState({
+    imageFile: null,
+    imagesrc: "",
+    filetype: "",
+  });
   const treeviewdata = [];
   //BarCodeGenerate
   const [color1, setColor1] = useState(["var(--bs-white)", "var(--bs-success)", "var(--bs-primary-text-emphasis)", "var(--bs-primary)"]);
@@ -286,6 +291,27 @@ export const DataProvider = ({
       setDetails([{ sNo: 1, asptbltaxtemDetailsid: 0, adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", notes: "" }]);
     },
   };
+
+  const [order, setOrder] = useState({
+    categorySelected: [],
+  });
+  const orderSizeHeaders = [
+    { field: "sNo", label: "SNo", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "asptblOrdSizid", label: "AsptblOrdSizid", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
+    { field: "asptblOrdid", label: "AsptblOrdid", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "sizename", label: "SizeName", visible: true, type: "select", widths: "250px", pattern: "", disabled: true },
+    { field: "buyerPrice", label: "BuyerPrice", visible: true, type: "text", widths: "250px", pattern: "", disabled: false },
+    { field: "notes", label: "Notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
+  ];
+  const [orderSizeValues, setOrderSizeValues] = useState([{ AsptblOrdSizid: "", AsptblOrdid: "", Sizename: "", BuyerPrice: "", Notes: "" }]);
+
+  const [orderOrdValues, setOrderOrdValues] = useState([
+    { sNo: "", AsptblOrdDetailsid: "", AsptblOrdid: "", StyleGroup: "", BPono: "", BPoDate: "", Combo: "", Color: "", RatioYN: "", Ratio: "", Ratio: "", ColorQty: "", TotalQty: "", StyleDetails: "", Notes: "" },
+  ]);
+
+  const [ordeShiValues, setOrdeShiValues] = useState([{ SNo: 1, AsptblOrdShiId: "", AsptblOrdId: "", AssortNo: "", DelDate: "", BPoNo: "", PortofLoading: "", Destination: "", DestinationPort: "", Combo: "", Color: "", ShipQty: "", Notes: "" }]);
+
+  const [popupData, setPopupData] = useState([]);
   return (
     <DataContext.Provider
       value={{
@@ -305,6 +331,8 @@ export const DataProvider = ({
         setSidebar,
         showSidebar,
         bgValue,
+        images,
+        setImage,
         localServerCart,
         menuheader,
         headerfilterdata,
@@ -453,6 +481,16 @@ export const DataProvider = ({
         setDetails,
         sizeGroupDetails,
         setsizeGroupDetails,
+        order,
+        setOrder,
+        orderSizeValues,
+        setOrderSizeValues,
+        orderOrdValues,
+        setOrderOrdValues,
+        ordeShiValues,
+        setOrdeShiValues,
+        popupData,
+        setPopupData,
       }}
     >
       {children}
