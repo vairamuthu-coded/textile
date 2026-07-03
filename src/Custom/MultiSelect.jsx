@@ -16,7 +16,7 @@ const MultiSelect = forwardRef(({ styleGroupItems = [], className = "", colorVal
 
       setSelectedOptions((prev) => ({
         ...prev,
-        [name === "SplCategory" ? "categorySelected" : name]: updated,
+        [name === "SplCategory" ? "CategorySelected" : name]: updated,
       }));
 
       if (handleChange) {
@@ -39,7 +39,7 @@ const MultiSelect = forwardRef(({ styleGroupItems = [], className = "", colorVal
 
     setSelectedOptions((prev) => ({
       ...prev,
-      [name === "SplCategory" ? "categorySelected" : name]: updated,
+      [name === "SplCategory" ? "CategorySelected" : name]: updated,
     }));
 
     if (handleChange) {

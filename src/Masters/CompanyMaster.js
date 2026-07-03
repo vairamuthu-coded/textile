@@ -7,6 +7,7 @@ import DataContext from "../context/CreateUserContext";
 import { toast } from "react-toastify";
 import defaultimage from "../Images/win.png";
 import ImageUploader from "../Custom/ImageUploader.jsx";
+import ActionButtton from "../ActionButtton.jsx";
 const CompanyMaster = ({ title, subTitle }) => {
   const {
     newButton,
@@ -37,6 +38,8 @@ const CompanyMaster = ({ title, subTitle }) => {
     setSearchLable1,
     setSearchLable2,
     setSearchLable3,
+    images,
+    setImage,
   } = useContext(DataContext);
 
   const insert = `${API_URL}/CompanyMaster/Saves`;
@@ -56,11 +59,11 @@ const CompanyMaster = ({ title, subTitle }) => {
 
   const [searchCompCode, setSearchCompCode] = useState([]);
   const [searchUserName, setSearchUserName] = useState([]);
-  const [images, setImage] = useState({
-    imageFile: null,
-    imagesrc: defaultimage,
-    filetype: "",
-  });
+  // const [images, setImage] = useState({
+  //   imageFile: null,
+  //   imagesrc: defaultimage,
+  //   filetype: "",
+  // });
 
   const [cityItems, setCityItems] = useState([]);
   const [company_search, setCompanySearch] = useState([]);
@@ -75,9 +78,6 @@ const CompanyMaster = ({ title, subTitle }) => {
       ...prev,
       [name]: newValue,
     }));
-    if (name === "imageuploader") {
-      ImageUploader(e);
-    }
 
     if (name === "city") {
       handleStateChange(value);
@@ -170,13 +170,13 @@ const CompanyMaster = ({ title, subTitle }) => {
   const heights = "380px";
   const CompanyMasterColumn = [
     { headername: "", field: "none" },
-    { headername: "id", field: "gtcompmastid" },
-    { headername: "compcode", field: "compcode" },
-    { headername: "compname", field: "compname" },
-    { headername: "CityName", field: "cityname" },
-    { headername: "StateName", field: "statename" },
-    { headername: "CountryName", field: "countryname" },
-    { headername: "Active", field: "active" },
+    { headername: "ID", field: "gtcompmastid" },
+    { headername: "COMPCODE", field: "compcode" },
+    { headername: "COMPNAME", field: "compname" },
+    { headername: "CITYNAME", field: "cityname" },
+    { headername: "STATENAME", field: "statename" },
+    { headername: "COUNTRYNAME", field: "countryname" },
+    { headername: "ACTIVE", field: "active" },
   ];
 
   const byteArrayToBase64 = (bytes) => {
@@ -197,7 +197,6 @@ const CompanyMaster = ({ title, subTitle }) => {
       }
       const data = res.data[0];
       const imageSrc = `${data.filetype},${data.companylogo}`;
-      alert(imageSrc);
       setImage({
         imagesrc: imageSrc,
         filetype: data.filetype,
@@ -297,8 +296,6 @@ const CompanyMaster = ({ title, subTitle }) => {
         });
     } catch (err) {
       if (err.response) {
-        console.log(`Error ${err.message}`);
-        alert(err.error);
       }
     }
   };
@@ -372,20 +369,29 @@ const CompanyMaster = ({ title, subTitle }) => {
   return (
     <>
       {userRights?.length > 0 && (
-        <div className="container-fluid animate-zoom p-1">
+        <div className="container-fluid animate-zoom" style={{ backgroundColor: "whitesmoke" }}>
           <div className="row" style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
-            <ul className="d-flex justify-content-end">
-              {menuButtons.map(
-                (btn, index) =>
-                  userRights[0][btn.key] === "T" && (
-                    <li key={index}>
-                      <button className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{ backgroundColor: colorValue }} onClick={btn.action}>
-                        {btn.label}
-                      </button>
-                    </li>
-                  ),
-              )}
-            </ul>
+            <ActionButtton
+              news={CompanyMaster_New}
+              saves={CompanyMaster_Save}
+              deletes={CompanyMaster_Delete}
+              searches={CompanyMaster_New}
+              prints={CompanyMaster_New}
+              treebutton={CompanyMaster_New}
+              globalsearch={CompanyMaster_New}
+              login={CompanyMaster_New}
+              changepassword={CompanyMaster_New}
+              changeskin={CompanyMaster_New}
+              contact={CompanyMaster_New}
+              pdf={CompanyMaster_New}
+              imports={CompanyMaster_New}
+              download={CompanyMaster_New}
+              userRights={userRights}
+              colorValue={colorValue}
+              newButton={newButton}
+              foreValue={foreValue}
+              screenHeader="COMPANY MASTER"
+            />
 
             <ul className="" style={{ backgroundColor: `${colorValue}` }}>
               <li className="ps-2">
@@ -403,7 +409,7 @@ const CompanyMaster = ({ title, subTitle }) => {
               </li>
             </ul>
 
-            <div className="content-tabs">
+            <div className="row">
               <div className={newButton === 1 ? "content active-content" : "content"}>
                 <div className="row">
                   <div className="col-md-10">
@@ -470,7 +476,6 @@ const CompanyMaster = ({ title, subTitle }) => {
                       </textarea>
                     </div>
 
-                    {/* <legend className='p-2 text-success' style={{ fontWeight: "bold", color: `${colorValue}` }}>Account Details</legend> */}
                     <div className="row m-1">
                       <label className="col-md-1"> GstNo</label>
                       <input className="col-md-2" type="text" name="gstno" value={companyValues.gstno || ""} onChange={handleChange} />
@@ -484,8 +489,6 @@ const CompanyMaster = ({ title, subTitle }) => {
                       <label className="col-md-1"> Email </label>
                       <input className="col-md-10" type="email" name="email" value={companyValues.email || ""} onChange={handleChange} />
                     </div>
-
-                    {/* <legend className='p-2 text-success' style={{ fontWeight: "bold", color: `${colorValue}` }}>Bank Details</legend> */}
                     <div className="row m-1">
                       <label className="col-md-1"> AccNo </label>
                       <input className="col-md-5" type="text" name="accno" value={companyValues.accno || ""} onChange={handleChange} />
@@ -534,11 +537,9 @@ const CompanyMaster = ({ title, subTitle }) => {
                     </div>
                   </div>
 
-                  <div className="col-md-2">
+                  <div className="col-md-1">
                     <div style={{ padding: "0px", border: "1px solid var(--bs-white)", alignItems: "right" }}>
                       <ImageUploader images={images} setImage={setImage} defaultimage={defaultimage} />
-                      {/* <img src={images.imagesrc} style={{ height: "100px", width: "100px", textAlign: "right" }} />
-                      <input type="file" id="imageuploader" onChange={showPreview} accept="image/" className="form-control"></input> */}
                     </div>
                   </div>
                 </div>

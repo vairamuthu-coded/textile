@@ -65,8 +65,8 @@
   --bs-dark-border-subtle: #adb5bd;
   --bs-white-rgb: 255, 255, 255;
   --bs-black-rgb: 0, 0, 0;
-  --bs-font-roboto: Roboto;
-  --bs-font-monospace: Roboto;
+  --bs-font-roboto: "Roboto";
+  --bs-font-monospace: "Roboto";
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
   --bs-body-font-family: var(--bs-font-roboto);
   --bs-body-color: #739ac2;
@@ -119,7 +119,7 @@
   --bs-body-line-height: 1;
   --bs-sidebar: #555969;
   --bs-bigfont: clamp(1.2rem, 1rem, 0.4rem);
-  --bs-body-font-size: clamp(0.8rem, 0.9rem, 0.9rem);
+  --bs-body-font-size: clamp(1.1rem, 0.9rem, 0.9rem);
   --bs-font: clamp(1rem, 2rem, 1rem);
   --bs-font-sm: clamp(0.8rem, 0.8rem, 0.3rem);
   --bs-breakpoint-sm: 576px;
@@ -656,6 +656,19 @@ table {
 .table-responsive {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+.img-thumbnail {
+  padding: 0.25rem;
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  max-width: 100%;
+  height: auto;
 }
 
 @media (max-width: 575.98px) {

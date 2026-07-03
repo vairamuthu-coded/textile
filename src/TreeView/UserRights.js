@@ -81,7 +81,7 @@ const UserRights = ({ title, subTitle }) => {
   const insert_update = API_URL + "/UserRights";
   const menunameparam = API_URL + "/MenuNameMaster/MenuNameMaster";
   const compcodeparam = API_URL + "/CompanyMaster/CompanyMaster";
-  const usernameparam = API_URL + "/UserMaster/UserMaster";
+  const usernameparam = API_URL + "/UserMasters/UserMaster";
   const deleteparam = API_URL + "/UserRights/UserRights";
   const UserRightsFilter = API_URL + "/UserRights/UserRightsFilter";
   var sss = "";

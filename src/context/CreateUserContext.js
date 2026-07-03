@@ -86,6 +86,12 @@ export const DataProvider = ({
     imagesrc: "",
     filetype: "",
   });
+
+  const [garimages, setGarImage] = useState({
+    imageFile: null,
+    imagesrc: "",
+    filetype: "",
+  });
   const treeviewdata = [];
   //BarCodeGenerate
   const [color1, setColor1] = useState(["var(--bs-white)", "var(--bs-success)", "var(--bs-primary-text-emphasis)", "var(--bs-primary)"]);
@@ -190,14 +196,14 @@ export const DataProvider = ({
     },
   ]);
 
-  const [addCompcodes, setAddCompcodes] = useState([{ id: 1, compcode: 0, compname: "", notes: "" }]);
-  const [details, setDetails] = useState([{ sNo: 1, asptbltaxtemDetailsid: 0, adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", notes: "" }]);
+  const [addCompcodes, setAddCompcodes] = useState([{ id: 1, compcode: 0, compname: "", Notes: "" }]);
+  const [details, setDetails] = useState([{ SNo: 1, asptbltaxtemDetailsid: 0, adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", Notes: "" }]);
   const [taxValues, setTaxValues] = useState([]);
   const [taxTempDetails, setTaxTempDetails] = useState([]);
   const [taxTempValues, setTaxTempValues] = useState([]);
   const [sequenceTable, setSequenceTable] = useState("asptblautogeneratemas");
 
-  const [sizeGroupDetails, setsizeGroupDetails] = useState([{ asptblsizgrpDetid: "0", sizeGroupGrid: "0", sizename: "", sizeGroupRow: "" }]);
+  const [sizeGroupDetails, setsizeGroupDetails] = useState([{ asptblsizgrpDetid: "0", sizeGroupGrid: "0", Sizename: "", sizeGroupRow: "" }]);
 
   const handlepage = async (selectedTitle) => {
     setHeaderSearch("");
@@ -287,31 +293,44 @@ export const DataProvider = ({
     TaxTempMaster: () => setTaxTempValues([]),
     TaxTemplateDetails: () => {
       setTaxTempDetails([]);
-      setAddCompcodes([{ id: 1, compcode: 0, compname: "", notes: "" }]);
-      setDetails([{ sNo: 1, asptbltaxtemDetailsid: 0, adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", notes: "" }]);
+      setAddCompcodes([{ id: 1, compcode: 0, compname: "", Notes: "" }]);
+      setDetails([{ SNo: 1, asptbltaxtemDetailsid: 0, adName: 0, adType: "", aliasname: "", idNo: "", formula: "", sugg: "", Notes: "" }]);
     },
   };
 
-  const [order, setOrder] = useState({
-    categorySelected: [],
-  });
+  const [order, setOrder] = useState({ CategorySelected: [] });
   const orderSizeHeaders = [
     { field: "sNo", label: "SNo", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "asptblOrdSizid", label: "AsptblOrdSizid", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
-    { field: "asptblOrdid", label: "AsptblOrdid", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "asptblordSizId", label: "AsptblOrdSizid", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
+    { field: "asptblOrdId", label: "AsptblOrdid", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
     { field: "sizename", label: "SizeName", visible: true, type: "select", widths: "250px", pattern: "", disabled: true },
     { field: "buyerPrice", label: "BuyerPrice", visible: true, type: "text", widths: "250px", pattern: "", disabled: false },
     { field: "notes", label: "Notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
   ];
-  const [orderSizeValues, setOrderSizeValues] = useState([{ AsptblOrdSizid: "", AsptblOrdid: "", Sizename: "", BuyerPrice: "", Notes: "" }]);
+  const [orderSizeValues, setOrderSizeValues] = useState([{ asptblOrdSizId: "", asptblOrdId: "", sizename: "", buyerPrice: "", notes: "" }]);
 
   const [orderOrdValues, setOrderOrdValues] = useState([
-    { sNo: "", AsptblOrdDetailsid: "", AsptblOrdid: "", StyleGroup: "", BPono: "", BPoDate: "", Combo: "", Color: "", RatioYN: "", Ratio: "", Ratio: "", ColorQty: "", TotalQty: "", StyleDetails: "", Notes: "" },
+    { sNo: "", asptblordColId: "", asptblOrdId: "", styleGroup: "", bPono: "", bPoDate: "", combo: "", color: "", ratioYN: "", ratio: "", ratio: "", colorQty: "", totalQty: "", styleDetails: "", notes: "" },
   ]);
 
-  const [ordeShiValues, setOrdeShiValues] = useState([{ SNo: 1, AsptblOrdShiId: "", AsptblOrdId: "", AssortNo: "", DelDate: "", BPoNo: "", PortofLoading: "", Destination: "", DestinationPort: "", Combo: "", Color: "", ShipQty: "", Notes: "" }]);
+  const [ordeShiValues, setOrdeShiValues] = useState([{ sNo: 1, asptblOrdShiId: "", asptblOrdId: "", assortNo: "", delDate: "", bPoNo: "", portofLoading: "", destination: "", destinationPort: "", combo: "", color: "", shipQty: "", notes: "" }]);
 
-  const [popupData, setPopupData] = useState([]);
+  const [orderPopUpValues, setOrderPopUpValues] = useState([
+    {
+      sNo: 1,
+      rowIndex: 0,
+      asptblOrdPopId: 0,
+      asptblordColId: 0,
+      asptblOrdId: 0,
+      styleitem: 0,
+      sizename: 0,
+      assortQty: "",
+      shipQty: "",
+      excessQty: "",
+      prodQty: "",
+      notes: "",
+    },
+  ]);
   return (
     <DataContext.Provider
       value={{
@@ -333,6 +352,8 @@ export const DataProvider = ({
         bgValue,
         images,
         setImage,
+        garimages,
+        setGarImage,
         localServerCart,
         menuheader,
         headerfilterdata,
@@ -489,8 +510,8 @@ export const DataProvider = ({
         setOrderOrdValues,
         ordeShiValues,
         setOrdeShiValues,
-        popupData,
-        setPopupData,
+        orderPopUpValues,
+        setOrderPopUpValues,
       }}
     >
       {children}

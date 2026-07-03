@@ -48,10 +48,10 @@ const UserMaster = ({ title, subTitle }) => {
 
   const userrightsMenuCheck = API_URL + "/UserRights/userrightsMenuCheck";
   const compcodeparam = API_URL + "/CompanyMaster/CompanyMaster";
-  const API_URL_username = API_URL + "/UserMaster/UserMaster";
-  const deptparam = API_URL + "/UserMaster/Department";
-  const getpdffile = API_URL + "/UserMaster/GenerateReport";
-  // const insert_update = API_URL + "/UserMaster";
+  const API_URL_username = API_URL + "/UserMasters/UserMaster";
+  const deptparam = API_URL + "/UserMasters/Department";
+  const getpdffile = API_URL + "/UserMasters/GenerateReport";
+  const insert_update = API_URL + "/UserMasters";
 
   setSearchLable1("Search");
   setSearchLable2("");
@@ -179,7 +179,7 @@ const UserMaster = ({ title, subTitle }) => {
         sessionTime: userValues.sessiontime,
         active: userValues.active === true ? "T" : "F",
       };
-      const response = await axios.post(`${API_URL_username}`, UserData);
+      const response = await axios.post(`${insert_update}`, UserData);
 
       if (response.data.message) {
         const res = await axios.get(`${API_URL_username}/${userValues.compcode}`);

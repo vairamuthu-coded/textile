@@ -1,6 +1,6 @@
 import React from "react";
 import defaultimage from "../Images/win.png";
-const ImageUploader = ({ images, setImage, name = "imageuploader", value }) => {
+const ImageUploader = ({ images, setImage, name, value }) => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
 
@@ -28,11 +28,11 @@ const ImageUploader = ({ images, setImage, name = "imageuploader", value }) => {
   };
 
   return (
-    <div>
-      <div style={{ marginTop: "10px" }}>
-        <img src={images?.imagesrc || defaultimage} value={value} alt="Preview" width="120" height="120" style={{ objectFit: "cover", border: "1px solid #ccc" }} />
+    <div className="card p-2">
+      <div className="mt-2 text-center">
+        <img src={images?.imagesrc || defaultimage} value={value} alt="Preview" className="img-fluid img-thumbnail" />
       </div>
-      <input type="file" name={name} className="form-control" accept="image/*" onChange={handleImageChange} />
+      <input type="file" name={name} className="form-control mt-3" accept="image/*" onChange={handleImageChange} />
     </div>
   );
 };

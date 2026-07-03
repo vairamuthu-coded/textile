@@ -780,7 +780,7 @@ blink {
 }
 
 .active-tabs {
-  background: var(--bs-sidebar);
+  background: var(--bs-light-border-subtle);
   border-color: #aaa;
   color: var(--bs-white);
   border-radius: 0, 0, 0, 0;

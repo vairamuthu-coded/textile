@@ -9,6 +9,7 @@ import { useRef } from "react";
 import SocialMissing from "../Social/SocialMissing";
 // const Button=styled.button`margin:0px;padding-left:5px; padding-right:5px;width:100%;font-weight: bold;backgroundColor:${props=>props.color}; color:white;`;
 import { utilityState } from "./../utilityState";
+import ActionButtton from "../ActionButtton";
 
 const CityMaster = ({ title, subTitle }) => {
   const {
@@ -95,6 +96,7 @@ const CityMaster = ({ title, subTitle }) => {
       [name]: finalValue,
     }));
     // utilityState(e, setCityValues);
+    alert(name + "" + finalValue);
     if (name === "state") handleStateChange(value);
   };
 
@@ -298,7 +300,28 @@ const CityMaster = ({ title, subTitle }) => {
           {!fetchError ? (
             <>
               <div style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
-                <ul className="boxShadow d-flex justify-content-end">
+                <ActionButtton
+                  news={CityMaster_New}
+                  saves={CityMaster_Save}
+                  deletes={CityMaster_Delete}
+                  searches={CityMaster_Search}
+                  prints={CityMaster_New}
+                  treebutton={CityMaster_New}
+                  globalsearch={CityMaster_New}
+                  login={CityMaster_New}
+                  changepassword={CityMaster_New}
+                  changeskin={CityMaster_New}
+                  contact={CityMaster_New}
+                  pdf={CityMaster_New}
+                  imports={CityMaster_New}
+                  download={CityMaster_New}
+                  userRights={userRights}
+                  colorValue={colorValue}
+                  newButton={newButton}
+                  foreValue={foreValue}
+                  screenHeader="CITY MASTER"
+                />
+                {/* <ul className="boxShadow d-flex justify-content-end">
                   {menuButtons.map(
                     (btn, index) =>
                       userRights[0][btn.key] === "T" && (
@@ -309,23 +332,16 @@ const CityMaster = ({ title, subTitle }) => {
                         </li>
                       ),
                   )}
-                </ul>
+                </ul> */}
                 <div className="row">
                   <div className="col-md-6">
                     <div className="content active-content">
-                      <div className="bloc-tabs">
-                        <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
-                          {" "}
-                          {title}{" "}
-                        </div>
-                      </div>
-
-                      <div className="row py-1">
+                      <div className="row py-1" style={{ display: "none" }}>
                         <label className="col-md-2"> ID </label>
                         <input className="col-md-4" type="text" name="gtcitymastid" value={cityValues.gtcitymastid || ""} readOnly />
                       </div>
                       <div className="row py-1">
-                        <label className="col-md-2"> City </label>
+                        <label className="col-md-2"> CityName </label>
                         <input className="col-md-4" type="text" name="cityname" value={cityValues.cityname || ""} onChange={handleChange} ref={(el) => (refs.current[0] = el)} onKeyDown={(e) => handleEnter(e, 0)} />
                       </div>
                       <div className="row ">
@@ -366,12 +382,6 @@ const CityMaster = ({ title, subTitle }) => {
 
                   <div className="col-md-6">
                     <div className="content active-content">
-                      <div className="bloc-tabs">
-                        <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
-                          {" "}
-                          {subTitle}{" "}
-                        </div>
-                      </div>
                       <Search
                         colorValue={colorValue}
                         searchs={city_Search}

@@ -26,7 +26,7 @@ const Header = ({ titlename, TitleCompCode, TitleUser, setColorValue, setMode })
       setColorValue("var(--bs-primary-text-emphasis)");
       setMode("dark");
     } else {
-      setColorValue("var(--bs-info-text-emphasis)");
+      setColorValue("var(--bs-form-valid-color)");
       setMode("light");
     }
   };
@@ -85,10 +85,8 @@ const Header = ({ titlename, TitleCompCode, TitleUser, setColorValue, setMode })
                 <span></span>
                 <i className="indicator"></i>
               </label>
-
               {/* LOGOUT */}
               <FaIcons.FaSignOutAlt style={{ cursor: "pointer", color: foreValue, fontSize: "20px" }} onClick={logout} />
-
               {/* CLOSE */}
               <FaIcons.FaTimes className="ms-3" style={{ cursor: "pointer", color: "red", fontSize: "20px" }} onClick={closeApp} />
             </div>

@@ -6,11 +6,7 @@ const TableColumn = ({ name, field, sortable, sortingField, sortingOrder, onSort
   const { colorValue } = useContext(DataContext);
   return (
     <>
-      <th
-        key={name}
-        onClick={() => (sortable ? onSortingChange(field) : null)}
-        style={{ color: `${foreValue}`, fontFamily: "Roboto", fontSize: `${"var(--bs-font-sm)"}`, display: "fled-flex", justifyContent: "space-between", backgroundColor: `${colorValue}` }}
-      >
+      <th key={name} onClick={() => (sortable ? onSortingChange(field) : null)} style={{ color: `${foreValue}`, display: "fled-flex", justifyContent: "space-between", backgroundColor: `${colorValue}` }}>
         {field === "visible" ? <input type="checkbox" name="chkActive" onChange={(e) => setCheckAll(e.target.checked)} /> : ""} {name}
         {sortingField && sortingField === field && <FontAwesomeIcon icon={sortingOrder === "asc" ? "fa-solid fa-arrow-up" : "fa-solid fa-arrow-down"} />}
       </th>

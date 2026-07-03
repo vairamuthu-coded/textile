@@ -7,6 +7,7 @@ import { el } from "date-fns/locale";
 import { RiChatSettingsFill } from "react-icons/ri";
 import Search from "../Custom/Search";
 import { toast } from "react-toastify";
+import ActionButtton from "../ActionButtton";
 
 const BuyerMaster = ({ title, subTitle }) => {
   const {
@@ -366,31 +367,32 @@ const BuyerMaster = ({ title, subTitle }) => {
   return (
     <>
       {userRights?.length > 0 ? (
-        <div className="container-fluid animate-zoom p-1">
+        <div className="container-fluid animate-zoom" style={{ backgroundColor: "whitesmoke" }}>
           <div className="row" style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
-            <ul className="d-flex justify-content-end">
-              {menuButtons.map(
-                (btn, index) =>
-                  userRights[0][btn.key] === "T" && (
-                    <li key={index}>
-                      <button className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{ backgroundColor: colorValue }} onClick={btn.action}>
-                        {btn.label}
-                      </button>
-                    </li>
-                  ),
-              )}
-            </ul>
-            <div className="row">
-              <div className="col-md-6 float-start">
-                <ul className="" style={{ backgroundColor: `${colorValue}` }}>
-                  <li className="ps-2">
-                    {" "}
-                    <button className={newButton === 1 ? "tabs active-tabs btn" : "tabs"} style={{ backgroundColor: `${colorValue}`, padding: "1%", fontWeight: "bold" }}>
-                      {title}{" "}
-                    </button>
-                  </li>
-                </ul>
+            <ActionButtton
+              news={BuyerMaster_New}
+              saves={BuyerMaster_Save}
+              deletes={BuyerMaster_Delete}
+              searches={BuyerMaster_Search}
+              prints={BuyerMaster_New}
+              treebutton={BuyerMaster_New}
+              globalsearch={BuyerMaster_New}
+              login={BuyerMaster_New}
+              changepassword={BuyerMaster_New}
+              changeskin={BuyerMaster_New}
+              contact={BuyerMaster_New}
+              pdf={BuyerMaster_New}
+              imports={BuyerMaster_New}
+              download={BuyerMaster_New}
+              userRights={userRights}
+              colorValue={colorValue}
+              newButton={newButton}
+              foreValue={foreValue}
+              screenHeader="BUYER MASTER"
+            />
 
+            <div className="row">
+              <div className="col-md-6 float-start p-2">
                 <div className="content-tabs">
                   <div className="content active-content">
                     <div className="row">
@@ -551,7 +553,7 @@ const BuyerMaster = ({ title, subTitle }) => {
                 </div>
               </div>
             </div>
-          </div>{" "}
+          </div>
         </div>
       ) : (
         <SocialMissing colorValue={colorValue} fetchError={fetchError}></SocialMissing>

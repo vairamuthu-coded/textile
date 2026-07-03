@@ -2,44 +2,36 @@ import { createContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, Route, Routes } from "react-router-dom";
 import { DataProvider } from "./context/CreateUserContext";
 import { TreeViewDataProdiver } from "./context/CreateTreeViewContext";
-
 import styled from "styled-components";
 import { destop, mobile, tablet } from ".././src/ShoppingCart/Responsive";
-
+import CryptoJS from "crypto-js";
 import { CreateShopContextProdiver } from "./context/CreateShopContext.js";
-
 import Tabpage from "./Tabpage.jsx";
-
 import AppRoutes from "./AppRoutes.js";
-
 import Sidebar from "./component/Sidebar.js";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
-
 import { toast } from "react-toastify";
 import Login from "./Login.js";
 import axios from "axios";
 
-if (!localStorage.getItem("cart")) {
-  localStorage.setItem("cart", JSON.stringify([]));
-}
 export const UserContext = createContext({});
 
 function App({ API_URL, localServerCart, urls }) {
-  const [defaultDetails, setDefaultDetails] = useState({ Compcode: "AGF", UserId: "", User: "VAIRAM", Pass: "Vairamwarsawabi297@" });
+  const [defaultDetails, setDefaultDetails] = useState({ HCompcode: "1", Compcode: "AGF", UserId: "", User: "VAIRAM", Pass: "123" });
   const [selectedTitle, setSelectedTitle] = useState([]);
-
   const [mode, setMode] = useState("light");
   const [sidebar, setSidebar] = useState(false);
-  // const showSidebar = () => setSidebar(!sidebar);
+  const [authToken, setAuthToken] = useState();
   const showSidebar = () => setSidebar((prev) => !prev);
-  const [colorValue, setColorValue] = useState("var(--bs-info-text-emphasis)");
+  const [colorValue, setColorValue] = useState("var(--bs-primary)");
   const [foreValue, setForeValue] = useState("white");
   const [bgValue, setBgValue] = useState("whitesmoke");
   const [header_items, setHeaderItems] = useState([]);
   const [header_search, setHeaderSearch] = useState("");
   const [headerfilterdata, setHeaderFilterData] = useState([]);
   const [menuheader, setMenuHeader] = useState([]);
+  const [secretkey, setSecretkey] = useState([]);
   const [headerdrop, setHeaderDrop] = useState(false);
   const [loginPage, setLoginPage] = useState(false);
   let navigate = useNavigate();
@@ -50,12 +42,12 @@ function App({ API_URL, localServerCart, urls }) {
   let TitleCompCode = defaultDetails.Compcode,
     TitleUser = "Vairamuthu";
 
-  const constirng1 = `${API_URL}/UserMaster/Headings/${defaultDetails.Compcode}/${defaultDetails.User}`;
-  const constirng2 = `${API_URL}/UserMaster/ScreenName/${defaultDetails.Compcode}/${defaultDetails.User}/screen`;
-  const constirng3 = `${API_URL}/UserMaster/ScreenNameHeading/${defaultDetails.Compcode}/${defaultDetails.User}`;
+  const constirng1 = `${API_URL}/UserMasters/Headings/${defaultDetails.Compcode}/${defaultDetails.User}`;
+  const constirng2 = `${API_URL}/UserMasters/ScreenName/${defaultDetails.Compcode}/${defaultDetails.User}/screen`;
+  const constirng3 = `${API_URL}/UserMasters/ScreenNameHeading/${defaultDetails.Compcode}/${defaultDetails.User}`;
   const constirng4 = `${API_URL}/CompanyMaster/GridLoad/${defaultDetails.Compcode}`;
-  const constirng5 = `${API_URL}/UserRights/UserRightsCheck/${defaultDetails.Compcode}/${defaultDetails.User}/${defaultDetails.Pass}`;
-
+  const constirng5 = `${API_URL}/UserRights/UserRightsCheck`;
+  const constirng6 = `${API_URL}/WeatherForecast/SecretKey`;
   const [sidebarData, setSidebarData] = useState([]);
 
   const titlename = "Anugraha Fashion Mill Private Limited";
@@ -75,17 +67,18 @@ function App({ API_URL, localServerCart, urls }) {
   };
 
   let ref = useRef();
-
+  const isAuthenticated = "";
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [res1, res2, res3] = await Promise.all([axios.get(constirng1), axios.get(constirng2), axios.get(constirng3)]);
+        const [res1, res2, res3, res6] = await Promise.all([axios.get(constirng1), axios.get(constirng2), axios.get(constirng3), axios.get(constirng6)]);
         setMenuHeader(res1.data);
         setHeaderItems(res2.data);
         setSidebarData(res3.data);
+        setAuthToken(res2.data[0].token || "");
+        setSecretkey(res6.data);
       } catch (error) {
-        toast.error("Error loading data");
-        console.error(error);
+        toast.error(error.message);
       }
     };
 
@@ -94,20 +87,26 @@ function App({ API_URL, localServerCart, urls }) {
 
   const handleLoginSubmit = async () => {
     try {
-      const res = await axios.get(constirng5);
+      const res = await axios.get(`${constirng5}/${defaultDetails.Compcode}/${defaultDetails.User}/${defaultDetails.Pass}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
-      if (res.data === true) {
+      if (res.data) {
+        setAuthToken(res.data[0].token);
         setLoginPage(true);
         navigate("/Dashboard");
       } else {
         toast.error("Invalid Login");
       }
     } catch (error) {
-      toast.error("Login Error");
+      toast.error(error.response.data);
     }
   };
 
   const closeWindow = () => {
+    setAuthToken(null);
     window.close();
   };
 
@@ -147,7 +146,7 @@ function App({ API_URL, localServerCart, urls }) {
                   <Header mode={mode} setMode={setMode} titlename={titlename} setColorValue={setColorValue} TitleCompCode={TitleCompCode} TitleUser={TitleUser} />
 
                   <Tabpage title={selectedTitle} bgValue={bgValue} colorValue={colorValue} />
-                  <main onClick={headerSidebarClose} onSubmit={handleSubmit}>
+                  <main onClick={headerSidebarClose} onSubmit={handleSubmit} style={{ backgroundColor: "white" }}>
                     <Routes>
                       {AppRoutes.map((route, index) => {
                         const { element, ...rest } = route;

@@ -6,6 +6,7 @@ import SocialMissing from "../Social/SocialMissing";
 import Search from "../Custom/Search";
 import { toast } from "react-toastify";
 import { utilityState } from "./../utilityState";
+import ActionButtton from "../ActionButtton";
 
 const CountryMaster = ({ title, subTitle }) => {
   const {
@@ -249,7 +250,28 @@ const CountryMaster = ({ title, subTitle }) => {
           {!fetchError ? (
             <>
               <div style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
-                <ul className="boxShadow d-flex justify-content-end">
+                <ActionButtton
+                  news={CountryMasterNew}
+                  saves={CountryMaster_Save}
+                  deletes={CountryMaster_Delete}
+                  searches={CountryMasterNew}
+                  prints={CountryMasterNew}
+                  treebutton={CountryMasterNew}
+                  globalsearch={CountryMasterNew}
+                  login={CountryMasterNew}
+                  changepassword={CountryMasterNew}
+                  changeskin={CountryMasterNew}
+                  contact={CountryMasterNew}
+                  pdf={CountryMasterNew}
+                  imports={CountryMasterNew}
+                  download={CountryMasterNew}
+                  userRights={userRights}
+                  colorValue={colorValue}
+                  newButton={newButton}
+                  foreValue={foreValue}
+                  screenHeader="COUNTRY MASTER"
+                />
+                {/* <ul className="boxShadow d-flex justify-content-end">
                   {menuButtons.map(
                     (btn, index) =>
                       userRights[0][btn.key] === "T" && (
@@ -260,17 +282,10 @@ const CountryMaster = ({ title, subTitle }) => {
                         </li>
                       ),
                   )}
-                </ul>
+                </ul> */}
                 <div className="row">
                   <div className="col-md-6" style={{ backgroundColor: `${foreValue}`, padding: "0px", margin: "0px" }}>
                     <div className="content active-content">
-                      <div className="bloc-tabs">
-                        <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
-                          {" "}
-                          {title}{" "}
-                        </div>
-                      </div>
-
                       <div className="row py-1">
                         <label className="col-md-2"> CountryID </label>
                         <input className="col-md-6" type="text" name="gtcountrymastid" value={countryValues.gtcountrymastid || ""} readOnly />
@@ -290,14 +305,8 @@ const CountryMaster = ({ title, subTitle }) => {
                     </div>{" "}
                   </div>
 
-                  <div className="col-md-6" style={{ backgroundColor: `${foreValue}`, padding: "0" }}>
+                  <div className="col-md-6" style={{ backgroundColor: `${foreValue}`, padding: "0px", margin: "0px" }}>
                     <div className="content active-content">
-                      <div className="bloc-tabs">
-                        <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
-                          {" "}
-                          {subTitle}{" "}
-                        </div>
-                      </div>
                       <Search
                         colorValue={colorValue}
                         searchs={search}

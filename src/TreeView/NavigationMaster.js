@@ -47,7 +47,7 @@ const NavigationMaster = ({ title, subTitle }) => {
   // const insert_update = API_URL + "/NavigationMaster/Saves";
   const menunameparam = API_URL + "/MenuNameMaster/MenuNameMaster";
   const compcodeparam = API_URL + "/CompanyMaster/CompanyMaster";
-  const usernameparam = API_URL + "/UserMaster/UserMaster";
+  const usernameparam = API_URL + "/UserMasters/UserMaster";
   const NavigationMaster_Detete = API_URL + "/NavigationMaster/NavigationMaster_Delete";
   const userrightsMenuCheck = API_URL + "/UserRights/userrightsMenuCheck";
   setSearchLable1("Search");

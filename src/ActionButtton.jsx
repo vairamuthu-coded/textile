@@ -1,5 +1,5 @@
 import React from "react";
-const ActionButtton = ({ news, saves, deletes, searches, prints, readonlys, treebutton, globalsearch, login, changepassword, changeskin, contact, pdf, imports, download, userRights, colorValue, foreValue, newButton }) => {
+const ActionButtton = ({ news, saves, deletes, searches, prints, readonlys, treebutton, globalsearch, login, changepassword, changeskin, contact, pdf, imports, download, userRights, colorValue, foreValue, newButton, screenHeader }) => {
   const menuButtons = [
     { key: "news", label: "New", action: news },
     { key: "saves", label: "Save", action: saves },
@@ -18,15 +18,18 @@ const ActionButtton = ({ news, saves, deletes, searches, prints, readonlys, tree
   ];
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid " style={{ backgroundColor: "white", borderBottom: `1px solid ${colorValue}`, margin: "0px", padding: "0px" }}>
       <div className="row">
         <div className="col-12">
-          <ul className="boxShadow  d-flex  flex-wrap justify-content-end  gap-1 p-0 m-0 list-unstyled">
+          <ul className="">
+            <li className="boxShadow d-flex   flex-wrap list-unstyled p-0 m-0" style={{ margin: "0px", padding: "0px", float: "left" }}>
+              <h3 className="p-0 m-0 fw-bold">{screenHeader}</h3>
+            </li>
             {menuButtons.map(
               (btn, index) =>
                 userRights[0][btn.key] === "T" && (
-                  <li key={index} style={{ backgroundColor: foreValue, margin: "2px", color: colorValue }}>
-                    <button className={newButton === 1 ? "tabs active-tabs p-2 w-100" : "tabs p-2 w-100"} style={{ backgroundColor: colorValue, minWidth: "50px" }} onClick={btn.action}>
+                  <li key={index} className="boxShadow d-flex justify-content-end  p-0 m-0" style={{ backgroundColor: foreValue, margin: "0px", color: colorValue, float: "right" }}>
+                    <button className={newButton === 1 ? " active-tabs  w-100" : "  w-100"} style={{ backgroundColor: colorValue, minWidth: "50px" }} onClick={btn.action}>
                       {btn.label}
                     </button>
                   </li>

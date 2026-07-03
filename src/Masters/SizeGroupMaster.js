@@ -395,11 +395,10 @@ const SizeGroupMaster = ({ title, subTitle }) => {
 
               <div className="container-fluid">
                 <div className="row">
-                  <div className="col-12 col-lg-6 mb-3" style={{ backgroundColor: foreValue }}>
-                    <div className="p-2 text-center mb-2" style={{ backgroundColor: colorValue, color: foreValue }}>
-                      {title}
-                    </div>
-
+                  <div className="p-2 text-center" style={{ backgroundColor: colorValue, color: foreValue }}>
+                    {title}
+                  </div>
+                  <div className="col-12 col-lg-6 my-3" style={{ backgroundColor: foreValue }}>
                     <div className="container-fluid">
                       <div className="row mb-2 d-none">
                         <label className="col-4 col-md-2">ID</label>

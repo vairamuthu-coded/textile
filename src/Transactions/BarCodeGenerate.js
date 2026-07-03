@@ -60,14 +60,14 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   const [totalItems, setTotalItems] = useState([]);
   const ENDPOINTS = {
     COMPANY: "/CompanyMaster/GridLoad",
-    BUYER: "/BuyerMaster/BuyerMaster",
+    BUYER: "/BuyerMasters",
     PURCHASES: "/PurchasesOrders/PurchasesOrders",
-    SIZE_MASTER: "/SizeGroupMasters/GetSizeMaster",
-    SIZE_GROUP: "/SizeGroupMasters/GetSizeGroupMaster",
-    DELETE_SIZE_GROUP: "/SizeGroupMasters/DeleteSizeGroupMaster",
-    COLOR: "/ColorMaster/GetActiveColor",
+    SIZE_MASTER: "/SizeGroupMasters",
+    SIZE_GROUP: "/SizeGroupMasters",
+    DELETE_SIZE_GROUP: "/SizeGroupMasters",
+    COLOR: "/ColorMaster/GetColor",
     PROCESS: "/ProcessMaster/GetProcess",
-    STYLE_ITEM: "/StyleItemMasters/GetStyleItemMaster",
+    STYLE_ITEM: "/StyleItemMasters",
     PONO_DETAILS: "/PurchasesOrders/ponoDetails",
     PONO_DETAILSS: "/PurchasesOrders/PonoDetailss",
     GRID_LOAD: "/PurchasesOrders/GridLoad",
@@ -93,7 +93,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   const GridLoadDetails = `${API_URL}${ENDPOINTS.GRID_LOAD}`;
   const GridLoadColor = `${API_URL}${ENDPOINTS.GRID_LOAD_COLOR}`;
   const GridLoadSize = `${API_URL}${ENDPOINTS.GRID_LOAD_SIZE}`;
-  const userrightsMenuCheck = `${API_URL}${ENDPOINTS.MENU_RIGHTS}`;
+  const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
 
   const refs = useRef([]);
 
@@ -177,6 +177,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   var imagesrc = "",
     imageFile = "";
   const [images, setImage] = useState(imagesrc);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -1153,7 +1154,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   // const commentsData = useMemo(() => {
   //   let computedComments = sizeItems;
   //   if (search) {
-  //     computedComments = sizeItems.filter((item) => item.sizename.includes(search));
+  //     computedComments = sizeItems.filter((item) => item.sizename.includes(search || ""));
   //   }
   //   SortingDetails(computedComments, setTotalItems, sorting);
   //   return computedComments.slice((currentPage - 1) * ITEM_PER_PAGE, (currentPage - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE);
@@ -1162,7 +1163,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   // const commentsDataColor = useMemo(() => {
   //   let computedComments = colorItem;
   //   if (search) {
-  //     computedComments = computedComments.filter((item) => item.colorname.includes(search));
+  //     computedComments = computedComments.filter((item) => item.colorname.includes(search || ""));
   //   }
   //   setTotalItems(computedComments.length);
 
@@ -1369,7 +1370,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         />
                         <Label className={`col-md-1`} labelName={"CompCode"}></Label>
                         <select
-                          className="col-md-1"
+                          className="col-md-1 form-select"
                           name="Compcode"
                           defaultValue={"--"}
                           value={barValues.Compcode || ""}
@@ -1390,7 +1391,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
 
                         <Label className={`col-md-1`} labelName={"Type"}></Label>
                         <select
-                          className="col-md-2"
+                          className="col-md-2 form-select"
                           name="Ordertype"
                           value={barValues.Ordertype || ""}
                           onChange={handleChange}
@@ -1406,7 +1407,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         </select>
                         <Label className={`col-md-1`} name="Pono1" labelName={"PoNo"} visible={barValues.Ordertype === "ORDER" ? "none" : "block"}></Label>
                         <select
-                          className="col-md-2"
+                          className="col-md-2 form-select"
                           name="Pono1"
                           style={{ display: `${barValues.Ordertype}` === "ORDER" ? "none" : "block", color: `${colorValue}` }}
                           value={barValues.Pono || ""}
@@ -1430,7 +1431,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         <input
                           type="text"
                           readOnly
-                          className="col-md-2"
+                          className="col-md-2 form-control"
                           name="Pono"
                           placeholder=""
                           value={poItem || ""}
@@ -1443,7 +1444,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
 
                         <Label className={`col-md-1`} labelName={"Buyer"}></Label>
                         <select
-                          className="col-md-2"
+                          className="col-md-2 form-select"
                           tabIndex="3"
                           ref={(el) => (refs.current[3] = el)}
                           onKeyDown={(e) => handleEnter(e, 3)}
@@ -1463,7 +1464,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
 
                         <Label className={`col-md-1`} labelName={"StyleName"}></Label>
                         <select
-                          className="col-md-2"
+                          className="col-md-2 form-select"
                           name="Stylegroup"
                           value={barValues.Stylegroup || ""}
                           onChange={handleChange}
@@ -1483,7 +1484,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         <Label className="col-md-1" labelName={"Podate"}></Label>
                         <input
                           type="date"
-                          className="col-md-1"
+                          className="col-md-1 form-control"
                           name="Podate"
                           placeholder=""
                           value={barValues.Podate || ""}
@@ -1500,7 +1501,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           type="text"
                           name="Orderno"
                           value={barValues.Orderno || " "}
-                          className="col-md-2"
+                          className="col-md-2 form-control"
                           onChange={handleChange}
                           ref={(el) => (refs.current[6] = el)}
                           onKeyDown={(e) => handleEnter(e, 6)}
@@ -1512,7 +1513,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           type="text"
                           name="Styleref"
                           value={barValues.Styleref || " "}
-                          className="col-md-2"
+                          className="col-md-2 form-control"
                           onChange={handleChange}
                           ref={(el) => (refs.current[7] = el)}
                           onKeyDown={(e) => handleEnter(e, 7)}
@@ -1521,7 +1522,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         />
                         <Label className={`col-md-1`} labelName={"SizeGroup"}></Label>
                         <select
-                          className="col-md-2"
+                          className="col-md-2 form-select"
                           name="Sizegroup"
                           value={barValues.Sizegroup || ""}
                           onChange={handleChange}
@@ -1541,7 +1542,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         </select>
                         <Label className={`col-md-1`} labelName={"Process"}></Label>
                         <select
-                          className="col-md-1"
+                          className="col-md-1 form-select"
                           name="Processname"
                           tabIndex="11"
                           value={barValues.Processname || ""}
@@ -1569,7 +1570,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           pattern="[0-9]*"
                           maxLength={5}
                           value={barValues.Orderqty || " "}
-                          className="col-md-1"
+                          className="col-md-1 form-control"
                           onChange={handleChange}
                           ref={(el) => (refs.current[10] = el)}
                           onKeyDown={(e) => handleEnter(e, 10)}
@@ -1584,7 +1585,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           pattern="[0-9]*"
                           maxLength={5}
                           value={barValues.Excessqty || " "}
-                          className="col-md-1"
+                          className="col-md-1 form-control"
                           onChange={handleChange}
                           ref={(el) => (refs.current[11] = el)}
                           onKeyDown={(e) => handleEnter(e, 11)}
@@ -1593,11 +1594,11 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         />
                         <Label className={`col-md-1`} labelName={"Active"}></Label>
 
-                        <input type="checkbox" className="col-md-1" name="Active" ref={(el) => (refs.current[12] = el)} onKeyDown={(e) => handleEnter(e, 12)} checked={barValues.Active} onChange={handleChange} />
+                        <input type="checkbox" className="col-md-1 form-control" name="Active" ref={(el) => (refs.current[12] = el)} onKeyDown={(e) => handleEnter(e, 12)} checked={barValues.Active} onChange={handleChange} />
 
                         <Label className={`col-md-1`} labelName={"PoActive"}></Label>
 
-                        <input type="checkbox" name="poCancel" className="col-md-1" checked={barValues.Pocancel} onChange={handleChange} onFocus={handleFocus} ref={(el) => (refs.current[13] = el)} onKeyDown={(e) => handleEnter(e, 13)} />
+                        <input type="checkbox" name="poCancel" className="col-md-1 form-control" checked={barValues.Pocancel} onChange={handleChange} onFocus={handleFocus} ref={(el) => (refs.current[13] = el)} onKeyDown={(e) => handleEnter(e, 13)} />
 
                         <Label className={`col-md-1`} labelName={"Total"}></Label>
                       </div>
@@ -1639,7 +1640,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                                               disabled={col.disabled}
                                               width={rows[colIndex].widths}
                                               style={{ color: "black" }}
-                                              className="col-md-12 ps-2 border-0"
+                                              className="col-md-12 ps-2 border-0 form-control"
                                               id={col.field + "_" + rowIndex}
                                               name={col.field}
                                               value={rows[colIndex].value ?? ""}

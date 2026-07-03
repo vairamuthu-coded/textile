@@ -234,7 +234,7 @@ const StateMaster = ({ title, subTitle }) => {
   return (
     <div onSubmit={handleSubmit}>
       {userRights.length >= 1 && (
-        <div className="container-fluid animate-zoom">
+        <div className="container-fluid animate-zoom" style={{ backgroundColor: "whitesmoke" }}>
           {!fetchError ? (
             <>
               <div style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
@@ -256,15 +256,16 @@ const StateMaster = ({ title, subTitle }) => {
                   userRights={userRights}
                   colorValue={colorValue}
                   newButton={newButton}
+                  screenHeader="STATE MASTER"
                 />
                 <div className="row">
                   <div className="col-md-6">
                     <div className="content active-content">
                       <div className="bloc-tabs">
-                        <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
+                        {/* <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
                           {" "}
                           {title}{" "}
-                        </div>
+                        </div> */}
                       </div>
                       <fieldset>
                         <legend></legend>
@@ -306,10 +307,10 @@ const StateMaster = ({ title, subTitle }) => {
                   <div className="col-md-6">
                     <div className="content active-content">
                       <div className="bloc-tabs">
-                        <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
+                        {/* <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
                           {" "}
                           {title}{" "}
-                        </div>
+                        </div> */}
                       </div>
                       <Search
                         colorValue={colorValue}

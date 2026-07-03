@@ -1,7 +1,7 @@
 import React from "react";
 const TableRow = ({ item, columns, EditData, index, checkall, setCheckchild, checkchild }) => {
   return (
-    <tr key={index} onClick={() => EditData(item)} style={{ height: "100%", overflow: "auto", fontFamily: `${"var(--bs-font-roboto)"}`, fontSize: `${"var(--bs-font-sm)"}`, fontStyle: "italic" }}>
+    <tr key={index} onClick={() => EditData(item)} style={{ height: "100%", overflow: "auto" }}>
       {columns.map((columnitem, indx) => {
         return (
           <td key={indx}>
