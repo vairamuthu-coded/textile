@@ -86,6 +86,18 @@ function App({ API_URL, localServerCart, urls }) {
   }, [defaultDetails.Compcode, defaultDetails.User]);
 
   const handleLoginSubmit = async () => {
+    if (!defaultDetails.Compcode?.trim()) {
+      toast.error("CompCode is required");
+      return;
+    }
+    if (!defaultDetails.User?.trim()) {
+      toast.error("User Name is required");
+      return;
+    }
+    if (!defaultDetails.Pass?.trim()) {
+      toast.error("Password is required");
+      return;
+    }
     try {
       const res = await axios.get(`${constirng5}/${defaultDetails.Compcode}/${defaultDetails.User}/${defaultDetails.Pass}`, {
         headers: {
@@ -101,7 +113,7 @@ function App({ API_URL, localServerCart, urls }) {
         toast.error("Invalid Login");
       }
     } catch (error) {
-      toast.error(error.response.data);
+      toast.error(error.response?.data || error.message);
     }
   };
 

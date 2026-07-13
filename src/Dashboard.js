@@ -4,8 +4,6 @@ import DataContext from "./context/CreateUserContext";
 import Marquee from "react-fast-marquee";
 import { toast } from "react-toastify";
 import ResponsiveTabs from "./ResponsiveTabs";
-import { render } from "react-dom";
-import { grey } from "@mui/material/colors";
 
 const Dashboard = ({ title, subTitle }) => {
   const { sidebar, newButton, setNewButton, API_URL, defaultDetails, handlepage, colorValue, foreValue, menuheader, headerdrop } = useContext(DataContext);
@@ -40,20 +38,21 @@ const Dashboard = ({ title, subTitle }) => {
     <div className="container-fluid">
       <ResponsiveTabs data={menuheader} activeIndex={newButton} onChange={handlepage1} colorValue={colorValue} foreValue={foreValue} />
       <div className="h-100  shadow-sm p-3  flex-row align-items-center justify-content-between card-hover">
-        <div className="row" style={{ backgroundColor: "white" }}>
+        <div className="row" style={{ backgroundColor: "whitesmoke" }}>
           {findmenu.map((item, index) => (
             <div key={index} className="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-3 my-2" onClick={() => handlepage(item.menuname)}>
               <div
-                className="h-100 shadow-sm p-2 m-2 d-flex align-items-center justify-content-between card-hover "
+                className="h-100 shadow-sm p-2 m-1 d-flex align-items-center justify-content-between card-hover "
                 style={{
                   cursor: "pointer",
-                  backgroundColor: "whitesmoke",
-                  color: "",
+                  backgroundImage: `url("../Images/Toolbar.bmp")`,
                   borderRadius: "5px",
-                  border: "1px solid grey",
+                  zIndex: -1,
+                  zoom: 1.2,
+                  border: "4px solid white",
                 }}
               >
-                <strong className="mb-0 text-truncate" style={{ color: colorValue, fontSize: "16px", fontFamily: "Roboto" }}>
+                <strong className="mb-0 text-truncate justify-content-between fw-bolder" style={{ color: colorValue, fontSize: "16px", fontFamily: "Roboto" }}>
                   {item.menuname}
                 </strong>
                 <img src={item.companylogoo || "/no-image.png"} alt="" style={{ width: "40px", height: "32px", objectFit: "contain" }} />
