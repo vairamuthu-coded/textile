@@ -14,33 +14,29 @@ const Tabpage = ({ title, colorValue }) => {
 
   return (
     <>
-      <div className="container-fluid">
-        <ul className="d-flex flex-nowrap flex-md-wrap " onClick={handleSubmit}>
-          <li className={`tabs ${title === null ? "active-tabs" : ""}`}>
-            <Link className="tab-link" to="/AdminDashboard">
-              Admin
-            </Link>
-          </li>
-
-          <li className={`tabs ${title === null ? "active-tabs" : ""}`}>
-            <Link className="tab-link" to="/Dashboard">
-              Dashboard
-            </Link>
-          </li>
-
-          {selectedValue.length >= 1 &&
-            selectedValue.map((name, index) => (
-              <li key={index} className="row m-1" onClick={() => tabpageClick(name, index)}>
-                <button className="d-flex align-items-center  justify-content-between" style={{ backgroundColor: `${colorValue}` }}>
-                  <strong>{name}</strong>
-                  <strong className="text-white " onClick={(e) => handleClose(index, name)}>
-                    x
-                  </strong>
-                </button>
-              </li>
-            ))}
-        </ul>
-      </div>
+      <ul className="d-flex flex-nowrap flex-md-wrap" onClick={handleSubmit}>
+        <li className="row m-1">
+          <Link className="tab-link" to="/AdminDashboard">
+            Admin
+          </Link>
+        </li>
+        <li className="row m-1">
+          <Link className="tab-link" to="/Dashboard">
+            Dashboard
+          </Link>
+        </li>
+        {selectedValue.length >= 1 &&
+          selectedValue.map((name, index) => (
+            <li key={index} className="row m-1" onClick={() => tabpageClick(name, index)}>
+              <button className="d-flex align-items-center  justify-content-between" style={{ backgroundColor: `${colorValue}` }}>
+                <strong>{name}</strong>
+                <strong className="text-white " onClick={(e) => handleClose(index, name)}>
+                  x
+                </strong>
+              </button>
+            </li>
+          ))}
+      </ul>
     </>
   );
 };

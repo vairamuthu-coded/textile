@@ -42,13 +42,20 @@ const Dashboard = ({ title, subTitle }) => {
           {findmenu.map((item, index) => (
             <div key={index} className="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-3 my-2" onClick={() => handlepage(item.menuname)}>
               <div
+  className="h-100 shadow-sm p-2 m-1 d-flex align-items-center justify-content-between card-hover"
+  style={{    cursor: "pointer",    backgroundImage: 'url("../Images/Toolbar.bmp")',    borderRadius: "5px",    backgroundSize: "cover",    border: "4px solid white",  }}>
+  <strong
+    className="mb-0 text-truncate fw-bolder"    style={{      color: colorValue,      fontSize: "16px",      fontFamily: "Roboto",    }}  >    {item.menuname}  </strong>
+  <img    src={item.companylogoo || "/no-image.png"}    alt=""    style={{      width: "40px",      height: "32px",      objectFit: "contain",   }}  />
+</div>
+              {/* <div
                 className="h-100 shadow-sm p-2 m-1 d-flex align-items-center justify-content-between card-hover "
                 style={{
                   cursor: "pointer",
                   backgroundImage: `url("../Images/Toolbar.bmp")`,
                   borderRadius: "5px",
-                  zIndex: -1,
-                  zoom: 1.2,
+                  backgroundSize: "cover",
+                  transition: "transform 0.9s ease",
                   border: "4px solid white",
                 }}
               >
@@ -56,7 +63,7 @@ const Dashboard = ({ title, subTitle }) => {
                   {item.menuname}
                 </strong>
                 <img src={item.companylogoo || "/no-image.png"} alt="" style={{ width: "40px", height: "32px", objectFit: "contain" }} />
-              </div>
+              </div> */}
             </div>
           ))}
         </div>

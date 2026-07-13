@@ -127,49 +127,47 @@ function App({ API_URL, localServerCart, urls }) {
       {loginPage === false ? (
         <Login defaultDetails={defaultDetails} setDefaultDetails={setDefaultDetails} handleLoginSubmit={handleLoginSubmit} handleChange={handleChange} loginPage={loginPage} closeWindow={closeWindow} />
       ) : (
-        <div className="container-fluid animate-zoom " style={{ backgroundColor: `${foreValue}` }}>
-          <div className="row ">
-            <DataProvider
-              headerdrop={headerdrop}
-              setHeaderDrop={setHeaderDrop}
-              sidebar={sidebar}
-              setSidebar={setSidebar}
-              showSidebar={showSidebar}
-              API_URL={API_URL}
-              urls={urls}
-              localServerCart={localServerCart}
-              header_items={header_items}
-              menuheader={menuheader}
-              selectedTitle={selectedTitle}
-              setSelectedTitle={setSelectedTitle}
-              mode={mode}
-              setMode={setMode}
-              colorValue={colorValue}
-              foreValue={foreValue}
-              setForeValue={setForeValue}
-              bgValue={bgValue}
-              defaultDetails={defaultDetails}
-              headerfilterdata={headerfilterdata}
-              sidebarData={sidebarData}
-            >
-              <TreeViewDataProdiver API_URL={API_URL} colorValue={colorValue} bgValue={bgValue} setBgValue={setBgValue} foreValue={foreValue} defaultDetails={defaultDetails} setDefaultDetails={setDefaultDetails}>
-                <CreateShopContextProdiver error={error} setError={setError} API_URL={API_URL} localServerCart={localServerCart} colorValue={colorValue}>
-                  <Sidebar menuheader={menuheader} showSidebar={showSidebar} header_items={sidebarData} bgValue={bgValue} colorValue={colorValue} />
-                  <Header mode={mode} setMode={setMode} titlename={titlename} setColorValue={setColorValue} TitleCompCode={TitleCompCode} TitleUser={TitleUser} />
+        <div className="container-fluid animate-zoom " style={{ backgroundColor: `${colorValue}`, padding: "0px", margin: "0px", border: "2px solid var(--bs-lightgrey)" }}>
+          <DataProvider
+            headerdrop={headerdrop}
+            setHeaderDrop={setHeaderDrop}
+            sidebar={sidebar}
+            setSidebar={setSidebar}
+            showSidebar={showSidebar}
+            API_URL={API_URL}
+            urls={urls}
+            localServerCart={localServerCart}
+            header_items={header_items}
+            menuheader={menuheader}
+            selectedTitle={selectedTitle}
+            setSelectedTitle={setSelectedTitle}
+            mode={mode}
+            setMode={setMode}
+            colorValue={colorValue}
+            foreValue={foreValue}
+            setForeValue={setForeValue}
+            bgValue={bgValue}
+            defaultDetails={defaultDetails}
+            headerfilterdata={headerfilterdata}
+            sidebarData={sidebarData}
+          >
+            <TreeViewDataProdiver API_URL={API_URL} colorValue={colorValue} bgValue={bgValue} setBgValue={setBgValue} foreValue={foreValue} defaultDetails={defaultDetails} setDefaultDetails={setDefaultDetails}>
+              <CreateShopContextProdiver error={error} setError={setError} API_URL={API_URL} localServerCart={localServerCart} colorValue={colorValue}>
+                <Sidebar menuheader={menuheader} showSidebar={showSidebar} header_items={sidebarData} bgValue={bgValue} colorValue={colorValue} />
+                <Header mode={mode} setMode={setMode} titlename={titlename} setColorValue={setColorValue} TitleCompCode={TitleCompCode} TitleUser={TitleUser} />
 
-                  <Tabpage title={selectedTitle} bgValue={bgValue} colorValue={colorValue} />
-                  <main onClick={headerSidebarClose} onSubmit={handleSubmit} style={{ backgroundColor: "white" }}>
-                    <Routes>
-                      {AppRoutes.map((route, index) => {
-                        const { element, ...rest } = route;
-                        return <Route key={index} {...rest} element={element} path={route.path} />;
-                      })}
-                    </Routes>
-                  </main>
-                </CreateShopContextProdiver>
-              </TreeViewDataProdiver>
-            </DataProvider>
-          </div>
+                <Tabpage title={selectedTitle} bgValue={bgValue} colorValue={colorValue} />
+                <main onClick={headerSidebarClose} onSubmit={handleSubmit} style={{ backgroundColor: "white" }}>
+                  <Routes>
+                    {AppRoutes.map((route, index) => {
+                      const { element, ...rest } = route;
+                      return <Route key={index} {...rest} element={element} path={route.path} />;
+                    })}
+                  </Routes>
+                </main>
+              </CreateShopContextProdiver>
+            </TreeViewDataProdiver>
+          </DataProvider>
           <Footer title={titlename} colorValue={colorValue}></Footer>
         </div>
       )}

@@ -21,7 +21,7 @@ const Search = ({ colorValue, stylecolor, searchs, setsearchs, SearchLable1, Sea
         ) : (
           ""
         )}
-        {SearchLable3 !== "" ? <Label className={`col-md-1`} forecolor={stylecolor} labelName={SearchLable3}></Label> : ""}
+        {SearchLable3 !== "" ? <Label className={`col-md-1`} forecolor={colorValue} labelName={SearchLable3}></Label> : ""}
         {SearchLable3 !== "" ? (
           <select className="col-md-3" name="username" value={ChangeValues.username || ""} onChange={handleChange}>
             <option></option>

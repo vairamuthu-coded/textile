@@ -18,7 +18,7 @@ const ActionButtton = ({ news, saves, deletes, searches, prints, readonlys, tree
   ];
 
   return (
-    <div className="container-fluid " style={{ backgroundColor: "white", borderBottom: `1px solid ${colorValue}`, margin: "0px", padding: "0px" }}>
+    <div className="container-fluid " style={{ backgroundColor: "white", borderBottom: `1px solid ${"var(--bs-pink)"}`, margin: "0px", padding: "0px" }}>
       <div className="row">
         <div className="col-12">
           <ul className="">
