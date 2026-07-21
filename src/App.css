@@ -8,7 +8,7 @@
   --bs-orange: #fd7e14;
   --bs-yellow: #ffc107;
   --bs-green: #198754;
-  --bs-teal: #20c997;
+  --bs-teal: #006d77;
   --bs-cyan: #0dcaf0;
   --bs-black: #000;
   --bs-white: #fff;
@@ -117,7 +117,7 @@
 
   --bs-body-font-weight: 400;
   --bs-body-line-height: 1;
-  --bs-sidebar: #555969;
+  --bs-sidebar: #004b6b;
   --bs-bigfont: clamp(1.2rem, 1rem, 0.4rem);
   --bs-body-font-size: clamp(1.1rem, 0.9rem, 0.9rem);
   --bs-font: clamp(1rem, 2rem, 1rem);

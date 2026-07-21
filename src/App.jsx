@@ -24,7 +24,7 @@ function App({ API_URL, localServerCart, urls }) {
   const [sidebar, setSidebar] = useState(false);
   const [authToken, setAuthToken] = useState();
   const showSidebar = () => setSidebar((prev) => !prev);
-  const [colorValue, setColorValue] = useState("var(--bs-primary)");
+  const [colorValue, setColorValue] = useState("var(--bs-teal)");
   const [foreValue, setForeValue] = useState("white");
   const [bgValue, setBgValue] = useState("whitesmoke");
   const [header_items, setHeaderItems] = useState([]);
@@ -113,7 +113,7 @@ function App({ API_URL, localServerCart, urls }) {
         toast.error("Invalid Login");
       }
     } catch (error) {
-      toast.error(error.response?.data || error.message);
+      toast.error(error.response?.statusText || error.message);
     }
   };
 
@@ -127,48 +127,50 @@ function App({ API_URL, localServerCart, urls }) {
       {loginPage === false ? (
         <Login defaultDetails={defaultDetails} setDefaultDetails={setDefaultDetails} handleLoginSubmit={handleLoginSubmit} handleChange={handleChange} loginPage={loginPage} closeWindow={closeWindow} />
       ) : (
-        <div className="container-fluid animate-zoom " style={{ backgroundColor: `${colorValue}`, padding: "0px", margin: "0px", border: "2px solid var(--bs-lightgrey)" }}>
-          <DataProvider
-            headerdrop={headerdrop}
-            setHeaderDrop={setHeaderDrop}
-            sidebar={sidebar}
-            setSidebar={setSidebar}
-            showSidebar={showSidebar}
-            API_URL={API_URL}
-            urls={urls}
-            localServerCart={localServerCart}
-            header_items={header_items}
-            menuheader={menuheader}
-            selectedTitle={selectedTitle}
-            setSelectedTitle={setSelectedTitle}
-            mode={mode}
-            setMode={setMode}
-            colorValue={colorValue}
-            foreValue={foreValue}
-            setForeValue={setForeValue}
-            bgValue={bgValue}
-            defaultDetails={defaultDetails}
-            headerfilterdata={headerfilterdata}
-            sidebarData={sidebarData}
-          >
-            <TreeViewDataProdiver API_URL={API_URL} colorValue={colorValue} bgValue={bgValue} setBgValue={setBgValue} foreValue={foreValue} defaultDetails={defaultDetails} setDefaultDetails={setDefaultDetails}>
-              <CreateShopContextProdiver error={error} setError={setError} API_URL={API_URL} localServerCart={localServerCart} colorValue={colorValue}>
-                <Sidebar menuheader={menuheader} showSidebar={showSidebar} header_items={sidebarData} bgValue={bgValue} colorValue={colorValue} />
-                <Header mode={mode} setMode={setMode} titlename={titlename} setColorValue={setColorValue} TitleCompCode={TitleCompCode} TitleUser={TitleUser} />
+        <div className="container-fluid animate-zoom " style={{ padding: "0px", margin: "0px", border: `3px solid ${colorValue}` }}>
+          <div className="row" style={{ margin: "0px", padding: "0px" }}>
+            <DataProvider
+              headerdrop={headerdrop}
+              setHeaderDrop={setHeaderDrop}
+              sidebar={sidebar}
+              setSidebar={setSidebar}
+              showSidebar={showSidebar}
+              API_URL={API_URL}
+              urls={urls}
+              localServerCart={localServerCart}
+              header_items={header_items}
+              menuheader={menuheader}
+              selectedTitle={selectedTitle}
+              setSelectedTitle={setSelectedTitle}
+              mode={mode}
+              setMode={setMode}
+              colorValue={colorValue}
+              foreValue={foreValue}
+              setForeValue={setForeValue}
+              bgValue={bgValue}
+              defaultDetails={defaultDetails}
+              headerfilterdata={headerfilterdata}
+              sidebarData={sidebarData}
+            >
+              <TreeViewDataProdiver API_URL={API_URL} colorValue={colorValue} bgValue={bgValue} setBgValue={setBgValue} foreValue={foreValue} defaultDetails={defaultDetails} setDefaultDetails={setDefaultDetails}>
+                <CreateShopContextProdiver error={error} setError={setError} API_URL={API_URL} localServerCart={localServerCart} colorValue={colorValue}>
+                  <Sidebar menuheader={menuheader} showSidebar={showSidebar} header_items={sidebarData} bgValue={bgValue} colorValue={colorValue} />
+                  <Header mode={mode} setMode={setMode} titlename={titlename} setColorValue={setColorValue} TitleCompCode={TitleCompCode} TitleUser={TitleUser} />
 
-                <Tabpage title={selectedTitle} bgValue={bgValue} colorValue={colorValue} />
-                <main onClick={headerSidebarClose} onSubmit={handleSubmit} style={{ backgroundColor: "white" }}>
-                  <Routes>
-                    {AppRoutes.map((route, index) => {
-                      const { element, ...rest } = route;
-                      return <Route key={index} {...rest} element={element} path={route.path} />;
-                    })}
-                  </Routes>
-                </main>
-              </CreateShopContextProdiver>
-            </TreeViewDataProdiver>
-          </DataProvider>
-          <Footer title={titlename} colorValue={colorValue}></Footer>
+                  <Tabpage title={selectedTitle} bgValue={bgValue} colorValue={colorValue} />
+                  <main onClick={headerSidebarClose} onSubmit={handleSubmit} style={{ backgroundColor: "white" }}>
+                    <Routes>
+                      {AppRoutes.map((route, index) => {
+                        const { element, ...rest } = route;
+                        return <Route key={index} {...rest} element={element} path={route.path} />;
+                      })}
+                    </Routes>
+                  </main>
+                </CreateShopContextProdiver>
+              </TreeViewDataProdiver>
+            </DataProvider>
+            <Footer title={titlename} colorValue={colorValue}></Footer>
+          </div>
         </div>
       )}
     </>

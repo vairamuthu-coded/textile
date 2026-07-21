@@ -1,5 +1,5 @@
 import React from "react";
-const ActionButtton = ({ news, saves, deletes, searches, prints, readonlys, treebutton, globalsearch, login, changepassword, changeskin, contact, pdf, imports, download, userRights, colorValue, foreValue, newButton, screenHeader }) => {
+const ActionButtton = ({ news, saves, deletes, searches, prints, readonlys, treebutton, globalsearch, login, changepassword, changeskin, contact, pdf, imports, download, userRights, colorValue, foreValue, newButton, screenHeader, isLoading }) => {
   const menuButtons = [
     { key: "news", label: "New", action: news },
     { key: "saves", label: "Save", action: saves },
@@ -18,25 +18,25 @@ const ActionButtton = ({ news, saves, deletes, searches, prints, readonlys, tree
   ];
 
   return (
-    <div className="container-fluid " style={{ backgroundColor: "white", borderBottom: `1px solid ${"var(--bs-pink)"}`, margin: "0px", padding: "0px" }}>
+    <div className="container-fluid" style={{ cursor: isLoading ? "wait" : "default" }}>
       <div className="row">
-        <div className="col-12">
-          <ul className="">
-            <li className="boxShadow d-flex   flex-wrap list-unstyled p-0 m-0" style={{ margin: "0px", padding: "0px", float: "left" }}>
-              <h3 className="p-0 m-0 fw-bold">{screenHeader}</h3>
-            </li>
+        <ul className="bg-white boxShadow" style={{ display: "flex", justifyContent: "space-between" }}>
+          <li className="boxShadow" style={{ margin: "0px", padding: "0px", float: "left" }}>
+            <h3 className="p-0 m-0 fw-bold">{screenHeader}</h3>
+          </li>{" "}
+          <li className="boxShadow" style={{ margin: "0px", padding: "0px", float: "right" }}>
             {menuButtons.map(
               (btn, index) =>
                 userRights[0][btn.key] === "T" && (
-                  <li key={index} className="boxShadow d-flex justify-content-end  p-0 m-0" style={{ backgroundColor: foreValue, margin: "0px", color: colorValue, float: "right" }}>
-                    <button className={newButton === 1 ? " active-tabs  w-100" : "  w-100"} style={{ backgroundColor: colorValue, minWidth: "50px" }} onClick={btn.action}>
+                  <li key={index} className="boxShadow me-2" style={{ justifyContent: "right" }}>
+                    <button className={newButton === 1 ? "active-tabs  w-100" : "w-100"} style={{ backgroundColor: colorValue, minWidth: "50px" }} onClick={btn.action}>
                       {btn.label}
                     </button>
                   </li>
                 ),
             )}
-          </ul>
-        </div>
+          </li>
+        </ul>
       </div>
     </div>
   );

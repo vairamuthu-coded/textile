@@ -26,7 +26,7 @@ const Header = ({ titlename, TitleCompCode, TitleUser, setColorValue, setMode })
       setColorValue("var(--bs-primary-text-emphasis)");
       setMode("dark");
     } else {
-      setColorValue("var(--bs-form-valid-color)");
+      setColorValue("var(--bs-sidebar)");
       setMode("light");
     }
   };
@@ -68,13 +68,14 @@ const Header = ({ titlename, TitleCompCode, TitleUser, setColorValue, setMode })
 
         {/* RIGHT SIDE */}
         <div className="col-12 col-md-5">
-          <div className="d-flex flex-row flex-md-row justify-content-between align-items-center">
+          <div className="d-flex flex-row justify-content-between align-items-center">
             {/* USER INFO */}
             <div className="mb-2 mb-md-0">
               <span style={{ color: foreValue }} className="me-2">
-                {TitleCompCode}
+                CompCode : {TitleCompCode}
               </span>
-              <span style={{ color: foreValue }}>{TitleUser}</span>
+
+              <span style={{ color: foreValue }}>User : {TitleUser}</span>
             </div>
 
             {/* ACTION BUTTONS */}

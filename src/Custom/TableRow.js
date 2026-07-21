@@ -4,7 +4,7 @@ const TableRow = ({ item, columns, EditData, index, checkall, setCheckchild, che
     <tr key={index} onClick={() => EditData(item)} style={{ height: "100%", overflow: "auto" }}>
       {columns.map((columnitem, indx) => {
         return (
-          <td key={indx}>
+          <td key={indx} style={{ padding: "5px", margin: "0px", fontFamily: "var(--bs-font-roboto)" }}>
             {`${columnitem.field}` === "visible" ? <input type="checkbox" checked={checkall === true ? checkall : null} onChange={(e) => setCheckchild(e.target.checked)} /> : `${columnitem.field}` === "SNo" ? index + 1 : item[`${columnitem.field}`]}
           </td>
         );

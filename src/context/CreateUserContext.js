@@ -28,6 +28,8 @@ export const DataProvider = ({
   mode,
   setMode,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   let navigate = useNavigate();
   let lists = "";
   const [countryValues, setCountryValues] = useState("");
@@ -39,7 +41,7 @@ export const DataProvider = ({
   const [statuspo, setStatusPo] = useState([]);
   const [selectedValue, setSelectedValue] = useState([]);
   const [selectText, setSelectedText] = useState();
-  const [isloading, setIsLoading] = useState(true);
+
   let [sorting, setSorting] = useState({ field: "", order: "" });
   const [newButton, setNewButton] = useState(1);
   let [currentPage, setCurrentPage] = useState(1);
@@ -64,6 +66,7 @@ export const DataProvider = ({
   const [yarnBlend, setYarnBlend] = useState([]);
   const [fab, setFab] = useState([]);
   const [styleItemValues, setStyleItemValues] = useState([]);
+
   let tablecheck = false;
   let inputref = useRef();
   const [checkall, setCheckAll] = useState(false);
@@ -399,7 +402,7 @@ export const DataProvider = ({
         urls,
         API_URL,
         IntialzeState,
-        isloading,
+        isLoading,
         setIsLoading,
         defaultDetails,
         sequenceTable,

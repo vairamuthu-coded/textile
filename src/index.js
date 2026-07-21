@@ -10,6 +10,7 @@ import { persistStore } from "redux-persist";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const API_URL = "http://localhost:5271/api"; //'http://192.168.101.15:82/api'; npx json-server --port 3001  --watch db.json 'https://fakestoreapi.com/products';
 const localServerCart = "http://localhost:3001/productss";

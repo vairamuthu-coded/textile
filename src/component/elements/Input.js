@@ -13,7 +13,7 @@ const Input = ({ type, name, disabled, placeholder, ref, value, className, class
 
   return (
     <>
-      <label className={className1} style={{ color: `${stylecolor}`, fontSize: `${"var(--bs-font-sm)"}`, fontWeight: "bold", display: `${visible === false ? "none" : "block"}` }}>
+      <label className={className1} style={{ color: `${stylecolor}`, fontFamily: `${"var(--bs-font-roboto)"}`, fontWeight: "bold", display: `${visible === false ? "none" : "block"}` }}>
         {" "}
         {name1}{" "}
       </label>
