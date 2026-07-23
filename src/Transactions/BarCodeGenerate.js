@@ -16,6 +16,7 @@ import { useParams } from "react-router-dom";
 import { ALERT } from "@blueprintjs/core/lib/esm/common/classes";
 import TextInput from "../component/elements/TextInput ";
 import ActionButtton from "../ActionButtton";
+import CustomSelect from "../Custom/CustomSelect";
 
 let TableName = "asptblpur";
 
@@ -56,7 +57,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
     HeadersColumn,
   } = useContext(DataContext);
 
-  let ITEM_PER_PAGE = 10;
+  let ITEM_PER_PAGE = 15;
   let totalcounts = 0;
   let inputref = useRef();
   let portionMaximum = 5;
@@ -98,10 +99,12 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   const GridLoadColor = `${API_URL}${ENDPOINTS.GRID_LOAD_COLOR}`;
   const GridLoadSize = `${API_URL}${ENDPOINTS.GRID_LOAD_SIZE}`;
   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
-
+  let TabIndex = 0;
   const refs = useRef([]);
 
   const handleEnter = (e, index) => {
+    const { name } = e.target;
+
     if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault();
       refs.current[index + 1]?.focus();
@@ -113,7 +116,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
 
   const printFormat = ["PDF", "WORD"];
   const [docFormat, setDocFormat] = useState(null);
-  const heights = "400px";
+  const heights = "420px";
   let validorder = "";
   const [fetchError, setFetchError] = useState(null);
   const [buyerItem, setBuyerItem] = useState([]);
@@ -133,6 +136,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   setSearchLable1("Search");
   setSearchLable2("");
   setSearchLable3("");
+  const inputRef = useRef();
 
   const [checkSize, setCheckSize] = useState(false);
   const [checkColor, setCheckColor] = useState(false);
@@ -383,19 +387,20 @@ const BarCodeGenerate = ({ title, subTitle }) => {
 
     return qtyTotal; // valid
   };
-
+  let widthout = false;
   const handleChange = async (e) => {
-    let widthout = "";
-    var ponumber,
-      UniqueId = "";
+    widthout = false;
+    let ponumber = "";
+    let UniqueId = "";
     const { name, value, type, checked, inputMode } = e.target;
+
     const fieldValue = type === "checkbox" ? checked : inputMode === "numeric" ? value.replace(/[^0-9]/g, "") : value;
-    // Update input state immediately (safe)
+
     setBarValues((prev) => ({
       ...prev,
       [name]: fieldValue,
     }));
-    // Build a snapshot to use for async logic
+
     const current = {
       ...barValues,
       [name]: fieldValue,
@@ -417,9 +422,6 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       current.Podate = today;
     }
 
-    // -------------------------
-    // ORDERTYPE = ORDER
-    // -------------------------
     if (name === "Ordertype" && value === "ORDER") {
       if (!current.Compcode) return;
 
@@ -431,13 +433,13 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       uncheck(chkcol, "");
 
       try {
-        const res = await axios.get(`${GridLoadDetails}/${current.Compcode}/${TableName}/${title}/${sequenceTable}`);
+        const orderRes = await axios.get(`${GridLoadDetails}/${current.Compcode}/${TableName}/${title}/${sequenceTable}`);
 
-        if (res?.data) {
-          setPoItem(res.data);
+        if (orderRes?.data) {
+          setPoItem(orderRes.data);
         } else {
-          setFetchError(res.data);
-          toast.error(res?.data);
+          setFetchError(orderRes.data);
+          toast.error(orderRes?.data);
         }
       } catch (err) {
         setFetchError(err);
@@ -446,22 +448,19 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       return;
     }
 
-    // -------------------------
-    // ORDERTYPE = EXCESSQTY
-    // -------------------------
     if (name === "Ordertype" && value === "EXCESSQTY") {
       if (!current.Compcode) return;
       setvisible(true);
       setPoItem([]);
-      widthout = "false";
+      widthout = false;
       try {
-        const res = await axios.get(`${PonoDetails}/${TableName}/${current.Compcode}`);
-        setPos(res.data);
-        ponumber = res.data[0].pono;
+        const excessQtyRes = await axios.get(`${PonoDetails}/${TableName}/${current.Compcode}`);
+        setPos(excessQtyRes.data);
+        ponumber = excessQtyRes.data[0].pono;
         setBarValues((prev) => ({
           ...prev,
-          Pono: res.data[0].pono,
-          Pono1: res.data[0].pono,
+          Pono: excessQtyRes.data[0].pono,
+          Pono1: excessQtyRes.data[0].pono,
         }));
       } catch (error) {
         setFetchError(error);
@@ -474,14 +473,14 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       uncheck(chksiz, "");
       uncheck(chkcol, "");
 
-      const res0 = await axios.get(`${PonoDetailss}/${current.Compcode}/${current.Ordertype}/${ponumber}`);
-      UniqueId = res0.data[0].asptblpurid;
+      const getUniqueId = await axios.get(`${PonoDetailss}/${current.Compcode}/${current.Ordertype}/${ponumber}`);
+      UniqueId = getUniqueId.data[0].asptblpurid;
 
       // 1. HEADER
-      const res10 = await axios.get(`${GridLoadDetails}/${UniqueId}/${current.Compcode}`);
-      if (res10.data.length === 0) return toast.error("Invalid Data");
+      const headerRes = await axios.get(`${GridLoadDetails}/${UniqueId}/${current.Compcode}`);
+      if (headerRes.data.length === 0) return toast.error("Invalid Data");
 
-      const header = res10.data[0];
+      const header = headerRes.data[0];
       await StateValues(header, value, widthout);
 
       setvisible(true);
@@ -501,10 +500,10 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       }));
 
       // 4. SIZE COLUMNS
-      const res1 = await axios.get(`${GridLoadDetails}/${UniqueId}/${header.compcode}/${header.pono}`);
+      const sizecolumnRes = await axios.get(`${GridLoadDetails}/${UniqueId}/${header.compcode}/${header.pono}`);
       let sizeColumns = [];
-      if (res1.data.length > 0) {
-        sizeColumns = res1.data.map((size) => ({
+      if (sizecolumnRes.data.length > 0) {
+        sizeColumns = sizecolumnRes.data.map((size) => ({
           field: size.sizename,
           value: 0,
           placeholder: "Size",
@@ -559,15 +558,12 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       //=============
     }
 
-    // -------------------------
-    // PONO1 CHANGE
-    // -------------------------
     if (name === "Pono1") {
       if (!current.Compcode || !current.Ordertype) return;
-      widthout = "false";
+      widthout = false;
       setvisible(true);
       setPoItem([value]);
-      // Reset temp arrays (create new ones)
+
       let columns = [];
       let rows = [];
 
@@ -577,37 +573,27 @@ const BarCodeGenerate = ({ title, subTitle }) => {
 
       try {
         // Step 1: load PONO details
-        const res = await axios.get(`${PonoDetailss}/${current.Compcode}/${current.Ordertype}/${value}`);
-        const row = res.data[0];
+        const sizeGroupRes = await axios.get(`${PonoDetailss}/${current.Compcode}/${current.Ordertype}/${value}`);
+        const row = sizeGroupRes.data[0];
         await DropDown_Check(row.sizegroup, "Sizegroup");
         await StateValues(row, current.Ordertype, widthout);
-
-        // Step 2: load all colors
         const resColor = await axios.get(`${GridLoadColor}/${value}/${row.compcode}`);
-
-        // Step 3: load all sizes once
         const resSize = await axios.get(`${PonoDetails}/${row.compcode}/${row.sizegroup}/${value}`);
-
         const sizes = resSize.data;
-        // ⚡ Build final column list
         const sizeColumns = sizes.map((s) => ({
           field: s.sizename,
           placeholder: "Size",
           HeaderVisible: "visible",
           widths: "30px",
         }));
-
         columns = [...HeadersColumn, ...sizeColumns];
         setAddColumns(columns);
-
-        // ⚡ Build rows — 1 row per color
         for (const color of resColor.data) {
           if (color.colorname === "invalid") {
             setFetchError(color.portion);
             toast.error(color.portion);
             continue;
           }
-
           const rowData = [
             { field: "Colorname", value: color.colorname },
             { field: "Portion", value: color.portion ?? 0 },
@@ -1049,8 +1035,8 @@ const BarCodeGenerate = ({ title, subTitle }) => {
     { headername: "Active", field: "active" },
   ];
   const StateValues = async (res, value, widthout) => {
-    const purId = widthout === "false" ? 0 : res?.asptblpurid || 0;
-    const pur1Id = widthout === "false" ? 0 : res?.asptblpur1id || 0;
+    const purId = widthout === false ? 0 : res?.asptblpurid || 0;
+    const pur1Id = widthout === false ? 0 : res?.asptblpur1id || 0;
     setImage({
       imagesrc: res.garmentimage !== null ? "data:image/jpeg;base64," + res.garmentimage : null,
     });
@@ -1089,14 +1075,14 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       setPdfFile(null);
       uncheck(chksiz, "");
       uncheck(chkcol, "");
-
+      widthout = true;
       // 1. HEADER
       const res = await axios.get(`${GridLoadDetails}/${id.asptblpurid}/${id.compcode}`);
       if (res.data.length === 0) return toast.error("Invalid Data");
 
       const header = res.data[0];
 
-      await StateValues(header, header.processtype);
+      await StateValues(header, header.processtype, widthout);
 
       setvisible(true);
       setPoItem(header.pono);
@@ -1288,11 +1274,14 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   };
 
   const handleFocus = (e) => {
-    e.target.style.backgroundColor = `${color1}`;
+    e.target.style.backgroundColor = `${colorValue}`;
+    e.target.style.color = `${"var(--bs-light)"}`;
+    e.target.style.fontWeight = "bolder";
   };
 
   const handleBlur = (e) => {
     e.target.style.backgroundColor = "";
+    e.target.style.color = `${"var(--bs-dark)"}`;
   };
 
   return (
@@ -1350,6 +1339,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           className="form-control col-md-1"
                           id="Asptblpurid"
                           name="Asptblpurid"
+                          tabIndex={0}
                           placeholder=""
                           value={barValues.Asptblpurid || ""}
                           onChange={handleChange}
@@ -1358,8 +1348,11 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           name1={"id"}
                           stylecolor={""}
                           visible={true}
+                          disabled={false}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
+                          ref={(el) => (refs.current[0] = el)}
+                          onKeyDown={(e) => handleEnter(e, 0)}
                         />
                         <Input
                           type={"text"}
@@ -1368,6 +1361,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           id="Asptblpur1id"
                           name="Asptblpur1id"
                           placeholder=""
+                          tabIndex={1}
                           value={barValues.Asptblpur1id || ""}
                           onChange={handleChange}
                           barValues={barValues}
@@ -1375,92 +1369,87 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           name1={"Seq"}
                           stylecolor={""}
                           visible={true}
+                          disabled={false}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
-                        />
-                        <Label className={`col-md-1`} labelName={"CompCode"}></Label>
-                        <select
-                          className="col-md-1 form-select"
-                          name="Compcode"
-                          defaultValue={"--"}
-                          value={barValues.Compcode || ""}
-                          onChange={handleChange}
-                          tabIndex="0"
-                          ref={(el) => (refs.current[0] = el)}
-                          onKeyDown={(e) => handleEnter(e, 0)}
-                          onFocus={handleFocus}
-                          onBlur={handleBlur}
-                        >
-                          <option></option>
-                          {compcodeData.map((result, index) => (
-                            <option key={index} value={result.gtcompmastid}>
-                              {result.compcode}
-                            </option>
-                          ))}
-                        </select>
-
-                        <Label className={`col-md-1`} labelName={"Type"}></Label>
-                        <select
-                          className="col-md-2 form-select"
-                          name="Ordertype"
-                          value={barValues.Ordertype || ""}
-                          onChange={handleChange}
-                          tabIndex="1"
                           ref={(el) => (refs.current[1] = el)}
                           onKeyDown={(e) => handleEnter(e, 1)}
-                          onFocus={handleFocus}
-                          onBlur={handleBlur}
-                        >
-                          <option></option>
-                          <option value={"ORDER"}>ORDER</option>
-                          <option value={"EXCESSQTY"}>EXCESSQTY</option>
-                        </select>
-                        <Label className={`col-md-1`} name="Pono1" labelName={"PoNo"} visible={barValues.Ordertype === "ORDER" ? "none" : "block"}></Label>
-                        <select
-                          className="col-md-2 form-select"
-                          name="Pono1"
-                          style={{ display: `${barValues.Ordertype}` === "ORDER" ? "none" : "block", color: `${colorValue}` }}
-                          value={barValues.Pono1}
+                        />
+                        <Label className={`col-md-1`} labelName={"CompCode"}></Label>
+                        <CustomSelect
+                          visible="block"
+                          className="col-md-1 form-select"
+                          name="Compcode"
+                          value={barValues.Compcode || ""}
                           onChange={handleChange}
-                          tabIndex="2"
+                          colorValue={colorValue}
+                          tabIndex={2}
                           ref={(el) => (refs.current[2] = el)}
                           onKeyDown={(e) => handleEnter(e, 2)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         >
-                          <option></option>
+                          {compcodeData.map((result) => (
+                            <option key={result.gtcompmastid} value={result.gtcompmastid}>
+                              {result.compcode}
+                            </option>
+                          ))}
+                        </CustomSelect>
+
+                        <Label className={`col-md-1`} labelName={"Type"}></Label>
+                        <CustomSelect
+                          visible="block"
+                          className="col-md-2 form-select"
+                          name="Ordertype"
+                          value={barValues.Ordertype || ""}
+                          onChange={handleChange}
+                          colorValue={colorValue}
+                          tabIndex={3}
+                          ref={(el) => (refs.current[3] = el)}
+                          onKeyDown={(e) => handleEnter(e, 3)}
+                          onFocus={handleFocus}
+                          onBlur={handleBlur}
+                        >
+                          <option value={"ORDER"}>ORDER</option>
+                          <option value={"EXCESSQTY"}>EXCESSQTY</option>
+                        </CustomSelect>
+
+                        <Label className={`col-md-1`} name="Pono1" labelName={"PoNo"} visible={barValues.Ordertype === "ORDER" ? "none" : "block"}></Label>
+                        <CustomSelect
+                          visible={barValues.Ordertype === "ORDER" ? "none" : "block"}
+                          className="col-md-2 form-select"
+                          name="Pono1"
+                          value={barValues.Pono1 || ""}
+                          onChange={handleChange}
+                          colorValue={colorValue}
+                          tabIndex={4}
+                          ref={(el) => (refs.current[4] = el)}
+                          onKeyDown={(e) => handleEnter(e, 4)}
+                          onFocus={handleFocus}
+                          onBlur={handleBlur}
+                        >
                           {pos.map((result, index) => (
                             <option key={index} value={result.pono}>
                               {result.pono}
                             </option>
                           ))}
-                        </select>
+                        </CustomSelect>
                       </div>
                       <div className="row py-1">
                         <Label className={`col-md-1`} labelName={"Pono"}></Label>
-                        <input
-                          type="text"
-                          readOnly
-                          className="col-md-2 form-control"
-                          name="Pono"
-                          placeholder=""
-                          value={poItem || ""}
-                          onChange={handleChange}
-                          ref={(el) => (refs.current[2] = el)}
-                          onKeyDown={(e) => handleEnter(e, 2)}
-                          onFocus={handleFocus}
-                          onBlur={handleBlur}
-                        />
+                        <input type="text" readOnly className="col-md-2 form-control" name="Pono" placeholder="" value={poItem || ""} tabIndex={5} onChange={handleChange} ref={(el) => (refs.current[5] = el)} onKeyDown={(e) => handleEnter(e, 5)} />
 
                         <Label className={`col-md-1`} labelName={"Buyer"}></Label>
-                        <select
+                        <CustomSelect
+                          visible="block"
                           className="col-md-2 form-select"
-                          tabIndex="3"
-                          ref={(el) => (refs.current[3] = el)}
-                          onKeyDown={(e) => handleEnter(e, 3)}
                           name="Buyercode"
                           value={barValues.Buyercode || ""}
                           onChange={handleChange}
+                          colorValue={colorValue}
+                          tabIndex={6}
+                          ref={(el) => (refs.current[6] = el)}
+                          onKeyDown={(e) => handleEnter(e, 6)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         >
@@ -1470,17 +1459,18 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                               {result.buyercode}
                             </option>
                           ))}
-                        </select>
+                        </CustomSelect>
 
                         <Label className={`col-md-1`} labelName={"StyleName"}></Label>
-                        <select
+                        <CustomSelect
                           className="col-md-2 form-select"
                           name="Stylename"
+                          visible="block"
                           value={barValues.Stylename || ""}
                           onChange={handleChange}
-                          tabIndex="4"
-                          ref={(el) => (refs.current[4] = el)}
-                          onKeyDown={(e) => handleEnter(e, 4)}
+                          tabIndex={7}
+                          ref={(el) => (refs.current[7] = el)}
+                          onKeyDown={(e) => handleEnter(e, 7)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         >
@@ -1490,17 +1480,19 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                               {result.stylegroup}
                             </option>
                           ))}
-                        </select>
+                        </CustomSelect>
+
                         <Label className="col-md-1" labelName={"Podate"}></Label>
                         <input
                           type="date"
-                          className="col-md-1 form-control"
+                          className="col-md-2 form-control"
                           name="Podate"
                           placeholder=""
+                          tabindex="8"
                           value={barValues.Podate || ""}
                           onChange={handleChange}
-                          ref={(el) => (refs.current[5] = el)}
-                          onKeyDown={(e) => handleEnter(e, 5)}
+                          ref={(el) => (refs.current[8] = el)}
+                          onKeyDown={(e) => handleEnter(e, 8)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
@@ -1513,8 +1505,9 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           value={barValues.Orderno || " "}
                           className="col-md-2 form-control"
                           onChange={handleChange}
-                          ref={(el) => (refs.current[6] = el)}
-                          onKeyDown={(e) => handleEnter(e, 6)}
+                          tabIndex={9}
+                          ref={(el) => (refs.current[9] = el)}
+                          onKeyDown={(e) => handleEnter(e, 9)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
@@ -1525,40 +1518,61 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           value={barValues.Styleref || " "}
                           className="col-md-2 form-control"
                           onChange={handleChange}
-                          ref={(el) => (refs.current[7] = el)}
-                          onKeyDown={(e) => handleEnter(e, 7)}
+                          tabIndex={10}
+                          ref={(el) => (refs.current[10] = el)}
+                          onKeyDown={(e) => handleEnter(e, 10)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
                         <Label className={`col-md-1`} labelName={"SizeGroup"}></Label>
-                        <select
+
+                        <CustomSelect
                           className="col-md-2 form-select"
                           name="Sizegroup"
+                          visible="block"
                           value={barValues.Sizegroup || ""}
                           onChange={handleChange}
-                          tabIndex="8"
-                          ref={(el) => (refs.current[8] = el)}
-                          onKeyDown={(e) => handleEnter(e, 8)}
+                          tabIndex={11}
+                          ref={(el) => (refs.current[11] = el)}
+                          onKeyDown={(e) => handleEnter(e, 11)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         >
-                          <option></option>
-                          {sizeGrpItems !== null &&
-                            sizeGrpItems.map((result, index) => (
-                              <option key={index} value={result.asptblsizgrpid} style={{ height: "20px", overflow: "auto", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                {result.sizegroup}
-                              </option>
-                            ))}
-                        </select>
+                          {sizeGrpItems.map((result, index) => (
+                            <option key={index} value={result.asptblsizgrpid}>
+                              {result.sizegroup}
+                            </option>
+                          ))}
+                        </CustomSelect>
+
                         <Label className={`col-md-1`} labelName={"Process"}></Label>
-                        <select
-                          className="col-md-1 form-select"
+                        <CustomSelect
+                          className="col-md-2 form-select"
                           name="Processname"
-                          tabIndex="11"
+                          visible="block"
                           value={barValues.Processname || ""}
                           onChange={handleChange}
-                          ref={(el) => (refs.current[9] = el)}
-                          onKeyDown={(e) => handleEnter(e, 9)}
+                          tabIndex={12}
+                          ref={(el) => (refs.current[12] = el)}
+                          onKeyDown={(e) => handleEnter(e, 12)}
+                          onFocus={handleFocus}
+                          onBlur={handleBlur}
+                        >
+                          {processItems !== null &&
+                            processItems.map((result, index) => (
+                              <option key={index} value={result.asptblpromasid}>
+                                {result.processname}
+                              </option>
+                            ))}
+                        </CustomSelect>
+                        {/* <select
+                          className="col-md-1 form-select"
+                          name="Processname"
+                          tabIndex="12"
+                          value={barValues.Processname || ""}
+                          onChange={handleChange}
+                          ref={(el) => (refs.current[12] = el)}
+                          onKeyDown={(e) => handleEnter(e, 12)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         >
@@ -1569,7 +1583,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                                 {result.processname}
                               </option>
                             ))}
-                        </select>
+                        </select> */}
                       </div>
                       <div className="row py-1">
                         <Label className={`col-md-1`} labelName={"Orderqty"}></Label>
@@ -1579,17 +1593,19 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           inputMode="numeric"
                           pattern="[0-9]*"
                           maxLength={5}
+                          tabindex="13"
                           value={barValues.Orderqty || " "}
                           className="col-md-1 form-control"
                           onChange={handleChange}
-                          ref={(el) => (refs.current[10] = el)}
-                          onKeyDown={(e) => handleEnter(e, 10)}
+                          ref={(el) => (refs.current[13] = el)}
+                          onKeyDown={(e) => handleEnter(e, 13)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
-                        <Label className={`col-md-1`} labelName={"Excessqty"}></Label>
+                        <Label className={`col-md-1`} labelName={"Excessqty"} visible={barValues.Ordertype === "ORDER" ? "none" : "block"}></Label>
 
                         <input
+                          style={{ display: barValues.Ordertype === "ORDER" ? "none" : "block" }}
                           type="text"
                           name="Excessqty"
                           inputMode="numeric"
@@ -1598,19 +1614,29 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                           value={barValues.Excessqty || " "}
                           className="col-md-1 form-control"
                           onChange={handleChange}
-                          ref={(el) => (refs.current[11] = el)}
-                          onKeyDown={(e) => handleEnter(e, 11)}
+                          tabindex={14}
+                          ref={(el) => (refs.current[14] = el)}
+                          onKeyDown={(e) => handleEnter(e, 14)}
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         />
 
-                        <Label className={`col-md-1`} labelName={"Active"}></Label>
-
-                        <input type="checkbox" className="col-md-1" name="Active" ref={(el) => (refs.current[12] = el)} onKeyDown={(e) => handleEnter(e, 12)} checked={barValues.Active} onChange={handleChange} />
+                        <Label labelName={"Active"} className="col-md-1"></Label>
+                        <input type="checkbox" className="col-md-1" name="Active" tabIndex={15} ref={(el) => (refs.current[15] = el)} onKeyDown={(e) => handleEnter(e, 15)} checked={barValues.Active} onChange={handleChange} />
 
                         <Label className={`col-md-1`} labelName={"PoActive"}></Label>
 
-                        <input type="checkbox" name="poCancel" className="col-md-1" checked={barValues.Pocancel} onChange={handleChange} onFocus={handleFocus} ref={(el) => (refs.current[13] = el)} onKeyDown={(e) => handleEnter(e, 13)} />
+                        <input
+                          type="checkbox"
+                          name="poCancel"
+                          className="col-md-1"
+                          checked={barValues.Pocancel}
+                          onChange={handleChange}
+                          onFocus={handleFocus}
+                          tabIndex={16}
+                          ref={(el) => (refs.current[16] = el)}
+                          onKeyDown={(e) => handleEnter(e, 16)}
+                        />
 
                         <Label className={`col-md-1`} labelName={"Total"}></Label>
                       </div>
@@ -1685,7 +1711,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                               tabIndex="17"
                             >
                               {" "}
-                              Size Details{" "}
+                              SIZE TEMPLATE
                             </button>{" "}
                           </li>
                           <li>
@@ -1693,10 +1719,10 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                             <button
                               className={newButton1 === 5 ? "tabs active-tabs btn" : "tabs"}
                               onClick={() => TabIndexClick1(5, "Color Details")}
-                              style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, width: "100%", fontWeight: "bold", color: "white" }}
+                              style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, width: "100%", fontWeight: "bold", color: "white", marginLeft: "20px" }}
                               tabIndex="18"
                             >
-                              Color Details{" "}
+                              COLOR TEMPLATE
                             </button>{" "}
                           </li>
                         </ul>

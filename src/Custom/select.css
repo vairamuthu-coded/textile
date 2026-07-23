@@ -28,6 +28,7 @@
   visibility: hidden;
   transition: all 5ms ease-in-out;
   position: absolute;
+  z-index: 1;
 }
 
 .dropShow {
@@ -54,7 +55,7 @@
 
 .headermenu {
   display: flex;
-  max-height: 14rem;
+  max-height: 20rem;
   flex-direction: column;
 }
 

@@ -26,7 +26,7 @@ const Select = ({ items, setUserRightsSearch, userrights_search, colorValue, han
           <div className="headermenu">
             {items.map((item, index) => (
               <span
-                style={{ fontFamily: `${"var(--bs-Roboto)"}`, fontSize: "18px", padding: "5px 0 5px 0", textAlign: "left" }}
+                style={{ fontFamily: `${"var(--bs-Roboto)"}`, fontSize: "14px", padding: "5px 0 5px 0", textAlign: "left", fontWeight: "bolder" }}
                 key={index}
                 onClick={(e) => handlepage(item.menuname)}
                 className={`${item.menuname.toLocaleLowerCase().startsWith(userrights_search) ? "block" : "hidden"}`}
