@@ -1,7 +1,7 @@
 import { arrayLengthCompare } from "@blueprintjs/core/lib/esm/common/utils";
 import axios from "axios";
 import React, { useRef } from "react";
-const Input = ({ type, name, disabled, placeholder, ref, value, className, className1, name1, colorValue, stylecolor, visible, maxLength, handleChange, setBarValues, title, tabIndex, onKeyDown }) => {
+const Input = ({ type, name, disabled, placeholder, ref, value, className, className1, name1, colorValue, stylecolor, visible, maxLength, handleChange, setBarValues, title, tabIndex, onKeyDown, labelVisible }) => {
   handleChange = async (e) => {
     const { name, value, type, checked } = e.target;
     if (value.length > maxLength) return;
@@ -13,7 +13,7 @@ const Input = ({ type, name, disabled, placeholder, ref, value, className, class
 
   return (
     <>
-      <label className={className1} style={{ color: `${stylecolor}`, fontFamily: `${"var(--bs-font-roboto)"}`, fontWeight: "bold", display: `${visible === false ? "none" : "block"}` }}>
+      <label className={className1} style={{ color: "var(--bs-black)", fontFamily: `${"var(--bs-font-roboto)"}`, fontWeight: "bold", display: `${visible === false ? "none" : labelVisible}` }}>
         {" "}
         {name1}{" "}
       </label>
@@ -25,7 +25,7 @@ const Input = ({ type, name, disabled, placeholder, ref, value, className, class
         tabIndex={tabIndex}
         value={value}
         placeholder={placeholder ? placeholder : ""}
-        style={{ display: `${visible === false ? "none" : "block"}`, color: `${colorValue}` }}
+        style={{ fontFamily: `${"var(--bs-font-roboto)"}`, fontSize: `${"var(--bs-font-sm)"}`, display: `${visible === false ? "none" : "block"}`, color: `${"var(--bs-black)"}` }}
         maxLength={maxLength}
         onKeyDown={onKeyDown}
         ref={ref}

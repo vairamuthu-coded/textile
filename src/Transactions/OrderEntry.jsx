@@ -15,6 +15,7 @@ import ImageUploader from "../Custom/ImageUploader.jsx";
 import { classNames } from "@react-pdf-viewer/core";
 import Search from "../Custom/Search.js";
 import DataTable from "../Custom/DataTable.js";
+import TabNav from "../component/TabNav.jsx";
 const OrderEntry = ({ title, subTitle }) => {
   const {
     API_URL,
@@ -1039,7 +1040,8 @@ const OrderEntry = ({ title, subTitle }) => {
           />
 
           <div className="container-fluid">
-            <ul>
+            <TabNav tabs={tabs} onTabClick={TabIndexClick} colorValue={colorValue} isActive={(tab) => newButton === tab.id || (tab.id === 1 && newButton === 2)} />
+            {/* <ul>
               {tabs.map((tab) => (
                 <li key={tab.id} className="me-2">
                   <button
@@ -1057,7 +1059,7 @@ const OrderEntry = ({ title, subTitle }) => {
                   </button>
                 </li>
               ))}
-            </ul>
+            </ul> */}
             <div className={newButton === 1 || newButton === 4 || newButton === 5 ? "content active-content" : "content"}>
               <div className="row">
                 <div className="col-md-2">
@@ -1351,7 +1353,8 @@ const OrderEntry = ({ title, subTitle }) => {
                 </div>
 
                 <div className="row pt-1">
-                  <ul>
+                  <TabNav tabs={tabs1} onTabClick={TabIndexClick} colorValue={colorValue} isActive={(tab) => newButton === tab.id || (tab.id === 1 && newButton === 5)} />
+                  {/* <ul>
                     {tabs1.map((tab) => (
                       <li className="ps-2" key={tab.id}>
                         <button
@@ -1369,7 +1372,7 @@ const OrderEntry = ({ title, subTitle }) => {
                         </button>
                       </li>
                     ))}
-                  </ul>
+                  </ul> */}
 
                   <div className="content-tabs">
                     <div className={newButton === 1 ? "content active-content" : "content"}>

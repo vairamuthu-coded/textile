@@ -17,6 +17,7 @@ import { ALERT } from "@blueprintjs/core/lib/esm/common/classes";
 import TextInput from "../component/elements/TextInput ";
 import ActionButtton from "../ActionButtton";
 import CustomSelect from "../Custom/CustomSelect";
+import TabNav from "../component/TabNav";
 
 let TableName = "asptblpur";
 
@@ -67,9 +68,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
     COMPANY: "/CompanyMaster/GridLoad",
     BUYER: "/BuyerMasters",
     PURCHASES: "/PurchasesOrders",
-    SIZE_MASTER: "/SizeGroupMasters",
     SIZE_GROUP: "/SizeGroupMasters",
-    DELETE_SIZE_GROUP: "/SizeGroupMasters",
     COLOR: "/ColorMaster/GetColor",
     PROCESS: "/ProcessMaster/GetProcess",
     STYLE_ITEM: "/StyleItemMasters",
@@ -83,22 +82,16 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   const compcodeparam = `${API_URL}${ENDPOINTS.COMPANY}`;
   const BuyerMasterParam = `${API_URL}${ENDPOINTS.BUYER}`;
   const insert_update = `${API_URL}${ENDPOINTS.PURCHASES}`;
-
-  const sizeparam = `${API_URL}${ENDPOINTS.SIZE_MASTER}`;
   const sizeGroupParam = `${API_URL}${ENDPOINTS.SIZE_GROUP}`;
-  const deleteData = `${API_URL}${ENDPOINTS.DELETE_SIZE_GROUP}`;
-
   const colorparam = `${API_URL}${ENDPOINTS.COLOR}`;
   const GetProcess = `${API_URL}${ENDPOINTS.PROCESS}`;
   const GetStyleItem = `${API_URL}${ENDPOINTS.STYLE_ITEM}`;
-
   const PonoDetails = `${API_URL}${ENDPOINTS.PONO_DETAILS}`;
   const PonoDetailss = `${API_URL}${ENDPOINTS.PONO_DETAILSS}`;
-
   const GridLoadDetails = `${API_URL}${ENDPOINTS.GRID_LOAD}`;
   const GridLoadColor = `${API_URL}${ENDPOINTS.GRID_LOAD_COLOR}`;
   const GridLoadSize = `${API_URL}${ENDPOINTS.GRID_LOAD_SIZE}`;
-  const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
+  const userrightsMenuCheck = `${API_URL}${ENDPOINTS.MENU_RIGHTS}`;
   let TabIndex = 0;
   const refs = useRef([]);
 
@@ -109,6 +102,17 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       e.preventDefault();
       refs.current[index + 1]?.focus();
     }
+  };
+
+  const handleFocus = (e) => {
+    e.target.style.backgroundColor = `${colorValue}`;
+    e.target.style.color = `${"var(--bs-light)"}`;
+    e.target.style.fontWeight = "bolder";
+  };
+
+  const handleBlur = (e) => {
+    e.target.style.backgroundColor = "";
+    e.target.style.color = `${"var(--bs-dark)"}`;
   };
 
   const [active, setActive] = useState(true);
@@ -194,7 +198,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
           axios.get(`${compcodeparam}`),
           axios.get(`${GetProcess}`),
           axios.get(`${BuyerMasterParam}`),
-          axios.get(`${sizeparam}/1`),
+          axios.get(`${sizeGroupParam}/1`),
           axios.get(`${colorparam}`),
           axios.get(`${GetStyleItem}`),
           axios.get(`${sizeGroupParam}`),
@@ -208,7 +212,6 @@ const BarCodeGenerate = ({ title, subTitle }) => {
         setSizeItems(res5.data);
         setColorItem(res6.data);
         setStyleItem(res7.data);
-
         setSizeGrpItems(res8.data);
         setGrid(res9.data);
         setNewButton(1);
@@ -434,7 +437,6 @@ const BarCodeGenerate = ({ title, subTitle }) => {
 
       try {
         const orderRes = await axios.get(`${GridLoadDetails}/${current.Compcode}/${TableName}/${title}/${sequenceTable}`);
-
         if (orderRes?.data) {
           setPoItem(orderRes.data);
         } else {
@@ -465,6 +467,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       } catch (error) {
         setFetchError(error);
         toast.error(error.response?.statusText || error.message);
+        return;
       }
 
       setAddRows([]);
@@ -486,7 +489,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       setvisible(true);
       setPoItem(header.pono);
       // 2. SIZE GROUP
-      const sizeResp = await axios.get(`${sizeparam}/${header.sizegroup}`);
+      const sizeResp = await axios.get(`${sizeGroupParam}/${header.sizegroup}`);
       setSizeItems(sizeResp.data);
 
       // 3. BASE COLUMNS
@@ -651,40 +654,24 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       }
 
       setIsLoading(true);
-      // First API call
-      const res = await axios.post(`${insert_update}`, BarCodeData);
       const users = await ListData();
+      const payload = {
+        PurMaster: BarCodeData,
+        PurTrans: JSON.stringify(users),
+      };
+
+      const res = await axios.post(insert_update, payload);
       totalcounts = "Total Rows : " + users.length;
-      const param = ParamsListData(res);
+
       if (!res.data) {
         toast.error("Invalid response from server");
         setIsLoading(false);
         return;
       }
-
-      // Second API call
-      if (users) {
-        const res2 = await axios.post(`${insert_update}/${JSON.stringify(users)}/${JSON.stringify(param)}`);
-
-        if (!res2.data) {
-          toast.error("Save failed!");
-          setIsLoading(false);
-          return;
-        }
-
-        // Third API call
-        const res3 = await axios.post(`${insert_update}/${JSON.stringify(param)}`);
-        if (!res3.data) {
-          toast.error("Save failed!");
-          setIsLoading(false);
-          return;
-        }
-        BarCodeTrans_New();
-        toast.success(res3.data);
-        setIsLoading(false);
-        totalcounts = 0;
-        // BarCodeTrans_New(); // Reset UI
-      }
+      BarCodeTrans_New();
+      toast.success(res.data);
+      setIsLoading(false);
+      totalcounts = 0;
     } catch (error) {
       setFetchError(error);
       toast.error(error?.message || "Error occurred");
@@ -706,7 +693,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
         const id = sizeGroup.asptblsizgrpid;
 
         // DELETE API
-        const deleteRes = await axios.delete(`${deleteData}/${id}`);
+        const deleteRes = await axios.delete(`${sizeGroupParam}/${id}`);
 
         if (deleteRes.data) {
           // Reload list
@@ -789,16 +776,16 @@ const BarCodeGenerate = ({ title, subTitle }) => {
 
   const TabIndexClick = async (inx) => {
     if (inx === 3) {
-      const response = await axios.get(`${API_URL}/UserMaster/GenerateReportDetails/${barValues.Compcode}/${barValues.Asptblpurid}/${printFormat[0]}`);
-      setPdfFile(`data:application/pdf;base64,${response.data}`);
-      const response1 = await axios.get(`${API_URL}/UserMaster/GenerateReportDetails/${barValues.Compcode}/${barValues.Asptblpurid}/${printFormat[1]}`);
-      setDocFormat(`data:application/pdf;base64,${response1.data}`);
+      // const response = await axios.get(`${API_URL}/UserMaster/GenerateReportDetails/${barValues.Compcode}/${barValues.Asptblpurid}/${printFormat[0]}`);
+      // setPdfFile(`data:application/pdf;base64,${response.data}`);
+      // const response1 = await axios.get(`${API_URL}/UserMaster/GenerateReportDetails/${barValues.Compcode}/${barValues.Asptblpurid}/${printFormat[1]}`);
+      // setDocFormat(`data:application/pdf;base64,${response1.data}`);
     }
 
     if (inx === 4) {
-      const response = await axios.get(`${API_URL}/ProductionStatusReport/ProdcutionReport/${printFormat[0]}`);
-      setPdfFile(`data:application/pdf;base64,${response.data}`);
-      setDocFormat(`data:application/pdf;base64,${response.data}`);
+      // const response = await axios.get(`${API_URL}/ProductionStatusReport/ProdcutionReport/${printFormat[0]}`);
+      // setPdfFile(`data:application/pdf;base64,${response.data}`);
+      // setDocFormat(`data:application/pdf;base64,${response.data}`);
     }
     setNewButton(inx);
   };
@@ -839,7 +826,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
     try {
       if (fieldname === "Sizegroup") {
         setSizeItems([]);
-        loadDropDown(`${sizeparam}/${id}`, setSizeItems);
+        loadDropDown(`${sizeGroupParam}/${id}`, setSizeItems);
       }
     } catch (err) {
       if (err.response) {
@@ -1088,7 +1075,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       setPoItem(header.pono);
 
       // 2. SIZE GROUP
-      const sizeResp = await axios.get(`${sizeparam}/${header.sizegroup}`);
+      const sizeResp = await axios.get(`${sizeGroupParam}/${header.sizegroup}`);
       setSizeItems(sizeResp.data);
 
       // 3. BASE COLUMNS
@@ -1197,7 +1184,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
   const contentRef = useRef(null);
   const reactToPrintFn = useReactToPrint({ contentRef });
 
-  const TabIndexClick1 = async (inx, name) => {
+  const TabIndexClick1 = async (inx) => {
     setNewButton1(inx);
   };
 
@@ -1225,28 +1212,16 @@ const BarCodeGenerate = ({ title, subTitle }) => {
     }
   };
 
-  const buttons = [
-    { key: "news", label: "News", action: BarCodeTrans_New, id: 1 },
-    { key: "saves", label: "Save", action: BarCodeTrans_Save, id: 10 },
-    { key: "deletes", label: "Delete", action: () => BarCodeTrans_Delete(barValues.asptblpurid), id: 11 },
-    { key: "searche", label: "Search", action: BarCodeTrans_Search },
-    { key: "prints", label: "Prints", action: BarCodeTrans_Prints },
-    { key: "treebutton", label: "TreeButton", action: BarCodeTrans_New },
-    { key: "globalsearch", label: "GlobalSearch", action: BarCodeTrans_New },
-    { key: "login", label: "Login", action: BarCodeTrans_New },
-    { key: "changepassword", label: "ChangePassword", action: BarCodeTrans_New },
-    { key: "changeskin", label: "ChangeSkin", action: BarCodeTrans_New },
-    { key: "contact", label: "Contact", action: BarCodeTrans_New },
-    { key: "pdf", label: "PDF", action: BarCodeTrans_New },
-    { key: "imports", label: "Import", action: BarCodeTrans_New },
-    { key: "download", label: "Download", action: BarCodeTrans_New },
-  ];
-
   const tabs = [
     { id: 1, label: title },
     { id: 2, label: subTitle },
     { id: 3, label: "Reports", param: barValues.Asptblpurid },
     { id: 4, label: "Reports Status", param: barValues.Asptblpurid },
+  ];
+
+  const tabs1 = [
+    { id: 4, label: "Size Details", param: barValues.Asptblpurid },
+    { id: 5, label: "Color Status", param: barValues.Asptblpurid },
   ];
 
   const handleKeyDown = (e) => {
@@ -1271,17 +1246,6 @@ const BarCodeGenerate = ({ title, subTitle }) => {
       e.preventDefault();
       table.rows[rowIndex + 2]?.cells[cellIndex]?.querySelector("input,select")?.focus();
     }
-  };
-
-  const handleFocus = (e) => {
-    e.target.style.backgroundColor = `${colorValue}`;
-    e.target.style.color = `${"var(--bs-light)"}`;
-    e.target.style.fontWeight = "bolder";
-  };
-
-  const handleBlur = (e) => {
-    e.target.style.backgroundColor = "";
-    e.target.style.color = `${"var(--bs-dark)"}`;
   };
 
   return (
@@ -1312,21 +1276,7 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                 foreValue={foreValue}
                 screenHeader="BARCODE GENERATE"
               />
-
-              <ul style={{ backgroundColor: colorValue }}>
-                {tabs.map((tab) => (
-                  <li className="ps-2" key={tab.id}>
-                    <button
-                      type="button"
-                      className={newButton === tab.id || (tab.id === 1 && newButton === 10) ? "tabs active-tabs btn" : "tabs"}
-                      onClick={() => TabIndexClick(tab.id, tab.param)}
-                      style={{ backgroundColor: colorValue, width: "100%", padding: tab.id === 1 ? "1%" : undefined, fontWeight: "bold" }}
-                    >
-                      {tab.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <TabNav tabs={tabs} onTabClick={TabIndexClick} colorValue={colorValue} isActive={(tab) => newButton === tab.id || (tab.id === 1 && newButton === 4)} />
 
               <div className="content-tabs boxShadow pt-1">
                 <div className={newButton === 1 || newButton === 10 ? "content active-content" : "content"}>
@@ -1565,25 +1515,6 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                               </option>
                             ))}
                         </CustomSelect>
-                        {/* <select
-                          className="col-md-1 form-select"
-                          name="Processname"
-                          tabIndex="12"
-                          value={barValues.Processname || ""}
-                          onChange={handleChange}
-                          ref={(el) => (refs.current[12] = el)}
-                          onKeyDown={(e) => handleEnter(e, 12)}
-                          onFocus={handleFocus}
-                          onBlur={handleBlur}
-                        >
-                          <option></option>
-                          {processItems !== null &&
-                            processItems.map((result, index) => (
-                              <option key={index} value={result.asptblpromasid}>
-                                {result.processname}
-                              </option>
-                            ))}
-                        </select> */}
                       </div>
                       <div className="row py-1">
                         <Label className={`col-md-1`} labelName={"Orderqty"}></Label>
@@ -1652,14 +1583,29 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                         </div>
                       </div>
                       <div className="col-md-9">
-                        <div style={{ overflow: "auto", backgroundColor: `${bgValue}` }} className="col-md-12">
-                          <div style={{ overflow: "auto", height: "300px", width: "100%", border: `1px solid ${colorValue}` }}>
-                            <table className="table table-responsive table-striped" id="maintable" tabIndex="19">
-                              <thead style={{ position: "sticky" }}>
+                        <div className="table-responsive" style={{ backgroundColor: bgValue, borderRadius: "12px", padding: "6px" }}>
+                          <div style={{ minWidth: "100%", maxHeight: "300px", overflow: "auto", border: `1px solid ${colorValue}`, borderRadius: "12px", backgroundColor: "#fff" }}>
+                            <table className="table table-striped table-hover" id="maintable" tabIndex="19" style={{ marginBottom: 0, minWidth: "100%" }}>
+                              <thead style={{ position: "sticky", top: 0, zIndex: 0, backgroundColor: colorValue }}>
                                 <tr>
                                   {addColumns.map((h, index) =>
                                     h.HeaderVisible === "visible" ? (
-                                      <th key={index} width={h.widths} style={{ backgroundColor: colorValue, color: foreValue, margin: 0, fontWeight: "bolder", borderLeft: "1px solid white", textAlign: "center" }} name={h.field}>
+                                      <th
+                                        key={index}
+                                        width={h.widths}
+                                        style={{
+                                          backgroundColor: colorValue,
+                                          color: foreValue,
+                                          margin: 0,
+                                          fontWeight: "bolder",
+                                          borderLeft: "1px solid white",
+                                          textAlign: "center",
+                                          whiteSpace: "nowrap",
+                                          position: "sticky",
+                                          top: 0,
+                                        }}
+                                        name={h.field}
+                                      >
                                         {h.field.toUpperCase()}
                                       </th>
                                     ) : null,
@@ -1672,18 +1618,17 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                                     <tr key={rowIndex}>
                                       {addColumns.map((col, colIndex) =>
                                         col.HeaderVisible === "visible" ? (
-                                          <td key={colIndex} width={rows[colIndex].widths}>
+                                          <td key={colIndex} width={rows[colIndex]?.widths} style={{ padding: "0.35rem" }}>
                                             <input
                                               type="text"
                                               disabled={col.disabled}
-                                              width={rows[colIndex].widths}
-                                              style={{ color: "black" }}
-                                              className="col-md-12 ps-2 border-0 form-control"
-                                              id={col.field + "_" + rowIndex}
+                                              style={{ width: "100%", color: "black", border: "none", background: "transparent" }}
+                                              className="form-control"
+                                              id={`${col.field}_${rowIndex}`}
                                               name={col.field}
-                                              value={rows[colIndex].value ?? ""}
+                                              value={rows[colIndex]?.value ?? ""}
                                               onChange={(e) => fieldValueChange(e, colIndex, rowIndex, barValues.Asptblpurid)}
-                                              tabIndex="20"
+                                              tabIndex={20}
                                               onKeyDown={handleKeyDown}
                                               onFocus={handleFocus}
                                               onBlur={handleBlur}
@@ -1701,31 +1646,8 @@ const BarCodeGenerate = ({ title, subTitle }) => {
                       </div>
 
                       <div className="col-md-3" style={{ backgroundColor: "var(--bs-light)", border: `2px solid var(--bs-light)`, padding: "0", height: "240px" }}>
-                        <ul className="bloc-tabs">
-                          <li>
-                            {" "}
-                            <button
-                              className={newButton1 === 4 ? "tabs active-tabs btn" : "tabs"}
-                              onClick={() => TabIndexClick1(4, "Size Details")}
-                              style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, width: "100%", fontWeight: "bold", color: "white" }}
-                              tabIndex="17"
-                            >
-                              {" "}
-                              SIZE TEMPLATE
-                            </button>{" "}
-                          </li>
-                          <li>
-                            {" "}
-                            <button
-                              className={newButton1 === 5 ? "tabs active-tabs btn" : "tabs"}
-                              onClick={() => TabIndexClick1(5, "Color Details")}
-                              style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, width: "100%", fontWeight: "bold", color: "white", marginLeft: "20px" }}
-                              tabIndex="18"
-                            >
-                              COLOR TEMPLATE
-                            </button>{" "}
-                          </li>
-                        </ul>
+                        <TabNav tabs={tabs1} onTabClick={TabIndexClick1} colorValue={colorValue} isActive={(tab) => newButton1 === tabs.id || (tabs.id === 4 && newButton1 === 5)} />
+
                         <div className="content-tabs">
                           <div className="col-md-12" style={{ backgroundColor: "var(--bs-white)", border: `2px solid var(--bs-light)`, padding: "5px" }}>
                             <Label className={`col-md-2`} labelName={"Search"}></Label>

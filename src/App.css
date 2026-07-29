@@ -119,9 +119,9 @@
   --bs-body-line-height: 1;
   --bs-sidebar: #004b6b;
   --bs-bigfont: clamp(1.2rem, 1rem, 0.4rem);
-  --bs-body-font-size: clamp(1.1rem, 0.9rem, 0.9rem);
+  --bs-body-font-size: clamp(0.8rem, 0.8rem, 0.5rem);
   --bs-font: clamp(1rem, 2rem, 1rem);
-  --bs-font-sm: clamp(0.8rem, 0.8rem, 0.3rem);
+  --bs-font-sm: clamp(0.8rem, 0.8rem, 0.5rem);
   --bs-breakpoint-sm: 576px;
   --bs-breakpoint-md: 768px;
   --bs-breakpoint-lg: 992px;
@@ -184,8 +184,7 @@
   --bs-form-invalid-color: #ea868f;
   --bs-form-invalid-border-color: #ea868f;
   --bs-sidebar: #495057;
-  --bs-font-sm: clamp(0.8rem, 1rem, 0.8rem);
-  --bs-font: clamp(0.6rem, 0.6rem, 0.5rem);
+  --bs-font-sm: clamp(0.2rem, 0.9rem, 11rem);
   --bs-gray-dark: #343a40;
   --bs-gray-100: #212529;
   --bs-gray-200: #343a40;
@@ -1807,8 +1806,8 @@ optgroup,
 input,
 select,
 textarea {
-  font-family: "roboto";
-  font-size: inherit;
+  font-family: var(--bs-font-roboto);
+  font-size: var(--bs-font-sm);
   line-height: inherit;
 }
 
@@ -1871,8 +1870,9 @@ textarea:focus {
 select {
   background-color: white;
   font-family: var(--bs-font-roboto);
+  font-size: var(--bs-font-sm);
+  font-weight: normal;
   border: 1px solid lightgray;
-
   /* border: 0.5px solid rgba(0,0,0,0.315); */
   border-radius: 0px;
   padding: 1px;
@@ -1884,7 +1884,8 @@ select {
 }
 
 select option {
-  font-size: var(--bs-font);
+  font-family: var(--bs-font-roboto);
+  font-size: var(--bs-font-sm);
 }
 
 select {

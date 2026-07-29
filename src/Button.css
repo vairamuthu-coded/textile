@@ -106,7 +106,10 @@ label {
   margin: 0;
   padding: 0;
   display: inline-block;
+  font-weight: bolder;
   color: var(--bs-black);
+  font-family: var(--bs-font-roboto);
+  font-size: var(--bs-font-sm);
 }
 
 .checkbox {

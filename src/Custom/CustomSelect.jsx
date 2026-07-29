@@ -53,6 +53,7 @@ const CustomSelect = forwardRef((props, ref) => {
         } else if (hoverIndex >= 0) {
           selectItem(options[hoverIndex]);
         }
+        setOpen(false);
         break;
       case "Escape":
         setOpen(false);
@@ -117,6 +118,7 @@ const CustomSelect = forwardRef((props, ref) => {
           minHeight: "24px",
           display: "flex",
           alignItems: "center",
+          fontSize: "var(--bs-font-sm)",
           justifyContent: "space-between",
           ...style,
         }}
@@ -151,6 +153,7 @@ const CustomSelect = forwardRef((props, ref) => {
               style={{
                 padding: "8px 10px",
                 cursor: "pointer",
+                fontSize: "var(--bs-font-sm)",
                 background: hoverIndex === index ? "#0d6efd" : String(item.value) === String(value) ? "#e7f1ff" : "#fff",
                 color: hoverIndex === index ? "#fff" : "#000",
                 borderBottom: "1px solid lightgrey",

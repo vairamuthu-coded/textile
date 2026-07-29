@@ -4,6 +4,7 @@ import DataContext from "./context/CreateUserContext";
 import Marquee from "react-fast-marquee";
 import { toast } from "react-toastify";
 import ResponsiveTabs from "./ResponsiveTabs";
+import "./Dashboard.css";
 
 const Dashboard = ({ title, subTitle }) => {
   const { sidebar, newButton, setNewButton, API_URL, defaultDetails, handlepage, colorValue, foreValue, menuheader, headerdrop } = useContext(DataContext);
@@ -40,30 +41,13 @@ const Dashboard = ({ title, subTitle }) => {
       <div className="h-100  shadow-sm p-3  flex-row align-items-center justify-content-between card-hover">
         <div className="row" style={{ backgroundColor: "whitesmoke" }}>
           {findmenu.map((item, index) => (
-            <div key={index} className="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-3 my-2" onClick={() => handlepage(item.menuname)}>
-              <div
-  className="h-100 shadow-sm p-2 m-1 d-flex align-items-center justify-content-between card-hover"
-  style={{    cursor: "pointer",    backgroundImage: 'url("../Images/Toolbar.bmp")',    borderRadius: "5px",    backgroundSize: "cover",    border: "4px solid white",  }}>
-  <strong
-    className="mb-0 text-truncate fw-bolder"    style={{      color: colorValue,      fontSize: "16px",      fontFamily: "Roboto",    }}  >    {item.menuname}  </strong>
-  <img    src={item.companylogoo || "/no-image.png"}    alt=""    style={{      width: "40px",      height: "32px",      objectFit: "contain",   }}  />
-</div>
-              {/* <div
-                className="h-100 shadow-sm p-2 m-1 d-flex align-items-center justify-content-between card-hover "
-                style={{
-                  cursor: "pointer",
-                  backgroundImage: `url("../Images/Toolbar.bmp")`,
-                  borderRadius: "5px",
-                  backgroundSize: "cover",
-                  transition: "transform 0.9s ease",
-                  border: "4px solid white",
-                }}
-              >
-                <strong className="mb-0 text-truncate justify-content-between fw-bolder" style={{ color: colorValue, fontSize: "16px", fontFamily: "Roboto" }}>
+            <div key={index} className="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-3 my-2 dashboard-item" onClick={() => handlepage(item.menuname)}>
+              <div className="h-100 shadow-sm p-2 m-1 d-flex align-items-center justify-content-between card-hover dashboard-card" style={{ cursor: "pointer", backgroundImage: 'url("../Images/Toolbar.bmp")' }}>
+                <strong className="mb-0 text-truncate fw-bolder card-title" style={{ color: colorValue }}>
                   {item.menuname}
                 </strong>
-                <img src={item.companylogoo || "/no-image.png"} alt="" style={{ width: "40px", height: "32px", objectFit: "contain" }} />
-              </div> */}
+                <img className="card-logo" src={item.companylogoo || "/no-image.png"} alt="" />
+              </div>
             </div>
           ))}
         </div>
