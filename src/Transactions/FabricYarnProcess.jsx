@@ -841,21 +841,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     );
   };
 
-  // const handle_Combo_Details = (row, RowIndex, SNos) => {
-  //   setComboShowPopup(true);
-  //   const finid = Number(RowIndex);
-  //   setSquence(finid);
-  //   const filteredData = fabyarn_combo_Values.filter((item) => Number(item.RowIndex) === finid);
-  //   const hasEmptyCombo = filteredData.some((item) => item.Combo === undefined || item.Combo === null || item.Combo === "" || Number(item.Combo) < 1);
-
-  //   if (hasEmptyCombo) {
-  //     setFabYarn_Combo_Values([]);
-  //   } else if (filteredData.length > 0) {
-  //     setFabYarn_Combo_Values(filteredData[RowIndex]);
-  //   } else {
-  //   }
-  // };
-
   const handle_Combo_Details = (row, RowIndex) => {
     setComboShowPopup(true);
 
@@ -866,50 +851,60 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
       const hasEmptyCombo = rowData.some((item) => item.Combo === undefined || item.Combo === null || Number(item.Combo) === "0" || Number(item.Combo) < 1);
 
-      if (hasEmptyCombo) {
-        setFabYarn_Combo_Values([]);
+      if (rowData.length === 0) {
+        //setFabYarn_Combo_Values([]);
+        const newRow = {
+          SNo: 1,
+          RowIndex: 0,
+          AsptblFabYarComId: 0,
+          AsptblFabYarDetId: 0,
+          AsptblFabYarId: 0,
+          Combo: 0,
+          Notes: "",
+          All: false,
+        };
+        setFabYarn_Combo_Values([newRow]);
       } else {
         setFabYarn_Combo_Values(rowData);
       }
     } else {
-      // const filteredData = fabyarn_combo_Values.filter((item) => Number(item.RowIndex) === finid);
-      // const hasEmptyCombo = filteredData.some((item) => item.Combo === 0);
-      // if (filteredData.length === 0) {
-      //   setFabYarn_Combo_Values([]);
-      //   const newRow = {
-      //     SNo: 1,
-      //     RowIndex: 0,
-      //     AsptblFabYarComId: 0,
-      //     AsptblFabYarDetId: 0,
-      //     AsptblFabYarId: 0,
-      //     Combo: 0,
-      //     Notes: "",
-      //     All: false,
-      //   };
-      //   setFabYarn_Combo_Values([newRow]);
-      // } else {
-      //   setFabYarn_Combo_Values([]);
-      //   setFabYarn_Combo_Values([filteredData]);
-      // }
+      const filteredData = allPopup_Combo_DataCopy.filter((item) => Number(item.RowIndex) === finid);
+      const hasEmptyCombo = filteredData.some((item) => item.Combo === 0);
+      if (filteredData.length === 0) {
+        setFabYarn_Combo_Values([]);
+        const newRow = {
+          SNo: 1,
+          RowIndex: 0,
+          AsptblFabYarComId: 0,
+          AsptblFabYarDetId: 0,
+          AsptblFabYarId: 0,
+          Combo: 0,
+          Notes: "",
+          All: false,
+        };
+        setFabYarn_Combo_Values([newRow]);
+      } else {
+        setFabYarn_Combo_Values(filteredData);
+      }
     }
   };
 
   const handle_ComboPopup_Save = () => {
-    // const finid = Number(sequence);
-    // setFabYarn_Combo_Values((prev) => {
-    //   const otherRows = prev.filter((item) => Number(item.RowIndex) !== finid);
-    //   const newRows = fabyarn_combo_Values.map((item, index) => ({
-    //     SNo: index + 1,
-    //     RowIndex: finid,
-    //     AsptblFabYarComId: Number(item.AsptblFabYarComId) || 0,
-    //     AsptblFabYarDetId: Number(item.AsptblFabYarDetId) || 0,
-    //     AsptblFabYarId: Number(item.AsptblFabYarId) || 0,
-    //     Combo: Number(item.Combo) || 0,
-    //     Notes: item.Notes,
-    //     All: false,
-    //   }));
-    //   return [...otherRows, ...newRows];
-    // });
+    const finid = Number(sequence);
+    setAllPopup_Combo_DataCopy((prev) => {
+      const otherRows = prev.filter((item) => Number(item.RowIndex) !== finid);
+      const newRows = fabyarn_combo_Values.map((item, index) => ({
+        SNo: index + 1,
+        RowIndex: finid,
+        AsptblFabYarComId: Number(item.AsptblFabYarComId) || 0,
+        AsptblFabYarDetId: Number(item.AsptblFabYarDetId) || 0,
+        AsptblFabYarId: Number(item.AsptblFabYarId) || 0,
+        Combo: Number(item.Combo) || 0,
+        Notes: item.Notes,
+        All: false,
+      }));
+      return [...otherRows, ...newRows];
+    });
     setComboShowPopup(false);
   };
 
