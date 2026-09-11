@@ -1,0 +1,235 @@
+{
+  "posts": [
+    {
+      "asptblinstapostid": 25,
+      "user": {
+        "userid": 25,
+        "username": "John Doe",
+        "profilePicture": "Images/shopping3.png"
+      },
+      "images": "Images/shopping3.png",
+      "caption": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+      "likes": 0,
+      "posts":[
+        {
+          "asptblinstapostid": 25,
+          "username": "vairam",
+          "post": "this is test"
+        }
+      ],
+      "comments": [
+        {
+          "user": "Mari",
+          "comment": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+        },
+        {
+          "user": "Tharun",
+          "comment": "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        },
+        {
+          "user": "Lalith",
+          "comment": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+        }
+      ],
+      "author": "Vairamuthu",
+      "timestamp": "2023-10-01T12:00:00Z"
+    }
+  ],
+  "userdetails": 
+    {
+      "asptblinstauserid": 36,
+      "images": "Images/vairam1.jpg",
+      "caption": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+      "username": "vairamuthu",
+      "password": "vairam",
+      "author": "Vairamuthu",
+      "bio": "I am Full Stack Developer",
+      "gender":"male",
+      "likes":[],
+      "comments": [],
+      "followers": [],
+      "following": [],
+      "posts": [],
+      "profiles": [],
+      "suggestions": [],
+      "stories": [ ],     
+      "bookmarks": [],
+      "profilePicture": "Images/vairam.jpg",
+      "email": "vairam@example.com",
+      "timestamp": "2023-10-01T12:00:00Z"
+    },
+  "stories": [
+    {
+      "asptblinstapostid": 1,
+      "user": {
+        "userid": 101,
+        "username": "Vairamuthu",
+        "profilePicture": "Images/shopping3.png"
+      },
+      "images": "Images/babys.jpg"
+    },{
+      "asptblinstapostid": 2,
+      "user": {
+        "userid": 102,
+        "username": "vairam",
+        "profilePicture": "Images/vairam.jpg"
+      },
+      "images": "Images/vairam.jpg"
+    },{
+      "asptblinstapostid": 27,
+      "user": {
+        "userid": 103,
+        "username": "maheswari",
+        "profilePicture": "Images/babys.jpg"
+      },
+      "images": "Images/babys.jpg"
+    }
+  ],
+  "profiles": [
+     {
+      "asptblinstauserid": 36,
+      "username": "Palanivel",
+      "profilePicture": "Images/vairam.jpg",
+      "follow": "Following",
+      "bio":"I am Full Stack Developer",
+      "likes":2,
+        "comments":[
+        {
+          "asptblinstapostid": 36,
+            "username": "Palanivel",
+            "profilePicture": "Images/babys.jpg",
+            "comment":"this is comments"
+        },
+       {
+         "asptblinstapostid": 36,
+          "username": "Palanivel",
+          "profilePicture": "Images/babys.jpg",
+          "comment":"this is comments"
+      },
+       {
+         "asptblinstapostid":36,
+          "username": "Palanivel",
+          "profilePicture": "Images/babys.jpg",
+          "comment":"this is comments"
+      },
+       {
+         "asptblinstapostid":36,
+          "username": "Palanivel",
+          "profilePicture": "Images/babys.jpg",
+          "comment":"this is comments"
+      }
+    ],
+      "followers": [
+        {
+          "asptblinstapostid": 36,
+          "username": "Palanivel",
+          "profilePicture": "Images/babys.jpg"
+        },
+        {
+          "asptblinstapostid": 2,
+          "username": "Muneeswaran",
+          "profilePicture": "Images/IMAGE1.jpg"
+        },
+        {
+          "asptblinstapostid": 3,
+          "username": "Murugesan",
+          "profilePicture": "Images/babys.jpg"
+        },
+        {
+          "asptblinstapostid": 4,
+          "username": "AnathRaj",
+          "profilePicture": "Images/IMAGE1.jpg"
+        }
+      ],
+      "following": [
+        {
+          "asptblinstapostid": 1,
+          "username": "Palanivel",
+          "profilePicture": "Images/babys.jpg"
+        }
+      ],
+      "posts": [
+        {
+          "asptblinstapostid": 1,
+          "username": "posts-1",
+          "profilePicture": "Images/babys.jpg"
+        },{
+          "asptblinstapostid": 2,
+          "username": "posts-2",
+          "profilePicture": "Images/IMAGE3.jpg"
+        }
+      ],
+      "bookmarks": [
+        {
+          "asptblinstapostid": 1,
+          "username": "bookmarks-1",
+          "profilePicture": "Images/babys.jpg"
+        },{
+          "asptblinstapostid": 2,
+          "username": "bookmarks-2",
+          "profilePicture": "Images/IMAGE3.jpg"
+        }
+      ]
+    }
+  ],
+  "suggestions": [
+    {
+      "asptblinstapostid": 36,
+      "username": "Abhisheck",
+      "profilePicture": "Images/IMAGE3.jpg",
+      "follow": "Follow"
+    },
+    {
+      "asptblinstapostid": 37,
+      "username": "Varsha",
+      "profilePicture": "Images/IMAGE1.jpg",
+      "follow": "Follow"
+    },
+    {
+      "asptblinstapostid": 36,
+      "username": "Maheswari",
+      "profilePicture": "Images/IMAGE2.jpg",
+      "follow": "Follow"
+    },
+    {
+      "asptblinstapostid": 36,
+      "username": "Vairamuthu",
+      "profilePicture": "Images/vairam.jpg",
+      "follow": "Follow"
+    }
+  ],
+  "followers": [
+    {
+      "asptblinstapostid": 25,
+      "username": "Palanivel",
+      "profilePicture": "Images/babys.jpg"
+    },
+    {
+      "asptblinstapostid": 26,
+      "username": "Muneeswaran",
+      "profilePicture": "Images/IMAGE1.jpg"
+    },
+    {
+      "asptblinstapostid": 27,
+      "username": "Murugesan",
+      "profilePicture": "Images/babys.jpg"
+    },
+    {
+      "asptblinstapostid": 28,
+      "username": "AnathRaj",
+      "profilePicture": "Images/IMAGE1.jpg"
+    }
+  ],
+  "following": [
+    {
+      "asptblinstapostid": 25,
+      "username": "Palanivel",
+      "profilePicture": "Images/babys.jpg"
+    },
+    {
+      "asptblinstapostid": 26,
+      "username": "Muneeswaran",
+      "profilePicture": "Images/IMAGE1.jpg"
+    }
+  ]
+}

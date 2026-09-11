@@ -1,0 +1,35 @@
+/*  
+.submenu{
+     width:auto;
+     top:55px;
+    position: absolute;    
+    list-style:none;
+    text-align:start;
+}
+
+.submenu li {
+    background:var(--bs-danger);
+    cursor: pointer;
+    padding-left: 20px;
+    padding-right: 20px; 
+}
+
+.submenu.clicked{
+    display: none;
+}
+
+
+.submenu-item{
+    display: block;
+    width: 100%;
+    height:auto;
+    padding:0px; 
+    text-decoration: none;
+    color: var(--bs-forecolor);
+   
+}
+
+.submenu-item:hover{
+    background:var(--bs-primary);
+}
+  */
