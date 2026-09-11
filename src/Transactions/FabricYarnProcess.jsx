@@ -818,7 +818,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     const updated = fabyarn_DetValues.filter((_, i) => i !== index);
     setFabYarn_Values(updated);
   };
-
   const [sequence, setSquence] = useState(0);
   const [popup_Details_DataCopy, setPopup_Details_DataCopy] = useState([""]);
   const [popup_Combo_DataCopy, setPopup_Combo_DataCopy] = useState([]);
