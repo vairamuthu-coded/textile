@@ -111,7 +111,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const compcodeparam = `${API_URL}${ENDPOINTS.COMPANY}`;
   const [popupType, setPopupType] = useState("");
   const [comboShowPopup, setComboShowPopup] = useState(false);
-  const [comboShowPopup_Populate, setComboShowPopup_Populate] = useState(false);
+  const [comboShow_SubGrid, setComboShow_SubGrid] = useState(false);
   const [gramShowPopup, setGramShowPopup] = useState(false);
   const [yarnShowPopup, setYarnShowPopup] = useState(false);
   const [processShowPopup, setProcessShowPopup] = useState(false);
@@ -889,7 +889,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     }
   };
 
-  const handle_ComboPopup_Save = () => {
+  const handle_PopupCombo_Save = () => {
     const finid = Number(sequence);
     setAllPopup_Combo_DataCopy((prev) => {
       const otherRows = prev.filter((item) => Number(item.RowIndex) !== finid);
@@ -908,16 +908,16 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     setComboShowPopup(false);
   };
 
-  const handle_Combo_PopupClear = () => {
+  const handle_PopupCombo_Clear = () => {
     setComboShowPopup(false);
   };
 
-  const handle_Combo_Populate_PopupSave = () => {
+  const handle_PopupCombo_SubGrid_Save = () => {
     const filteredData = allPopup_Combo_DataCopy.filter((item) => item.RowIndex === sequence);
     if (filteredData.length >= 1) {
       setFabYarn_Combo_Values(filteredData);
     }
-    setComboShowPopup_Populate(false);
+    setComboShow_SubGrid(false);
   };
 
   const handleAll_Combo_Checkbox = (e, rowIndex, colIndex) => {
@@ -960,7 +960,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     }
   };
 
-  const handle_Combo_PopupCombo_Populate = () => {};
+  const handle_PopupCombo_SubGrid_Populate = () => {};
 
   const handle_PopupCombo = () => {
     const currentRowIndex = Number(sequence);
@@ -972,9 +972,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
       const newRows = comboItems.map((com, comboIndex) => ({
         SNo: comboIndex + 1,
         RowIndex: currentRowIndex,
-        AsptblFabYarComId: comboIndex + 2,
-        AsptblFabYarDetId: comboIndex + 3,
-        AsptblFabYarId: comboIndex + 4,
+        AsptblFabYarComId: 0,
+        AsptblFabYarDetId: 0,
+        AsptblFabYarId: 0,
         Combo: Number(com.asptblcolmasid),
         Notes: "",
         All: false,
@@ -983,27 +983,11 @@ const FabricYarnProcess = ({ title, subTitle }) => {
       setPopup_Combo_DataCopy(newRows);
     } else {
     }
-    setComboShowPopup_Populate(true);
+    setComboShow_SubGrid(true);
   };
 
-  const handle_Combo_Populate_PopupClear = () => {
-    setComboShowPopup_Populate(false);
-    // setPopup_Combo_DataCopy([]);
-    // const newrow = comboItems.map((com, comboIndex) => {
-    //   const rowNumber = comboIndex;
-    //   return {
-    //     SNo: rowNumber + 1,
-    //     RowIndex: Number(sequence),
-    //     AsptblFabYarComId: rowNumber + 2,
-    //     AsptblFabYarDetId: rowNumber + 3,
-    //     AsptblFabYarId: rowNumber + 4,
-    //     Combo: Number(com.asptblcolmasid),
-    //     Notes: "",
-    //   };
-    // });
-
-    // setPopup_Combo_DataCopy(newrow);
-    // setFabYarn_Combo_Values([]);
+  const handle_PopupCombo_SubGrid_Clear = () => {
+    setComboShow_SubGrid(false);
   };
 
   // const handle_Gram_StyleDetails = (row, RowIndex) => {
@@ -1655,8 +1639,8 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                     foreValue={foreValue}
                     colorValue={colorValue}
                     handlePopupPopulate={handle_PopupCombo}
-                    handlePopupSave={handle_ComboPopup_Save}
-                    handlePopupClear={handle_Combo_PopupClear}
+                    handlePopupSave={handle_PopupCombo_Save}
+                    handlePopupClear={handle_PopupCombo_Clear}
                     button1={"POPULATE"}
                     button2={"SAVE"}
                     button3={"CLEAR"}
@@ -1797,14 +1781,14 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                   </PopupCombo>
 
                   <PopupCombo_Populate
-                    show={comboShowPopup_Populate}
-                    onClose={() => setComboShowPopup_Populate(false)}
+                    show={comboShow_SubGrid}
+                    onClose={() => setComboShow_SubGrid(false)}
                     title={`${fabRowindex} Combo Populate Details`}
                     foreValue={foreValue}
                     colorValue={colorValue}
-                    handlePopupPopulate={handle_Combo_PopupCombo_Populate}
-                    handlePopupSave={handle_Combo_Populate_PopupSave}
-                    handlePopupClear={handle_Combo_Populate_PopupClear}
+                    handlePopupPopulate={handle_PopupCombo_SubGrid_Populate}
+                    handlePopupSave={handle_PopupCombo_SubGrid_Save}
+                    handlePopupClear={handle_PopupCombo_SubGrid_Clear}
                     button1={"UnChecked"}
                     button2={"SAVE"}
                     button3={"CLEAR"}
