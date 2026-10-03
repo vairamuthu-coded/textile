@@ -63,12 +63,13 @@ const CityMaster = ({ title, subTitle }) => {
   const heights = "380px";
 
   const HeadersColumn = [
-    { headername: "", field: "visible" },
-    { headername: "id", field: "gtcitymastid" },
-    { headername: "CityName", field: "cityname" },
-    { headername: "StateName", field: "state" },
-    { headername: "CountryName", field: "country" },
-    { headername: "Active", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "true" },
+    { headername: "id", field: "gtcitymastid", visible: "false" },
+    { headername: "CityName", field: "cityname", visible: "true" },
+    { headername: "StateName", field: "state", visible: "true" },
+    { headername: "CountryName", field: "country", visible: "true" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   const refs = useRef([]);
@@ -269,23 +270,6 @@ const CityMaster = ({ title, subTitle }) => {
     return computedComments.slice((currentPage - 1) * ITEM_PER_PAGE, (currentPage - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE);
   }, [cityItems, currentPage, city_Search, sorting]);
 
-  const menuButtons = [
-    { key: "news", label: "News", action: CityMaster_New },
-    { key: "saves", label: "Save", action: CityMaster_Save },
-    { key: "deletes", label: "Delete", action: CityMaster_Delete },
-    { key: "searches", label: "Search", action: CityMaster_Search },
-    { key: "prints", label: "Prints", action: CityMaster_New },
-    { key: "treebutton", label: "TreeButton", action: CityMaster_New },
-    { key: "globalsearch", label: "Globalsearch", action: CityMaster_New },
-    { key: "login", label: "Login", action: CityMaster_New },
-    { key: "changepassword", label: "Changepassword", action: CityMaster_New },
-    { key: "changeskin", label: "Changeskin", action: CityMaster_New },
-    { key: "contact", label: "Contact", action: CityMaster_New },
-    { key: "pdf", label: "Pdf", action: CityMaster_New },
-    { key: "import", label: "Import", action: CityMaster_New },
-    { key: "download", label: "Download", action: CityMaster_New },
-  ];
-
   return (
     <form onSubmit={handleSubmit}>
       {userRights.length > 0 && (
@@ -314,18 +298,7 @@ const CityMaster = ({ title, subTitle }) => {
                   foreValue={foreValue}
                   screenHeader="CITY MASTER"
                 />
-                {/* <ul className="boxShadow d-flex justify-content-end">
-                  {menuButtons.map(
-                    (btn, index) =>
-                      userRights[0][btn.key] === "T" && (
-                        <li key={index}>
-                          <button className={newButton === 1 ? "tabs active-tabs" : "tabs"} style={{ backgroundColor: colorValue }} onClick={btn.action}>
-                            {btn.label}
-                          </button>
-                        </li>
-                      ),
-                  )}
-                </ul> */}
+
                 <div className="row">
                   <div className="col-md-6">
                     <div className="content active-content">
@@ -407,6 +380,7 @@ const CityMaster = ({ title, subTitle }) => {
                         ITEM_PER_PAGE={ITEM_PER_PAGE}
                         EditData={CityMasterCheck}
                         commentsData={commentsData}
+                        checkchild={checkchild}
                         setCheckchild={setCheckchild}
                         checkall={checkall}
                         setCheckAll={setCheckAll}

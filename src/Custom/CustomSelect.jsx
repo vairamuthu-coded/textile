@@ -1,18 +1,25 @@
 import React, { forwardRef, useState, useRef, useEffect, Children } from "react";
 
 const CustomSelect = forwardRef((props, ref) => {
-  const { children, className, name, value, onChange, tabIndex, onFocus, onBlur, onKeyDown, style, visible } = props;
+  const { children, className, name, value, onChange, tabIndex, onFocus, onBlur, onKeyDown, style, visible, emptyOption = true, colorValue } = props;
 
   const [open, setOpen] = useState(false);
   const [hoverIndex, setHoverIndex] = useState(-1);
 
   const wrapperRef = useRef(null);
   const selectRef = useRef(null);
+  const options = [
+    ...(emptyOption ? [{ value: "", label: "", placeholder: "" }] : []),
 
-  const options = Children.toArray(children).map((child) => ({
-    value: child.props.value,
-    label: child.props.children,
-  }));
+    ...Children.toArray(children).map((child) => ({
+      value: child.props.value ?? "",
+      label: child.props.children ?? "",
+    })),
+  ];
+  // const options = Children.toArray(children).map((child) => ({
+  //   value: child.props.value,
+  //   label: child.props.children,
+  // }));
 
   const selectedIndex = options.findIndex((x) => String(x.value) === String(value));
   const selected = options[selectedIndex];
@@ -27,11 +34,14 @@ const CustomSelect = forwardRef((props, ref) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const selectItem = (item) => {
+  const selectItem = (item, index) => {
     onChange?.({
       target: {
         name,
         value: item.value,
+        options: item,
+        type: "select-one",
+        selectedIndex: item.label,
       },
     });
     setSearch("");
@@ -123,7 +133,7 @@ const CustomSelect = forwardRef((props, ref) => {
           ...style,
         }}
       >
-        <span>{selected?.label || ""}</span>
+        <span>{selected?.label || "\u00A0"}</span>
       </div>
 
       {open && (
@@ -147,6 +157,23 @@ const CustomSelect = forwardRef((props, ref) => {
             <div
               key={index}
               onMouseEnter={() => setHoverIndex(index)}
+              onClick={() => selectItem(item, index)}
+              style={{
+                padding: "8px 10px",
+                cursor: "pointer",
+                fontSize: "var(--bs-font-sm)",
+                background: hoverIndex === index ? `${colorValue}` : String(item.value) === String(value) ? "#e7f1ff" : "#fff",
+                color: hoverIndex === index ? "#fff" : "#000",
+                borderBottom: "1px solid lightblue",
+              }}
+            >
+              {item.label || item.placeholder || "\u00A0"}
+            </div>
+          ))}
+          {/* {filteredOptions.map((item, index) => (
+            <div
+              key={index}
+              onMouseEnter={() => setHoverIndex(index)}
               onClick={() => selectItem(item)}
               style={{
                 padding: "8px 10px",
@@ -159,7 +186,7 @@ const CustomSelect = forwardRef((props, ref) => {
             >
               {item.label}
             </div>
-          ))}
+          ))} */}
         </div>
       )}
     </div>

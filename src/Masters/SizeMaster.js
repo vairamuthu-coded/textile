@@ -80,10 +80,11 @@ const SizeMaster = ({ title, subTitle }) => {
   }, [items, search]);
 
   const HeadersColumn = [
-    { headername: "", field: "visible" },
-    { headername: "ID", field: "asptblsizmasid" },
-    { headername: "Size Name", field: "sizename" },
-    { headername: "Active", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "true" },
+    { headername: "ID", field: "asptblsizmasid", visible: "false" },
+    { headername: "Size Name", field: "sizename", visible: "true" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   const heights = "380px";

@@ -5,7 +5,13 @@ const TableRow = ({ item, columns, EditData, index, checkall, setCheckchild, che
       {columns.map((columnitem, indx) => {
         return (
           <td key={indx} style={{ padding: "5px", margin: "0px", fontFamily: "var(--bs-font-roboto)" }}>
-            {`${columnitem.field}` === "visible" ? <input type="checkbox" checked={checkall === true ? checkall : null} onChange={(e) => setCheckchild(e.target.checked)} /> : `${columnitem.field}` === "SNo" ? index + 1 : item[`${columnitem.field}`]}
+            {`${columnitem.field}` === "visible" ? (
+              <input type="checkbox" checked={checkall === true ? checkall : null} onChange={(e) => setCheckchild(e.target.checked)} />
+            ) : `${columnitem.field}` === "SNo" ? (
+              index + 1
+            ) : (
+              item[`${columnitem.visible === "true" ? columnitem.field : ""}`]
+            )}
           </td>
         );
       })}

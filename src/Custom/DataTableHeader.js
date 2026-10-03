@@ -17,8 +17,8 @@ const DataTableHeader = ({ headers, onSorting, setCheckAll, checkall, foreValue,
   return (
     <thead style={{ backgroundColor: colorValue }}>
       <tr>
-        {headers?.map(({ headername, field, sortable }) => (
-          <TableColumn key={field} foreValue={foreValue} setCheckAll={setCheckAll} name={headername} sortable={sortable} field={field} sortingField={sortingField} sortingOrder={sortingOrder} onSortingChange={onSortingChange} />
+        {headers?.map(({ headername, field, sortable, visible }) => (
+          <TableColumn key={field} foreValue={foreValue} setCheckAll={setCheckAll} name={headername} sortable={sortable} field={field} sortingField={sortingField} sortingOrder={sortingOrder} onSortingChange={onSortingChange} visible={visible} />
         ))}
       </tr>
     </thead>

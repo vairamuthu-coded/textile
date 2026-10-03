@@ -73,13 +73,13 @@ const MenuNameMaster = ({ title, subTitle }) => {
   }, []);
 
   const HeadersColumn = [
-    { headername: "S.No", field: "SNo" },
-    { headername: "", field: "visible" },
-    { headername: "ID", field: "menunameid" },
-    { headername: "MenuName", field: "menuname" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "true" },
+    { headername: "ID", field: "menunameid", visible: "false" },
+    { headername: "MenuName", field: "menuname", visible: "true" },
     // { headername: "ParentMenuID", field: "parentmenuid" },
-    { headername: "AliasName", field: "aliasname" },
-    { headername: "Actives", field: "active" },
+    { headername: "AliasName", field: "aliasname", visible: "true" },
+    { headername: "Actives", field: "active", visible: "true" },
   ];
 
   useEffect(() => {
@@ -194,7 +194,7 @@ const MenuNameMaster = ({ title, subTitle }) => {
   return (
     <form onSubmit={handleSubmit}>
       {userRights1.length >= 1 && (
-        <div className="container-fluid animate-zoom pt-0">
+        <div className="container-fluid animate-zoom pt-1">
           <div className="row" style={{ display: `${userRights1[0].readonlys === "T" ? "block" : "none"}` }}>
             <ul className="boxShadow d-flex justify-content-end">
               <li>
@@ -339,8 +339,8 @@ const MenuNameMaster = ({ title, subTitle }) => {
                   </div>
                 </div>
               </div>
-
-              <div className="col-md-7" style={{ backgroundColor: `${foreValue}`, color: `${foreValue}`, padding: "0" }}>
+              <div className="col-md-3"></div>
+              <div className="col-md-4" style={{ backgroundColor: `${foreValue}`, color: `${foreValue}`, padding: "0" }}>
                 <div className="bloc-tabs">
                   <div className="tabs active-tabs" style={{ backgroundColor: `${colorValue}`, color: `${foreValue}` }}>
                     {" "}

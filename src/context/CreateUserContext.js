@@ -33,6 +33,34 @@ export const DataProvider = ({
   let navigate = useNavigate();
   let lists = "";
   const [countryValues, setCountryValues] = useState("");
+  const [yarnblendValues, setYarnBlendValues] = useState("");
+  const [countsValues, setCountsValues] = useState("");
+  const [proGroSeqValues, setProGroSeqValues] = useState("");
+  const [proGroValues, setProGroValues] = useState("");
+
+  const [proGroDetValues, setProGroDetValues] = useState([{ asptblprogrodetid: "", asptblprogroid: "", process: "", processgroup: 0, seqno: "" }]);
+
+  const [yarnValues, setYarnValues] = useState({
+    asptblyarmasid: "0",
+    yarncontent: "",
+    per1: "",
+    per2: "",
+    per3: "",
+    per4: "",
+    yarnblend1: "",
+    yarnblend2: "",
+    yarnblend3: "",
+    yarnblend4: "",
+    counts: "",
+    yarntype: "",
+    yarn: "",
+    aliasname: "",
+    hsncode: "",
+    per: 0,
+    active: true,
+  });
+
+  const [fabricValues, setFabricValues] = useState("");
   const [po, setPo] = useState([]);
   const [loading, setLoading] = useState([]);
   const [defpo, setDefPo] = useState([]);
@@ -59,12 +87,14 @@ export const DataProvider = ({
   const [cityCountryData, setCityCountryData] = useState([]);
   const [employeeValues, setEmployeeValues] = useState([]);
   const [sizeValues, setSizeValues] = useState([]);
+  const [hsnValues, setHsnValues] = useState("");
   const [styleCatValues, setStyleCatValues] = useState([]);
   const [sizeGroupValues, setSizeGroupValues] = useState([]);
   const [fabtype, setFabType] = useState([]);
   const [finYearData, setFinyear] = useState([]);
   const [yarnBlend, setYarnBlend] = useState([]);
   const [fab, setFab] = useState([]);
+
   const [styleItemValues, setStyleItemValues] = useState([]);
 
   let tablecheck = false;
@@ -130,9 +160,7 @@ export const DataProvider = ({
     { field: "Asptblpurid", value: "", placeholder: "Asptblpurid", HeaderVisible: "none", width: "100px", pattern: "" },
     { field: "Compcode", value: "", placeholder: "Compcode", HeaderVisible: "none", width: "100px", pattern: "" },
     { field: "Pono", value: "", placeholder: "Pono", HeaderVisible: "none", width: "100px", pattern: "" },
-
     { field: "Barcode", value: "", placeholder: "Barcode", HeaderVisible: "visible", width: "100px", pattern: "" },
-
     { field: "Colorname", value: "", placeholder: "Color", HeaderVisible: "visible", width: "100px", pattern: "" },
     { field: "Sizename", value: "", placeholder: "Color", HeaderVisible: "visible", width: "100px", pattern: "" },
     { field: "Pcs", value: "", placeholder: "Pcs", HeaderVisible: "visible", width: "100px", pattern: "" },
@@ -154,6 +182,40 @@ export const DataProvider = ({
     { field: "Sizename", value: "", placeholder: "Color", HeaderVisible: "visible", width: "100px", pattern: "" },
     { field: "Pcs", value: "", placeholder: "Pcs", HeaderVisible: "visible", width: "100px", pattern: "" },
   ];
+
+  const [fabyarn_yarn_dyeingValues, setFabyarn_yarn_dyeingValues] = useState([
+    {
+      SNo: 1,
+      RowIndex: "",
+      AsptblFabYarYarDyeId: "",
+      AsptblFabYarYarId: "",
+      AsptblFabYarDetId: "",
+      AsptblFabYarId: "",
+      ProcessName: "",
+      YarDyeYesNo: "",
+      YarDyeDet: "",
+      Loss: "",
+      Notes: "",
+      Action: "",
+    },
+  ]);
+
+  const [fabyarn_yarn_dyeingColorValues, setFabyarn_yarn_dyeingColorValues] = useState([
+    {
+      SNo: 1,
+      RowIndex: "",
+      AsptblFabYarYarDyeColId: "",
+      AsptblFabYarYarDyeId: "",
+      AsptblFabYarYarId: "",
+      AsptblFabYarDetId: "",
+      AsptblFabYarId: "",
+      PortionColor: "",
+      YarnProColor: "",
+      YarPer: "",
+      Notes: "",
+      Action: "",
+    },
+  ]);
 
   const [addColumns, setAddColumns] = useState(HeadersColumn);
   const [addColumns1, setAddColumns1] = useState(HeadersColumn1);
@@ -528,6 +590,10 @@ export const DataProvider = ({
         header_items,
         countryValues,
         setCountryValues,
+        yarnblendValues,
+        setYarnBlendValues,
+        yarnValues,
+        setYarnValues,
         stateValues,
         setStateValues,
         cityValues,
@@ -541,6 +607,12 @@ export const DataProvider = ({
         setCountryItems,
         processValues,
         setProcessValues,
+        proGroSeqValues,
+        setProGroSeqValues,
+        proGroValues,
+        setProGroValues,
+        proGroDetValues,
+        setProGroDetValues,
         cityStateData,
         setCityStateData,
         cityCountryData,
@@ -611,6 +683,8 @@ export const DataProvider = ({
         setAgentValue,
         agentDetValue,
         setAgentDetValue,
+        hsnValues,
+        setHsnValues,
         taxValues,
         setTaxValues,
         taxTempValues,
@@ -643,8 +717,16 @@ export const DataProvider = ({
         setFabYarn_Gram_Values,
         fabyarn_yarn_Values,
         setFabYarn_Yarn_Values,
+        fabyarn_yarn_dyeingValues,
+        setFabyarn_yarn_dyeingValues,
+        fabyarn_yarn_dyeingColorValues,
+        setFabyarn_yarn_dyeingColorValues,
         fabyarn_pro_Values,
         setFabYarn_Pro_Values,
+        countsValues,
+        setCountsValues,
+        fabricValues,
+        setFabricValues,
       }}
     >
       {children}

@@ -72,27 +72,27 @@ const TreeViewMaster = ({ title, subTitle }) => {
   const UserRightsFilter = API_URL + "/UserRights/UserRightsDetails";
 
   const HeadersColumn = [
-    { headername: "", field: "visible" },
-    { headername: "ID", field: "menuid" },
-    { headername: "MenuName", field: "menuname" },
-    { headername: "AliasName", field: "aliasname" },
-    { headername: "Nav Url", field: "navurl" },
-    { headername: "PID", field: "parentmenuid" },
-    { headername: "compcode", field: "compcode" },
-    { headername: "username", field: "username" },
-    { headername: "active", field: "active" },
+    { headername: "", field: "visible", visible: "true" },
+    { headername: "ID", field: "menuid", visible: "false" },
+    { headername: "MenuName", field: "menuname", visible: "true" },
+    { headername: "AliasName", field: "aliasname", visible: "true" },
+    { headername: "Nav Url", field: "navurl", visible: "true" },
+    { headername: "PID", field: "parentmenuid", visible: "true" },
+    { headername: "compcode", field: "compcode", visible: "false" },
+    { headername: "username", field: "username", visible: "false" },
+    { headername: "active", field: "active", visible: "false" },
   ];
 
   const HeadersColumn1 = [
-    { headername: "", field: "visible" },
-    { headername: "ID", field: "menuid" },
-    { headername: "MenuName", field: "menuname" },
-    { headername: "AliasName", field: "aliasname" },
-    { headername: "Nav Url", field: "navurl" },
-    { headername: "PID", field: "parentmenuid" },
-    { headername: "compcode", field: "compcode" },
-    { headername: "username", field: "username" },
-    { headername: "active", field: "active" },
+    { headername: "", field: "visible", visible: "true" },
+    { headername: "ID", field: "menuid", visible: "false" },
+    { headername: "MenuName", field: "menuname", visible: "true" },
+    { headername: "AliasName", field: "aliasname", visible: "true" },
+    { headername: "Nav Url", field: "navurl", visible: "true" },
+    { headername: "PID", field: "parentmenuid", visible: "true" },
+    { headername: "compcode", field: "compcode", visible: "false" },
+    { headername: "username", field: "username", visible: "false" },
+    { headername: "active", field: "active", visible: "false" },
   ];
 
   useEffect(() => {
@@ -146,7 +146,7 @@ const TreeViewMaster = ({ title, subTitle }) => {
         const alreadyExists = prev.some((item) => item.userrightsid === id.userrightsid);
 
         if (alreadyExists) return prev;
-        alert(JSON.stringify(alreadyExists));
+
         return [...prev, id];
       });
     } catch (err) {
@@ -188,39 +188,6 @@ const TreeViewMaster = ({ title, subTitle }) => {
     } catch (err) {
       console.log("Error:", err.message);
     }
-    //     try {
-    //       if (checkall === true) {
-    //         setNaviItems1([]); setNaviItems1(navi_Items);
-    //       }
-    //  if (checkall === false) {
-
-    //         const filterResult = navi_Items.filter(post => post.menuid === id.menuid)
-    //         let filterResult1 = navi_Items1.filter(post => post.menuid === filterResult[0].menuid)
-    //         if (filterResult1.length === 1) { }
-    //       else{
-    //           const newData = filterResult.map(object => ({
-    //             userrightsid: 0,
-    //             menuid: object.menuid,
-    //             menuname: object.menuname,
-    //             aliasname: object.aliasname,
-    //             navurl: object.navurl,
-    //             parentmenuid: object.parentmenuid,
-    //             compcode: object.compcode,
-    //             username: object.username,
-    //             active: object.active,
-    //           }));
-    //           setNaviItems1(previousData => [...previousData, ...newData]);
-    //        }
-
-    //       }
-    //     }
-    //     catch (err) {
-    //       if (err.response) {
-    //         console.log(`Error ${err.message}`);
-    //       }
-    //     }
-    //     finally {
-    //     }
   };
 
   const fetchUsernames = async (value) => {

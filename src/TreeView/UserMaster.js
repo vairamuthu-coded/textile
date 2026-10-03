@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import Label from "../Custom/Label";
 
@@ -15,6 +15,7 @@ import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import { PrintIcon, printPlugin, PrintPluginProps } from "@react-pdf-viewer/print";
 import DataContext from "../context/CreateTreeViewContext";
 import { toast } from "react-toastify";
+import CustomSelect from "../Custom/CustomSelect";
 
 const UserMaster = ({ title, subTitle }) => {
   const {
@@ -70,6 +71,27 @@ const UserMaster = ({ title, subTitle }) => {
   const [userMaster_FilterSearch, setUserMaster_FilterSearch] = useState([]);
   const [fetchError, setFetchError] = useState(null);
   const [user_userItems, setUserItems] = useState([]);
+
+  const refs = useRef([]);
+  const handleEnter = (e, index) => {
+    const { name } = e.target;
+
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      refs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleFocus = (e) => {
+    e.target.style.backgroundColor = `${colorValue}`;
+    e.target.style.color = `${"var(--bs-light)"}`;
+    e.target.style.fontWeight = "bolder";
+  };
+
+  const handleBlur = (e) => {
+    e.target.style.backgroundColor = "";
+    e.target.style.color = `${"var(--bs-dark)"}`;
+  };
 
   const defaultLayoutPluginInstance = defaultLayoutPlugin({
     sidebarTabs: (defaultTabs) => [],
@@ -402,25 +424,66 @@ const UserMaster = ({ title, subTitle }) => {
                         <Label className={`col-md-1`} labelName={"FinYear"}></Label>
                         <input className="col-md-1" type="text" id="finyear" value={userValues.finyear || ""} readOnly />
                         <Label className={`col-md-2`} labelName={"CompCode"}></Label>
-                        <select className="col-md-3" name="compcode" value={userValues.compcode || ""} onChange={handleChange}>
+                        <CustomSelect
+                          visible="block"
+                          className="col-3 form-select"
+                          name="compcode"
+                          value={userValues.compcode || ""}
+                          onChange={handleChange}
+                          colorValue={colorValue}
+                          tabIndex={2}
+                          ref={(el) => (refs.current[2] = el)}
+                          onKeyDown={(e) => handleEnter(e, 2)}
+                          onFocus={handleFocus}
+                          onBlur={handleBlur}
+                        >
+                          <option></option>
+                          {compcodeData.map((result, index) => (
+                            <option key={index} value={result.gtcompmastid}>
+                              {result.compcode}
+                            </option>
+                          ))}
+                        </CustomSelect>
+                        {/* <select className="col-md-3" name="compcode" value={userValues.compcode || ""} onChange={handleChange}>
                           <option></option>
                           {compcodeData.map((result, index) => (
                             <option key={index} value={result.gtcompmastid}>
                               {result.compcode}
                             </option>
                           ))}{" "}
-                        </select>
+                        </select> */}
                       </div>
                       <div className="row ">
                         <Label className={`col-md-2`} labelName={"Dept"}></Label>
-                        <select className="col-md-3" name="dept" value={userValues.dept || ""} onChange={handleChange}>
+                        <CustomSelect
+                          visible="block"
+                          className="col-3 form-select"
+                          name="dept"
+                          value={userValues.dept || ""}
+                          onChange={handleChange}
+                          colorValue={colorValue}
+                          tabIndex={2}
+                          ref={(el) => (refs.current[2] = el)}
+                          onKeyDown={(e) => handleEnter(e, 2)}
+                          onFocus={handleFocus}
+                          onBlur={handleBlur}
+                        >
                           <option></option>
                           {deptData.map((result, index) => (
                             <option key={index} value={result.asptbldeptmasid}>
                               {result.department}
                             </option>
                           ))}
-                        </select>
+                        </CustomSelect>
+
+                        {/* <select className="col-md-3" name="dept" value={userValues.dept || ""} onChange={handleChange}>
+                          <option></option>
+                          {deptData.map((result, index) => (
+                            <option key={index} value={result.asptbldeptmasid}>
+                              {result.department}
+                            </option>
+                          ))}
+                        </select> */}
                         <Label className={`col-md-2`} labelName={"UserName"}></Label>
                         <input className="col-md-3" type="text" name="username" ref={inputref} value={userValues.username || ""} onChange={handleChange} />
                       </div>

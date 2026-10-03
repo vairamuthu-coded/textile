@@ -7,7 +7,8 @@ import Search from "../Custom/Search";
 import { toast } from "react-toastify";
 import { utilityState } from "./../utilityState";
 import ActionButtton from "../ActionButtton";
-const CountsMaster = ({ title, subTitle }) => {
+
+const HSNMaster = ({ title, subTitle }) => {
   const {
     foreValue,
     newButton,
@@ -20,8 +21,8 @@ const CountsMaster = ({ title, subTitle }) => {
     API_URL,
     colorValue,
     defaultDetails,
-    countsValues,
-    setCountsValues,
+    hsnValues,
+    setHsnValues,
     handlepage,
     setError,
     sorting,
@@ -42,7 +43,8 @@ const CountsMaster = ({ title, subTitle }) => {
 
   let ITEM_PER_PAGE = 20;
   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
-  const insert_update = `${API_URL}/CountsMasters`;
+
+  const insert_update = `${API_URL}/HsnMasters`;
 
   let validcheck = true;
   const [totalItems, setTotalItems] = useState([]);
@@ -62,10 +64,11 @@ const CountsMaster = ({ title, subTitle }) => {
 
     const loadData = async () => {
       try {
-        const [rightsRes, countsRes] = await Promise.all([axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`), axios.get(insert_update)]);
-        alert(JSON.stringify(countsRes.data));
+        const [rightsRes, countryRes] = await Promise.all([axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`), axios.get(insert_update)]);
+
         setUserRights(rightsRes.data);
-        setItems(countsRes.data);
+
+        setItems(countryRes.data);
         setNewButton(1);
       } catch (error) {
         console.error(error);
@@ -77,21 +80,22 @@ const CountsMaster = ({ title, subTitle }) => {
 
   useEffect(() => {
     const text = (search || "").toLowerCase();
-    const filterResult = items.filter((post) => post.counts?.toLowerCase().includes(text));
+    const filterResult = items.filter((post) => post.hsn?.toLowerCase().includes(text));
     setCountry_FilterSearch([...filterResult].reverse());
   }, [items, search]);
 
   const HeadersColumn = [
     { headername: "", field: "visible" },
-    { headername: "ID", field: "asptblcoumasid" },
-    { headername: "Counts", field: "counts" },
+    { headername: "ID", field: "asptblhsnmasid" },
+    { headername: "HSN", field: "hsn" },
+    { headername: "HSN CODE", field: "hsncode" },
     { headername: "Active", field: "active" },
   ];
 
   const heights = "380px";
 
   const handleChange = (e) => {
-    utilityState(e, setCountsValues);
+    utilityState(e, setHsnValues);
     // const { name, value, checked, type } = e.target;
 
     // const finalValue =
@@ -101,17 +105,17 @@ const CountsMaster = ({ title, subTitle }) => {
     //     ? Number(value)
     //     : value.trimStart();
 
-    // setCountsValues((prev) => ({
+    // setHsnValues((prev) => ({
     //   ...prev,
     //   [name]: finalValue,
     // }));
   };
 
-  const validate = (countsValues) => {
-    const name = countsValues.counts?.trim();
+  const validate = (hsnValues) => {
+    const name = hsnValues.hsn?.trim();
 
     if (!name) {
-      toast.error("Counts Name is required");
+      toast.error("HSN Name is required");
       return false;
     }
 
@@ -125,31 +129,33 @@ const CountsMaster = ({ title, subTitle }) => {
 
     // Minimum length check
     if (name.length < 3) {
-      toast.error("Counts name must be at least 3 characters");
+      toast.error("HSN must be at least 3 characters");
       return false;
     }
 
     return true;
   };
 
-  const CountsMaster_Check = (row) => {
-    setCountsValues({
-      asptblcoumasid: row.asptblcoumasid,
-      counts: row.counts,
+  const HsnMaster_Check = (row) => {
+    setHsnValues({
+      asptblhsnmasid: row.asptblhsnmasid,
+      hsn: row.hsn,
+      hsncode: row.hsncode,
       active: row.active === "T",
     });
 
     setNewButton(1);
   };
 
-  const CountsMaster_Save = async () => {
-    if (!validate(countsValues)) return;
+  const HsnMaster_Save = async () => {
+    if (!validate(hsnValues)) return;
 
     try {
       const CountryData = {
-        asptblcoumasid: countsValues.asptblcoumasid > 0 ? countsValues.asptblcoumasid : 0,
-        counts: countsValues.counts,
-        active: countsValues.active ? "T" : "F",
+        asptblhsnmasid: hsnValues.asptblhsnmasid > 0 ? hsnValues.asptblhsnmasid : 0,
+        hsn: hsnValues.hsn,
+        hsncode: hsnValues.hsncode,
+        active: hsnValues.active ? "T" : "F",
       };
 
       const response = await axios.post(insert_update, CountryData);
@@ -165,25 +171,25 @@ const CountsMaster = ({ title, subTitle }) => {
       setFetchError(error);
       toast.error("Service error");
     } finally {
-      setCountsValues({});
+      setHsnValues({});
     }
   };
 
-  const CountsMaster_Delete = async () => {
-    if (!countsValues.asptblcoumasid) {
+  const HsnMaster_Delete = async () => {
+    if (!hsnValues.asptblhsnmasid) {
       toast.error("Select a record to delete");
       return;
     }
 
     try {
-      const id = countsValues.asptblcoumasid;
+      const id = hsnValues.asptblhsnmasid;
       const response = await axios.delete(`${insert_update}/${id}`);
 
       if (response.data.message != null) {
         const res = await axios.get(insert_update);
         setItems(res.data.reverse());
         toast.success(response.data.message);
-        CountsMasterClear();
+        HsnMasterClear();
       } else {
         toast.error(response.data.message);
       }
@@ -195,13 +201,13 @@ const CountsMaster = ({ title, subTitle }) => {
 
   const inputref = useRef();
 
-  const CountsMasterClear = () => {
-    setCountsValues([]);
+  const HsnMasterClear = () => {
+    setHsnValues([]);
   };
 
-  const CountsMasterNew = () => {
-    setCountsValues([]);
-    CountsMasterClear();
+  const HsnMasterNew = () => {
+    setHsnValues([]);
+    HsnMasterClear();
 
     setNewButton(tabindex);
   };
@@ -211,7 +217,7 @@ const CountsMaster = ({ title, subTitle }) => {
     let computedComments = items;
     if (searchs) {
       computedComments = computedComments.filter((item) => {
-        let country = String(item.counts || "").toLowerCase();
+        let country = String(item.hsn || "").toLowerCase();
         return country.includes(searchs);
       });
     }
@@ -232,25 +238,25 @@ const CountsMaster = ({ title, subTitle }) => {
             <>
               <div style={{ display: `${userRights[0].readonlys === "T" ? "block" : "none"}` }}>
                 <ActionButtton
-                  news={CountsMasterNew}
-                  saves={CountsMaster_Save}
-                  deletes={CountsMaster_Delete}
-                  searches={CountsMasterNew}
-                  prints={CountsMasterNew}
-                  treebutton={CountsMasterNew}
-                  globalsearch={CountsMasterNew}
-                  login={CountsMasterNew}
-                  changepassword={CountsMasterNew}
-                  changeskin={CountsMasterNew}
-                  contact={CountsMasterNew}
-                  pdf={CountsMasterNew}
-                  imports={CountsMasterNew}
-                  download={CountsMasterNew}
+                  news={HsnMasterNew}
+                  saves={HsnMaster_Save}
+                  deletes={HsnMaster_Delete}
+                  searches={HsnMasterNew}
+                  prints={HsnMasterNew}
+                  treebutton={HsnMasterNew}
+                  globalsearch={HsnMasterNew}
+                  login={HsnMasterNew}
+                  changepassword={HsnMasterNew}
+                  changeskin={HsnMasterNew}
+                  contact={HsnMasterNew}
+                  pdf={HsnMasterNew}
+                  imports={HsnMasterNew}
+                  download={HsnMasterNew}
                   userRights={userRights}
                   colorValue={colorValue}
                   newButton={newButton}
                   foreValue={foreValue}
-                  screenHeader="COUNTS MASTER"
+                  screenHeader="HSN MASTER"
                 />
 
                 <div className="row">
@@ -258,16 +264,20 @@ const CountsMaster = ({ title, subTitle }) => {
                     <div className="content active-content">
                       <div className="row py-1">
                         <label className="col-md-2"> ID </label>
-                        <input className="col-md-6" type="text" name="asptblcoumasid" value={countsValues.asptblcoumasid || ""} readOnly />
+                        <input className="col-md-6" type="text" name="asptblhsnmasid" value={hsnValues.asptblhsnmasid || ""} readOnly />
                       </div>
                       <div className="row">
-                        <label className="col-md-2"> Counts </label>
-                        <input className="col-md-6" type="text" name="counts" value={countsValues.counts || ""} onChange={handleChange} required />
+                        <label className="col-md-2"> HSN </label>
+                        <input className="col-md-6" type="text" name="hsn" value={hsnValues.hsn || ""} onChange={handleChange} required />
+                      </div>
+                      <div className="row py-1">
+                        <label className="col-md-2"> hsncode </label>
+                        <input className="col-md-6" type="text" name="hsncode" value={hsnValues.hsncode || ""} onChange={handleChange} required />
                       </div>
                       <div className="row py-1">
                         <label className="col-sm-2"> Active </label>
                         <label className="checkbox" style={{ padding: "0px", width: "60px" }}>
-                          <input type="checkbox" name="active" checked={countsValues.active} onChange={handleChange} />
+                          <input type="checkbox" name="active" checked={hsnValues.active} onChange={handleChange} />
                           <span></span>
                           <i className="indicator"></i>
                         </label>
@@ -286,7 +296,7 @@ const CountsMaster = ({ title, subTitle }) => {
                         stylecolor={foreValue}
                         SearchLable3={searchLable3}
                         handleChange={handleChange}
-                        ChangeValues={countsValues}
+                        ChangeValues={hsnValues}
                         searchCompCode={searchCompCode}
                         searchUserName={searchUserName}
                       />
@@ -307,7 +317,7 @@ const CountsMaster = ({ title, subTitle }) => {
                         sorting={sorting}
                         setSorting={setSorting}
                         ITEM_PER_PAGE={ITEM_PER_PAGE}
-                        EditData={CountsMaster_Check}
+                        EditData={HsnMaster_Check}
                         commentsData={commentsData}
                         setCheckchild={setCheckchild}
                         setCheckAll={setCheckAll}
@@ -330,7 +340,4 @@ const CountsMaster = ({ title, subTitle }) => {
   );
 };
 
-export default CountsMaster;
-//https://www.google.com/search?sca_esv=982eb7504844ff8c&rlz=1C1GCEU_enIN1160IN1160&sxsrf=AHTn8zr3vi6PDglRDzsBSgI_Jo7YM68ESA:1747641090347&q=input+and+select+field+in+use+reducer&udm=7&fbs=ABzOT_CWdhQLP1FcmU5B0fn3xuWp6IcynRBrzjy_vjxR0KoDMp_4ut2Z3jppK72fzdIpWsBpYmR8fwcVczrRGmP-Hf4kG9vVz30NlEzdDjoPm1ohfVYI4JJIY4mUU2uX9gHpdGY0JiHT8oeTKOT2A5tuMr14DVpibcW5Mcbr_an2WG__XE4C33L2zGVfdIWt73W8Ep3brPaBew92Nl7IqpUGPXfKFSyp3g&sa=X&ved=2ahUKEwiOgIqzhq-NAxVA3jgGHZszLa0QtKgLegQIFhAB&biw=1280&bih=551&dpr=1#fpstate=ive&vld=cid:0f6f43ee,vid:vA_556hkqz4,st:0
-
-//https://www.google.com/search?q=react+js+tutorial+in+tamil&sca_esv=3035b77ba2076880&rlz=1C1GCEU_enIN1160IN1160&udm=7&biw=1360&bih=599&sxsrf=AHTn8zqvBxyX58KDjpLYyhNnj45uxdg06g%3A1747900327192&ei=p9cuaJHBC5fuseMPh5e6yA0&oq=react+&gs_lp=EhZnd3Mtd2l6LW1vZGVsZXNzLXZpZGVvIgZyZWFjdCAqAggBMgQQIxgnMgQQIxgnMgQQIxgnMgoQABiABBhDGIoFMg4QABiABBiRAhixAxiKBTIKEAAYgAQYQxiKBTIKEAAYgAQYQxiKBTIKEAAYgAQYQxiKBTIQEAAYgAQYsQMYQxiDARiKBTIIEAAYgAQYsQNInjBQAFi4B3AAeACQAQCYAYcBoAGnBaoBAzAuNrgBAcgBAPgBAZgCBqAC6QXCAgsQABiABBiRAhiKBcICDhAAGIAEGLEDGIMBGIoFwgILEAAYgAQYsQMYgwGYAwCSBwMwLjagB_g5sgcDMC42uAfpBQ&sclient=gws-wiz-modeless-video#fpstate=ive&vld=cid:9f09f8cf,vid:2sVeyo2tYbE,st:0
+export default HSNMaster;

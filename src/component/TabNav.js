@@ -26,9 +26,9 @@ const TabNav = ({ tabs = [], onTabClick, colorValue, isActive }) => {
         const active = isTabActive(tab);
         return (
           <li className="nav-item" key={tab.id} style={{ minWidth: 130 }}>
-            <button
+            <strong
               type="button"
-              className={`nav-link ${active ? "active" : ""}`}
+              className={`nav-link  ${active ? "active" : ""}`}
               role="tab"
               aria-selected={active}
               onClick={() => onTabClick(tab.id)}
@@ -36,6 +36,7 @@ const TabNav = ({ tabs = [], onTabClick, colorValue, isActive }) => {
                 backgroundColor: active ? "#ffffff" : "rgba(255,255,255,0.7)",
                 border: active ? `1px solid ${colorValue}` : "1px solid transparent",
                 borderRadius: "12px",
+                textAlign: "center",
                 minWidth: "100%",
                 padding: "3px 5px",
                 color: active ? colorValue : "var(--bs-dark)",
@@ -53,7 +54,7 @@ const TabNav = ({ tabs = [], onTabClick, colorValue, isActive }) => {
               }}
             >
               {tab.label}
-            </button>
+            </strong>
           </li>
         );
       })}

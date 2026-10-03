@@ -8,7 +8,10 @@ import ActionButtton from "../ActionButtton";
 import PopupCombo_Populate from "../Popup.jsx";
 import PopupCombo from "../Popup.jsx";
 import PopupGram from "../Popup.jsx";
+import PopupGram_Populate from "../Popup.jsx";
 import PopupYarn from "../Popup.jsx";
+import PopupYarnDyeing from "../Popup.jsx";
+import PopupYarnDyeingColor from "../Popup.jsx";
 import PopupProcess from "../Popup.jsx";
 import imagebutton from "../Images/win.png";
 import defaultimage from "../Images/win.png";
@@ -71,6 +74,10 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     setFabYarn_Gram_Values,
     fabyarn_yarn_Values,
     setFabYarn_Yarn_Values,
+    fabyarn_yarn_dyeingValues,
+    setFabyarn_yarn_dyeingValues,
+    fabyarn_yarn_dyeingColorValues,
+    setFabyarn_yarn_dyeingColorValues,
     fabyarn_pro_Values,
     setFabYarn_Pro_Values,
   } = useContext(DataContext);
@@ -99,21 +106,29 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const StyleGroupParam = `${API_URL}/StyleGroupMasters`;
   const ColorParam = `${API_URL}/ColorMaster/GetColor`;
   const ComboParam = `${API_URL}/ColorMaster/GetCombo`;
+  const GetActiveColorParam = `${API_URL}/ColorMaster`;
   const BuyerParam = `${API_URL}/BuyerMasters`;
   const AgentMastersParam = `${API_URL}/AgentMasters`;
   const BuyerUAgentParam = `${API_URL}/BuyerAgentMasters`;
   const UomMastersParam = `${API_URL}/UomMasters`;
+  const YarnBlendMastersParam = `${API_URL}/YarnBlendMasters`;
   const OrderPackTypeMastersParam = `${API_URL}/OrderPackTypeMasters`;
   const PayTermsParam = `${API_URL}/PayTermMasters`;
   const CurrencyMastersParam = `${API_URL}/CurrencyMasters`;
   const StyleCategoryParams = `${API_URL}/StyleCategoryMasters`;
   const StyleItemMastersParams = `${API_URL}/StyleItemMasters`;
+  const GetYarnMasterParam = `${API_URL}/YarnMasters`;
+  const GetYarnDyeingProcess = `${API_URL}/ProcessGroupSequenceMasters/GetProcess`;
+
   const compcodeparam = `${API_URL}${ENDPOINTS.COMPANY}`;
   const [popupType, setPopupType] = useState("");
   const [comboShowPopup, setComboShowPopup] = useState(false);
   const [comboShow_SubGrid, setComboShow_SubGrid] = useState(false);
+  const [gramShow_SubGrid, setGramShow_SubGrid] = useState(false);
   const [gramShowPopup, setGramShowPopup] = useState(false);
   const [yarnShowPopup, setYarnShowPopup] = useState(false);
+  const [yarnDyeingShowPopup, setYarnDyeingShowPopup] = useState(false);
+  const [yarnDyeingColShowPopup, setYarnDyeingColShowPopup] = useState(false);
   const [processShowPopup, setProcessShowPopup] = useState(false);
   const [userRights1, setUserRights1] = useState([]);
   const [sizeGroupItems, setSizeGroupItems] = useState([]);
@@ -125,13 +140,17 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const [buyerItems, setBuyerItems] = useState([]);
   const [buyerAgent, setBuyerAgent] = useState([]);
   const [UomItems, setUomItems] = useState([]);
+  const [yarnBlendItems, setYarnBlendItems] = useState([]);
+  const [yarnItems, setYarnItems] = useState([]);
+  const [colors, setcolors] = useState([]);
+  const [processValues, setProcessValues] = useState([]);
   const [orderPackTypeItems, setOrderPackTypeItems] = useState([]);
   const [payTermItems, setPayTermItems] = useState([]);
   const [currencyItems, setCurrencyItems] = useState([]);
   const [styleCategoryItems, setStyleCategoryItems] = useState([]);
   const [styleGroupitem, setStyleGrioupItems] = useState([]);
   const [styleItems, setStyleItems] = useState([]);
-
+  const [resizingColumn, setResizingColumn] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState([]);
   setSearchLable1("Search");
@@ -144,6 +163,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const [company_filterSearch, setCompanyFilterSearch] = useState([]);
   const [totalItems, setTotalItems] = useState([]);
   const [compcodeData, setCompCodeData] = useState([]);
+
   const heights = "380px";
   //Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU" -Name * -ErrorAction SilentlyContinue
 
@@ -151,7 +171,29 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [userRes, sizeGroupRes, sizeRes, styleGroupRes, colorRes, comboRes, buyerRes, agentRes, uomRes, orderPackTypeRes, payTermRes, currencyRes, styleCategoryRes, styleitemRes, finYearRes, fabYarn_Res, fabyarn_Com_Res] = await Promise.all([
+        const [
+          userRes,
+          sizeGroupRes,
+          sizeRes,
+          styleGroupRes,
+          colorRes,
+          comboRes,
+          buyerRes,
+          agentRes,
+          uomRes,
+          yarBleRes,
+          colres,
+          orderPackTypeRes,
+          payTermRes,
+          currencyRes,
+          styleCategoryRes,
+          styleitemRes,
+          finYearRes,
+          fabYarn_Res,
+          fabyarn_Com_Res,
+          yarRes,
+          processRes,
+        ] = await Promise.all([
           axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
           axios.get(sizeGroupParam),
           axios.get(SizeParam),
@@ -161,6 +203,8 @@ const FabricYarnProcess = ({ title, subTitle }) => {
           axios.get(BuyerParam),
           axios.get(AgentMastersParam),
           axios.get(UomMastersParam),
+          axios.get(YarnBlendMastersParam),
+          axios.get(GetActiveColorParam),
           axios.get(OrderPackTypeMastersParam),
           axios.get(PayTermsParam),
           axios.get(CurrencyMastersParam),
@@ -169,6 +213,8 @@ const FabricYarnProcess = ({ title, subTitle }) => {
           axios.get(FinYearParam),
           axios.get(insert_update),
           axios.get(`${compcodeparam}`),
+          axios.get(GetYarnMasterParam),
+          axios.get(GetYarnDyeingProcess),
         ]);
 
         setUserRights1(userRes.data);
@@ -180,6 +226,8 @@ const FabricYarnProcess = ({ title, subTitle }) => {
         setBuyerItems(buyerRes.data || []);
         setBuyerAgent(agentRes.data || []);
         setUomItems(uomRes.data || []);
+        setYarnBlendItems(yarBleRes.data || []);
+        setcolors(colres.data || []);
         setOrderPackTypeItems(orderPackTypeRes.data || []);
         setPayTermItems(payTermRes.data || []);
         setCurrencyItems(currencyRes.data || []);
@@ -189,6 +237,8 @@ const FabricYarnProcess = ({ title, subTitle }) => {
         setFinYearItems(finYearRes.data || []);
         setfabYarnItem(fabYarn_Res.data || []);
         setCompCodeData(fabyarn_Com_Res.data || []);
+        setYarnItems(yarRes.data || []);
+        setProcessValues(processRes.data || []);
       } catch (error) {
         setFetchError(error);
         toast.error(error);
@@ -198,13 +248,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     };
     fetchData();
   }, [defaultDetails?.Compcode, defaultDetails?.User, title]);
-
-  // useEffect(() => {
-  //   if (fabyarnItem.compcode != "") {
-  //     const filterResult = fabyarnItem.filter((item) => item.compcode.includes(fabyarn_Search));
-  //     setCompanyFilterSearch(filterResult.reverse());
-  //   }
-  // }, [fabyarnItem, fabyarn_Search]);
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -617,11 +660,12 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     setFabYarn_DetValues(updated);
   };
 
-  const fabyarn_Details_Headers = [
+  const initialFabYarnDetailsHeaders = [
     { field: "SNo", label: "S.No", visible: true, type: "text", widths: "30px", disabled: true, pattern: "" },
     { field: "RowIndex", label: "RowIndex", visible: true, type: "text", widths: "30px", disabled: true, pattern: "" },
-    { field: "AsptblFabYarDetId", label: "ID", visible: false, type: "text", disabled: false, widths: "50px", pattern: "" },
-    { field: "AsptblFabYarId", label: "asptblFabYarId", visible: false, type: "text", disabled: false, widths: "50px", disabled: true, pattern: "" },
+    { field: "AsptblFabYarDetId", label: "ID", visible: false, type: "text", widths: "50px", disabled: false, pattern: "" },
+    { field: "AsptblFabYarId", label: "asptblFabYarId", visible: false, type: "text", widths: "50px", disabled: true, pattern: "" },
+
     { field: "StyleItem", label: "Item", visible: true, type: "select", widths: "300px", disabled: false, pattern: "" },
     { field: "PortionId", label: "PortionID", visible: true, type: "select", widths: "100px", disabled: false, pattern: "" },
     { field: "Portion", label: "Portion", visible: true, type: "select", widths: "200px", disabled: false, pattern: "" },
@@ -630,6 +674,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     { field: "Gauge", label: "GG", visible: true, type: "select", widths: "80px", disabled: false, pattern: "" },
     { field: "LL", label: "LL", visible: true, type: "select", widths: "80px", disabled: false, pattern: "" },
     { field: "Design", label: "Design", visible: true, type: "select", widths: "150px", disabled: false, pattern: "" },
+
     { field: "Combo", label: "Combo", visible: true, type: "img", widths: "30px", heights: "20px", alignItems: "center", disabled: false, pattern: "" },
     { field: "CadWt", label: "CadWt", visible: true, type: "text", widths: "80px", disabled: false, pattern: "" },
     { field: "FabWt", label: "FabWt/Kgs", visible: true, type: "text", widths: "120px", disabled: false, pattern: "" },
@@ -637,13 +682,16 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     { field: "FabPlanQty", label: "FabPlanQty", visible: true, type: "text", widths: "40px", disabled: false, pattern: "" },
     { field: "Yarn", label: "Yarn", visible: true, type: "img", widths: "30px", heights: "20px", alignItems: "center", disabled: false, pattern: "" },
     { field: "FabPro", label: "FabPro", visible: true, type: "img", widths: "30px", heights: "20px", alignItems: "center", disabled: false, pattern: "" },
-    { field: "Notes", label: "notes", visible: true, type: "text", widths: "20px", disabled: false, pattern: "" },
+    { field: "Notes", label: "notes", visible: true, type: "text", widths: "150px", disabled: false, pattern: "" },
     { field: "Action", label: "", visible: true, type: "button", widths: "0px", disabled: false },
   ];
+
+  const [fabyarn_Details_Headers, setFabYarn_Details_Headers] = useState(initialFabYarnDetailsHeaders);
+
   const createFabyarnComboHeaders = (showAllCheckbox) => [
     { field: "All", label: "All", visible: showAllCheckbox, type: "checkbox", widths: "20px", pattern: "", disabled: true },
     { field: "SNo", label: "SNo", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "RowIndex", label: "rowIndex", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
+    { field: "RowIndex", label: "rowIndex", type: "text", visible: true, widths: "50px", pattern: "", disabled: true },
     { field: "AsptblFabYarComId", label: "ID", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
     { field: "AsptblFabYarDetId", label: "FabYarDetId", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
     { field: "AsptblFabYarId", label: "FabYarId", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
@@ -656,45 +704,87 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const fabyarn_Combo_Headers = createFabyarnComboHeaders(false);
   const visibleComboHeaders = fabyarn_Combo_Populate_Headers.filter((col) => col.visible);
 
-  const fabyarn_Gram_Headers = [
-    { field: "All", label: "All", visible: true, type: "checkbox", widths: "50px", pattern: "", disabled: true },
-    { field: "SNo", label: "SNo", visible: true, type: "text", widths: "20px", disabled: true },
-    { field: "RowIndex", label: "Index", visible: false, type: "text", widths: "10px", disabled: true },
-    { field: "AsptblFabYarGraId", label: "GraId", visible: false, type: "text", widths: "50px", disabled: true },
-    { field: "AsptblFabYarDetId", label: "DetId", visible: false, type: "text", disabled: true, widths: "50px", pattern: "" },
-    { field: "AsptblFabYarId", label: "Id", visible: false, type: "text", disabled: true, widths: "50px", disabled: true, pattern: "" },
-    { field: "Combo", label: "Combo Color ", visible: false, type: "select", widths: "250px", disabled: true },
-    { field: "GarColor", label: "Gar Color", visible: true, type: "select", widths: "250px", disabled: false },
-    { field: "BaseColor", label: "Base Color", visible: true, type: "select", widths: "250px", disabled: false },
-    { field: "PorColor", label: "Portion Color", visible: true, type: "select", widths: "250px", disabled: false },
-    { field: "SizeName", label: "Size", visible: true, type: "select", widths: "80px", disabled: true },
-    { field: "ShipQty", label: "ShipQty", visible: true, type: "text", widths: "50px", disabled: false },
-    { field: "ProdQty", label: "ProdQty", visible: true, type: "text", widths: "50px", disabled: false },
-    { field: "SizeQty", label: "SizeQty", visible: true, type: "text", widths: "50px", disabled: false },
-    { field: "CadWt", label: "CadWeight", visible: true, type: "text", widths: "80px", disabled: false },
-    { field: "KDia", label: "KDia", visible: true, type: "select", widths: "80px", disabled: false },
-    { field: "FDia", label: "FDia", visible: true, type: "select", widths: "80px", disabled: false },
-    { field: "TotFabQty", label: "TotFabQty", visible: true, type: "text", widths: "100px", disabled: false },
-    { field: "Notes", label: "Notes", visible: true, type: "text", widths: "30px", disabled: false },
+  const createFabyarnGramHeaders = (v1 = false, v2 = true) => [
+    { field: "All", label: "All", visible: v1, type: "checkbox", widths: "20px", pattern: "", disabled: true },
+    { field: "SNo", label: "SNo", visible: true, type: "text", widths: "20px", disabled: v2 },
+    { field: "RowIndex", label: "RowIndex", visible: true, type: "text", widths: "10px", disabled: v2 },
+    { field: "AsptblFabYarGraId", label: "GraId", visible: false, type: "text", widths: "50px", disabled: v2 },
+    { field: "AsptblFabYarDetId", label: "DetId", visible: false, type: "text", widths: "50px", pattern: "", disabled: v2 },
+    { field: "AsptblFabYarId", label: "Id", visible: false, type: "text", widths: "50px", pattern: "", disabled: v2 },
+    { field: "Combo", label: "Combo Color", visible: true, type: "select", widths: "250px", disabled: v2 },
+    { field: "GarColor", label: "Gar Color", visible: true, type: "select", widths: "250px", disabled: v1 },
+    { field: "BaseColor", label: "Base Color", visible: true, type: "select", widths: "250px", disabled: v1 },
+    { field: "PorColor", label: "Portion Color", visible: true, type: "select", widths: "250px", disabled: v1 },
+    { field: "SizeName", label: "Size", visible: true, type: "select", widths: "80px", disabled: v2 },
+    { field: "ShipQty", label: "ShipQty", visible: true, type: "text", widths: "50px", disabled: v2 },
+    { field: "ProdQty", label: "ProdQty", visible: true, type: "text", widths: "50px", disabled: v2 },
+    { field: "SizeQty", label: "SizeQty", visible: true, type: "text", widths: "50px", disabled: v1 },
+    { field: "CadWt", label: "CadWeight", visible: true, type: "text", widths: "80px", disabled: v1 },
+    { field: "KDia", label: "KDia", visible: true, type: "select", widths: "80px", disabled: v1 },
+    { field: "FDia", label: "FDia", visible: true, type: "select", widths: "80px", disabled: v1 },
+    { field: "TotFabQty", label: "TotFabQty", visible: true, type: "text", widths: "100px", disabled: v2 },
+    { field: "Notes", label: "Notes", visible: true, type: "text", widths: "30px", disabled: v1 },
   ];
 
-  const fabyarn_Yarn_Headers = [
-    { field: "All", label: "All", visible: true, type: "checkbox", widths: "50px", pattern: "", disabled: true },
+  const fabyarn_Gram_Populate_Headers = createFabyarnGramHeaders(true, true);
+
+  const fabyarn_Gram_Headers = createFabyarnGramHeaders(false, true);
+
+  const visibleGramHeaders = fabyarn_Gram_Populate_Headers.filter((col) => col.visible);
+
+  const createFabyarnYarnHeaders = (showAllCheckbox = false) => [
+    { field: "All", label: "All", visible: showAllCheckbox, type: "checkbox", widths: "50px", pattern: "", disabled: false },
     { field: "SNo", label: "SNo", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "RowIndex", label: "rowIndex", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
-    { field: "AsptblFabYarYarId", label: "asptblFabYarYarId", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
-    { field: "AsptblFabYarDetId", label: "asptblFabYarDetId", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "AsptblFabYarId", label: "asptblFabYarId", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "Yarn", label: "yarn", visible: true, type: "select", widths: "250px", pattern: "", disabled: false },
-    { field: "ColorName", label: "yarncolor", visible: true, type: "select", widths: "250px", pattern: "", disabled: true },
-    { field: "Uom", label: "uom", visible: true, type: "select", widths: "250px", pattern: "", disabled: false },
-    { field: "Per", label: "per", visible: true, type: "text", widths: "250px", pattern: "", disabled: false },
-    { field: "YarnQty", label: "yarnqty", visible: true, type: "text", widths: "250px", pattern: "", disabled: false },
-    { field: "ProYesNo", label: "Yarn Pro", visible: true, type: "select", widths: "100px", pattern: "", disabled: false },
-    { field: "YarnProDet", label: "YarnProDet", visible: false, type: "img", widths: "20px", heights: "20px", alignItems: "center", pattern: "", disabled: false },
-    { field: "Notes", label: "notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
+    { field: "RowIndex", label: "Index", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarYarId", label: "AsptblFabYarYarId", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarDetId", label: "AsptblFabYarDetId", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarId", label: "AsptblFabYarId", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "Yarn", label: "Yarn Name", visible: true, type: "select", widths: "450px", pattern: "", disabled: false },
+    { field: "ColorName", label: "Yarn Color", visible: true, type: "select", widths: "150px", pattern: "", disabled: false },
+    { field: "Uom", label: "Uom", visible: true, type: "select", widths: "80px", pattern: "", disabled: false },
+    { field: "Per", label: "Per", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
+    { field: "YarnQty", label: "YarnQty", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
+    { field: "ProYesNo", label: "YarnPro", visible: true, type: "select", widths: "70px", pattern: "", disabled: false },
+    { field: "YarnProDet", label: "Det", visible: true, type: "img", widths: "20px", heights: "20px", pattern: "", disabled: false },
+    { field: "Notes", label: "Notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
     { field: "Action", label: "", visible: true, type: "button", widths: "0px", disabled: false },
   ];
+
+  const create_Yarn_Dyeing_Headers = (shows = false) => [
+    { field: "SNo", label: "SNo", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "RowIndex", label: "rowIndex", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarYarDyeId", label: "DyeId", visible: shows, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarYarId", label: "AsptblFabYarYarId", visible: shows, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarDetId", label: "asptblFabYarDetId", visible: shows, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarId", label: "asptblFabYarId", visible: shows, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "ProcessName", label: "Process Name", visible: true, type: "select", widths: "150px", pattern: "", disabled: false },
+    { field: "YarDyeYesNo", label: "YarDyeYesNo", visible: true, type: "select", widths: "70px", pattern: "", disabled: false },
+    { field: "YarDyeDet", label: "YarDyeDet", visible: true, type: "img", widths: "20px", heights: "20px", pattern: "", disabled: false },
+    { field: "Loss", label: "Loss %", visible: true, type: "text", widths: "70px", pattern: "", disabled: false },
+    { field: "Notes", label: "Notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
+    { field: "Action", label: "", visible: true, type: "button", widths: "0px", disabled: false },
+  ];
+
+  const create_Yarn_Dyeing_ColorHeaders = (shows = false) => [
+    { field: "SNo", label: "SNo", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "RowIndex", label: "rowIndex", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarYarDyeColId", label: "DyeId", visible: shows, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarYarDyeId", label: "DyeId", visible: shows, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarYarId", label: "AsptblFabYarYarId", visible: shows, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarDetId", label: "asptblFabYarDetId", visible: shows, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "AsptblFabYarId", label: "asptblFabYarId", visible: shows, type: "text", widths: "50px", pattern: "", disabled: true },
+    { field: "PortionColor", label: "Protion Color", visible: true, type: "select", widths: "150px", pattern: "", disabled: false },
+    { field: "YarnProColor", label: "Yar Pro Color", visible: true, type: "select", widths: "150px", pattern: "", disabled: false },
+    { field: "YarPer", label: "YarPer", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
+    { field: "Notes", label: "Notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
+    { field: "Action", label: "", visible: true, type: "button", widths: "0px", disabled: false },
+  ];
+
+  const fabyarn_Yarn_Dyeing_Headers = create_Yarn_Dyeing_Headers(false);
+  const fabyarn_Yarn_Populate_Headers = createFabyarnYarnHeaders(true);
+  const fabyarn_Yarn_Headers = createFabyarnYarnHeaders(false);
+  const fabyarn_Yarn_DyingColorHeaders = create_Yarn_Dyeing_ColorHeaders(false);
+  const visibleYarnHeaders = fabyarn_Yarn_Populate_Headers.filter((col) => col.visible);
 
   const fabyarn_Process_Headers = [
     { field: "All", label: "All", visible: true, type: "checkbox", widths: "50px", pattern: "", disabled: true },
@@ -719,12 +809,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     setFabYarn_Gram_Values(updated);
   };
 
-  const handle_Yarn_Change = (e, RowIndex, field) => {
-    const value = e.target.value;
-    const updated = [...fabyarn_yarn_Values];
-    updated[RowIndex][field] = value;
-    setFabYarn_Yarn_Values(updated);
-  };
   const handle_Process_Change = (e, RowIndex, field) => {
     const value = e.target.value;
     const updated = [...fabyarn_pro_Values];
@@ -734,74 +818,80 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const [showModal, setShowModal] = useState(false);
 
-  const handleAddRow = (index) => {
-    const newRow = {
-      SNo: 1,
-      RowIndex: Number(index),
-      AsptblFabYarDetId: 0,
-      AsptblFabYarId: 0,
-      StyleItem: 0,
-      PortionId: 0,
-      Portion: "",
-      Fabric: "",
-      Gsm: "",
-      Gauge: "",
-      LL: "",
-      Design: 0,
-      Combo: "",
-      CadWt: 0,
-      FabWt: 0,
-      Grams: "",
-      FabPlanQty: 0,
-      Yarn: "",
-      FabPro: "",
-      Notes: "",
-    };
-    const updated = [...fabyarn_DetValues];
-    updated.splice(index + 1, 0, newRow);
-    setFabYarn_DetValues(updated);
+  const Details_NewRow = {
+    SNo: 0,
+    RowIndex: 0,
+    AsptblFabYarDetId: 0,
+    AsptblFabYarId: 0,
+    StyleItem: 0,
+    PortionId: 0,
+    Portion: "",
+    Fabric: "",
+    Gsm: "",
+    Gauge: "",
+    LL: "",
+    Design: 0,
+    Combo: "",
+    CadWt: 0,
+    FabWt: 0,
+    Grams: "",
+    FabPlanQty: 0,
+    Yarn: "",
+    FabPro: "",
+    Notes: "",
   };
 
-  const handle_Com_AddRow = (index) => {
+  const handleAddRow = (rowIndex, currentIndex, data, newRowTemplate, setGrid) => {
+    const updated = [...data];
+    const groupRows = updated.filter((row) => Number(row.RowIndex) === Number(rowIndex));
+    const lastSNo = Math.max(...groupRows.map((row) => Number(row.SNo) || 0), 0);
+    const currentRow = updated[currentIndex];
+    const isLastRowOfGroup = currentRow && Number(currentRow.RowIndex) === Number(rowIndex) && Number(currentRow.SNo) === lastSNo;
+    if (!isLastRowOfGroup) {
+      return;
+    }
     const newRow = {
-      SNo: index,
-      RowIndex: index,
-      AsptblFabYarComId: 0,
-      AsptblFabYarDetId: 0,
-      AsptblFabYarId: 0,
-      Combo: 0,
-      Notes: "",
+      ...newRowTemplate,
+      SNo: lastSNo + 1,
+      RowIndex: Number(rowIndex),
     };
-    const updated = [...fabyarn_combo_Values];
-    updated.splice(index + 1, 0, newRow);
-    setFabYarn_Combo_Values(updated);
+    updated.splice(currentIndex + 1, 0, newRow);
+    setGrid(updated);
   };
 
-  const handle_Yar_AddRow = (index) => {
-    const newRow = {
-      SNo: 1,
-      RowIndex: 0,
-      AsptblFabYarYarId: 0,
-      AsptblFabYarDetId: 0,
-      AsptblFabYarId: 0,
-      Yarn: 0,
-      ColorName: 0,
-      Uom: "",
-      Per: "",
-      YarnQty: "",
-      ProYesNo: "",
-      YarnProDet: "",
-      Notes: "",
-    };
-    const updated = [...fabyarn_yarn_Values];
-    updated.splice(index + 1, 0, newRow);
-    setFabYarn_Yarn_Values(updated);
+  const PopUpDy_Details_NewRow = {
+    SNo: 0,
+    RowIndex: 0,
+    AsptblFabYarYarDyeId: "",
+    AsptblFabYarYarId: "",
+    AsptblFabYarDetId: "",
+    AsptblFabYarId: "",
+    ProcessName: "",
+    YarDyeYesNo: "",
+    YarDyeDet: "",
+    Loss: "",
+    Notes: "",
+    Action: "",
+  };
+
+  const PopUpDy_Co_Details_NewRow = {
+    SNo: 0,
+    RowIndex: 0,
+    AsptblFabYarYarDyeColId: "",
+    AsptblFabYarYarDyeId: "",
+    AsptblFabYarYarId: "",
+    AsptblFabYarDetId: "",
+    AsptblFabYarId: "",
+    PortionColor: "",
+    YarnProColor: "",
+    Notes: "",
+    Action: "",
   };
 
   const handle_Pro_AddRow = (index) => {
     const newRow = {
       SNo: 1,
-      RowIndex: 0,
+      RowIndex: index,
       AsptblFabYarProId: 0,
       AasptblFabYarDetId: 0,
       AsptblFabYarId: 0,
@@ -822,13 +912,38 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const [popup_Details_DataCopy, setPopup_Details_DataCopy] = useState([""]);
   const [popup_Combo_DataCopy, setPopup_Combo_DataCopy] = useState([]);
   const [allPopup_Combo_DataCopy, setAllPopup_Combo_DataCopy] = useState([]);
+  const [allPopup_Gram_DataCopy, setAllPopup_Gram_DataCopy] = useState([]);
   const [popup_Gram_DataCopy, setPopup_Gram_DataCopy] = useState([]);
+
   const [popup_Yarn_DataCopy, setPopup_Yarn_DataCopy] = useState([]);
   const [popup_Process_DataCopy, setPopup_Process_DataCopy] = useState([]);
+
+  // const handle_Combo_Change = (e, RowIndex, SNos, field) => {
+  //   const value = e.target.value;
+  //   setFabYarn_Combo_Values((prev) =>
+  //     prev.map((item, index) =>
+  //       index === Number(RowIndex) || Number(item.SNo) === Number(SNos) || Number(item.Combo) === Number(value)
+  //         ? {
+  //             ...item,
+  //             [field]: value,
+  //           }
+  //         : "",
+  //     ),
+  //   );
+  // };
 
   const handle_Combo_Change = (e, RowIndex, SNos, field) => {
     const value = e.target.value;
 
+    // Check duplicate Combo value
+    const isDuplicate = fabyarn_combo_Values.some((item) => Number(item.RowIndex) !== Number(RowIndex) && Number(item.SNo) !== Number(SNos) && Number(item.Combo) === Number(value));
+
+    if (isDuplicate) {
+      toast.error("Combo already exists");
+      return;
+    }
+
+    // Update selected row only
     setFabYarn_Combo_Values((prev) =>
       prev.map((item, index) =>
         index === Number(RowIndex) || Number(item.SNo) === Number(SNos)
@@ -841,48 +956,45 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     );
   };
 
+  const Combo_newRow = {
+    SNo: 0,
+    RowIndex: 0,
+    AsptblFabYarComId: 0,
+    AsptblFabYarDetId: 0,
+    AsptblFabYarId: 0,
+    Combo: 0,
+    Notes: "",
+    All: false,
+  };
+
   const handle_Combo_Details = (row, RowIndex) => {
     setComboShowPopup(true);
-
     const finid = Number(RowIndex);
     setSquence(finid);
     if (allPopup_Combo_DataCopy.length > 1) {
       const rowData = allPopup_Combo_DataCopy.filter((item) => Number(item.RowIndex) === finid && Number(item.Combo) > 0);
-
-      const hasEmptyCombo = rowData.some((item) => item.Combo === undefined || item.Combo === null || Number(item.Combo) === "0" || Number(item.Combo) < 1);
-
       if (rowData.length === 0) {
-        //setFabYarn_Combo_Values([]);
-        const newRow = {
-          SNo: 1,
-          RowIndex: 0,
-          AsptblFabYarComId: 0,
-          AsptblFabYarDetId: 0,
-          AsptblFabYarId: 0,
-          Combo: 0,
-          Notes: "",
-          All: false,
-        };
-        setFabYarn_Combo_Values([newRow]);
+        setFabYarn_Combo_Values([]);
+        setFabYarn_Combo_Values([Combo_newRow]);
       } else {
         setFabYarn_Combo_Values(rowData);
       }
     } else {
       const filteredData = allPopup_Combo_DataCopy.filter((item) => Number(item.RowIndex) === finid);
-      const hasEmptyCombo = filteredData.some((item) => item.Combo === 0);
       if (filteredData.length === 0) {
         setFabYarn_Combo_Values([]);
-        const newRow = {
-          SNo: 1,
-          RowIndex: 0,
-          AsptblFabYarComId: 0,
-          AsptblFabYarDetId: 0,
-          AsptblFabYarId: 0,
-          Combo: 0,
-          Notes: "",
-          All: false,
-        };
-        setFabYarn_Combo_Values([newRow]);
+        // const newRow = {
+        //   SNo: 1,
+        //   RowIndex: 0,
+        //   AsptblFabYarComId: 0,
+        //   AsptblFabYarDetId: 0,
+        //   AsptblFabYarId: 0,
+        //   Combo: 0,
+        //   Notes: "",
+        //   All: false,
+        // };
+
+        setFabYarn_Combo_Values([Combo_newRow]);
       } else {
         setFabYarn_Combo_Values(filteredData);
       }
@@ -943,6 +1055,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const handleChild_Combo_Checkbox = (e, rowIndex, sno) => {
     const checked = e.target.checked;
+
     const selectedItem = popup_Combo_DataCopy.find((item) => Number(item.RowIndex) === Number(rowIndex) && Number(item.SNo) === Number(sno));
 
     if (!selectedItem) return;
@@ -964,11 +1077,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const handle_PopupCombo = () => {
     const currentRowIndex = Number(sequence);
-    // Get existing data for current RowIndex
     const existingRows = allPopup_Combo_DataCopy.filter((item) => Number(item.RowIndex) === currentRowIndex);
 
     if (existingRows.length === 0) {
-      // No existing RowIndex → create new combo rows
       const newRows = comboItems.map((com, comboIndex) => ({
         SNo: comboIndex + 1,
         RowIndex: currentRowIndex,
@@ -990,135 +1101,330 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     setComboShow_SubGrid(false);
   };
 
-  // const handle_Gram_StyleDetails = (row, RowIndex) => {
-  //   setGramShowPopup(true);
-  //   const finid = Number(RowIndex);
+  const handleAll_Gram_Checkbox = (e, rowIndex, colIndex) => {
+    const checked = e.target.checked;
 
-  //   setSquence(finid);
-  //   let filteredData1 = popup_Combo_DataCopy.filter((com) => com.RowIndex === RowIndex).flatMap((com) => popup_Gram_DataCopy.filter((gram) => gram.RowIndex === com.RowIndex && Number(com.Combo) === Number(gram.Combo)));
+    const currentRows = popup_Gram_DataCopy.filter((row) => Number(row.RowIndex) === Number(rowIndex));
 
-  //   if (filteredData1.length > 0) {
-  //     setFabYarn_Gram_Values([]);
-  //     setFabYarn_Gram_Values(filteredData1);
-  //   } else {
-  //     setFabYarn_Gram_Values([]);
-  //     const newrow = popup_Combo_DataCopy
-  //       .filter((com, comboIndex) => Number(com.RowIndex) === Number(RowIndex))
-  //       .flatMap((com) =>
-  //         sizeGroupItems.map((siz, sizeIndex) => ({
-  //           SNo: sizeIndex + 1,
-  //           RowIndex: finid,
-  //           AsptblFabYarGraId: Number(sizeIndex + 2),
-  //           AsptblFabYarDetId: Number(sizeIndex + 3),
-  //           AsptblFabYarId: Number(sizeIndex + 4),
-  //           Combo: Number(com.Combo),
-  //           GarColor: "",
-  //           BaseColor: "",
-  //           PorColor: "",
-  //           SizeName: siz.asptblsizmasid,
-  //           ShipQty: "",
-  //           ProdQty: 0,
-  //           SizeQty: 0,
-  //           CadWt: 0,
-  //           KDia: "",
-  //           FDia: "",
-  //           TotFabQty: "",
-  //           Notes: "",
-  //         })),
-  //       );
+    if (checked) {
+      // Select all combo items for this RowIndex
+      setAllPopup_Gram_DataCopy((prev) => {
+        const newRows = currentRows.filter((currentRow) => !prev.some((selected) => Number(selected.RowIndex) === Number(currentRow.RowIndex)));
+        //&& Number(selected.SNo) === Number(currentRow.SNo)
+        return [...prev, ...newRows];
+      });
+    } else {
+      // Remove only this RowIndex's combo items
+      setAllPopup_Gram_DataCopy((prev) => prev.filter((selected) => Number(selected.RowIndex) !== Number(rowIndex)));
+    }
 
-  //     setFabYarn_Gram_Values(newrow);
-  //   }
-  // };
+    // Update All checkbox state only for this RowIndex
+    setAllPopup_Gram_DataCopy((prev) => prev.map((row) => (Number(row.RowIndex) === Number(rowIndex) ? { ...row, All: checked } : row)));
+  };
 
-  // const handle_Gram_PopupSave = () => {
-  //   const finid = Number(sequence);
-  //   setPopup_Gram_DataCopy((prev) => {
-  //     const otherRows = prev.filter((item) => Number(item.RowIndex) !== finid);
-  //     const newRows = fabyarn_gram_Values.map((item, index) => ({
-  //       SNo: index + 1,
-  //       RowIndex: finid,
-  //       AsptblFabYarGraId: Number(item.AsptblFabYarGraId) || 0,
-  //       AsptblFabYarDetId: Number(item.AsptblFabYarDetId) || 0,
-  //       AsptblFabYarId: Number(item.AsptblFabYarId) || 0,
-  //       Combo: Number(item.Combo) || 0,
-  //       GarColor: Number(item.GarColor) || 0,
-  //       BaseColor: Number(item.BaseColor) || 0,
-  //       PorColor: Number(item.PorColor) || 0,
-  //       SizeName: Number(item.SizeName) || 0,
-  //       ShipQty: Number(item.ShipQty) || 0,
-  //       ProdQty: Number(item.ProdQty) || 0,
-  //       SizeQty: Number(item.SizeQty) || 0,
-  //       CadWt: Number(item.CadWt) || 0,
-  //       KDia: item.KDia,
-  //       FDia: item.FDia,
-  //       TotFabQty: item.TotFabQty,
-  //       Notes: item.Notes,
-  //     }));
-  //     return [...otherRows, ...newRows];
-  //   });
+  const handleChild_Gram_Checkbox = (e, rowIndex, sno) => {
+    const checked = e.target.checked;
 
-  //   setGramShowPopup(false);
-  // };
+    const selectedItem = popup_Gram_DataCopy.find((item) => Number(item.RowIndex) === Number(rowIndex) && Number(item.SNo) === Number(sno));
 
-  // const handle_Gram_PopupPopulate = () => {
-  //   setFabYarn_Gram_Values([]);
-  //   const finid = Number(sequence);
-  //   if (fabyarn_gram_Values.length >= 1) {
-  //     const finid = Number(sequence);
-  //     const filteredData = popup_Gram_DataCopy.filter((item) => item.RowIndex === finid);
-  //     if (filteredData.length >= 1) {
-  //       setFabYarn_Gram_Values(filteredData);
-  //     }
-  //   } else {
-  //     toast.error("Invalid Row");
-  //   }
-  // };
+    if (!selectedItem) return;
 
-  // const handle_Yarn_StyleDetails = (row, RowIndex) => {
-  //   setYarnShowPopup(true);
-  // };
+    if (checked) {
+      setAllPopup_Gram_DataCopy((prev) => {
+        const exists = prev.some((item) => Number(item.RowIndex) === Number(rowIndex) && Number(item.SNo) === Number(sno));
 
-  // const handle_Process_Details = (row, RowIndex) => {
-  //   setProcessShowPopup(true);
-  // };
+        if (exists) return prev;
 
-  // const handle_Yarn_PopupPopulate = () => {
-  //   setYarnShowPopup(true);
+        return [...prev, selectedItem];
+      });
+    } else {
+      setAllPopup_Gram_DataCopy((prev) => prev.filter((item) => !(Number(item.RowIndex) === Number(rowIndex) && Number(item.SNo) === Number(sno))));
+    }
+  };
 
-  //   setFabYarn_Yarn_Values([]);
-  //   const finid = Number(sequence);
+  const handle_Gram_Details = (row, RowIndex) => {
+    setGramShowPopup(true);
+    const finid = Number(RowIndex);
+    setSquence(finid);
+    if (allPopup_Gram_DataCopy.length > 1) {
+      const rowData = allPopup_Gram_DataCopy.filter((item) => Number(item.RowIndex) === finid);
+      if (rowData.length === 0) {
+        setFabYarn_Gram_Values([]);
+        const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, finid, sizeGroupItems);
+        setFabYarn_Gram_Values(newrow);
+      } else {
+        setFabYarn_Gram_Values(rowData);
+      }
+    } else {
+      setFabYarn_Gram_Values([]);
+      const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, finid, sizeGroupItems);
+      setFabYarn_Gram_Values(newrow);
+    }
+  };
 
-  //   if (fabyarn_yarn_Values.length >= 1) {
-  //     const finid = Number(sequence);
-  //     const filteredData = popup_Yarn_DataCopy.filter((item) => item.RowIndex === finid);
-  //     if (filteredData.length >= 1) {
-  //       setFabYarn_Yarn_Values(filteredData);
-  //     }
-  //   } else {
-  //     toast.error("Invalid Row");
-  //   }
-  // };
+  const handle_PopupGram_Save = () => {
+    const finid = Number(sequence);
+    setAllPopup_Gram_DataCopy((prev) => {
+      const otherRows = prev.filter((item) => Number(item.RowIndex) !== finid);
+      const newRows = fabyarn_gram_Values.map((item, index) => ({
+        SNo: item.SNo,
+        RowIndex: item.RowIndex,
+        AsptblFabYarGraId: Number(item.AsptblFabYarGraId) || 0,
+        AsptblFabYarDetId: Number(item.AsptblFabYarDetId) || 0,
+        AsptblFabYarId: Number(item.AsptblFabYarId) || 0,
+        Combo: Number(item.Combo) || 0,
+        GarColor: Number(item.GarColor) || 0,
+        BaseColor: Number(item.BaseColor) || 0,
+        PorColor: Number(item.PorColor) || 0,
+        SizeName: Number(item.SizeName) || 0,
+        ShipQty: Number(item.ShipQty) || 0,
+        ProdQty: Number(item.ProdQty) || 0,
+        SizeQty: Number(item.SizeQty) || 0,
+        CadWt: Number(item.CadWt) || 0,
+        KDia: item.KDia,
+        FDia: item.FDia,
+        TotFabQty: item.TotFabQty,
+        Notes: item.Notes,
+      }));
+      return [...otherRows, ...newRows];
+    });
+
+    setGramShowPopup(false);
+  };
+
+  const handle_PopupGram_SubGrid_Populate = () => {};
+
+  const handle_PopupGram_SubGrid_Save = () => {
+    const filteredData = allPopup_Gram_DataCopy.filter((item) => item.RowIndex === sequence);
+    if (filteredData.length >= 1) {
+      setFabYarn_Gram_Values(filteredData);
+    }
+    setGramShow_SubGrid(false);
+  };
+
+  const createFabyarnGramRows = (comboData, currentRowIndex, sizeGroupItems) => {
+    const newrow = comboData
+      .filter((item) => Number(item.RowIndex) === Number(currentRowIndex))
+      .flatMap((com, comboIndex) =>
+        sizeGroupItems.map((siz, sizeIndex) => ({
+          SNo: comboIndex * sizeGroupItems.length + sizeIndex + 1,
+          RowIndex: Number(currentRowIndex),
+          AsptblFabYarGraId: 0,
+          AsptblFabYarDetId: 0,
+          AsptblFabYarId: 0,
+          Combo: Number(com.Combo),
+          GarColor: com.Combo,
+          BaseColor: 33,
+          PorColor: 0,
+          SizeName: siz.asptblsizmasid,
+          ShipQty: 0,
+          ProdQty: 0,
+          SizeQty: 0,
+          CadWt: 0,
+          KDia: "",
+          FDia: "",
+          TotFabQty: "",
+          Notes: "",
+        })),
+      );
+
+    return newrow;
+  };
+
+  const handle_PopupGram = () => {
+    const currentRowIndex = Number(sequence);
+    const existingRows = allPopup_Gram_DataCopy.filter((item) => Number(item.RowIndex) === currentRowIndex);
+
+    if (existingRows.length === 0) {
+      const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, currentRowIndex, sizeGroupItems);
+      setPopup_Gram_DataCopy(newrow);
+    } else {
+      setPopup_Gram_DataCopy(existingRows);
+    }
+    setGramShow_SubGrid(true);
+  };
+  const handle_PopupGram_Clear = () => {
+    setFabYarn_Gram_Values([]);
+  };
+  const handle_PopupGram_SubGrid_Clear = () => {
+    const currentRowIndex = Number(sequence);
+    setPopup_Gram_DataCopy([]);
+    const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, currentRowIndex, sizeGroupItems);
+    setPopup_Gram_DataCopy(newrow);
+  };
+
+  const handle_PopupYarn_Details = (row, RowIndex) => {
+    setSquence(RowIndex);
+    if (row.ProYesNo === "YES") {
+      setYarnDyeingShowPopup(true);
+    }
+  };
+
+  const handle_PopupYarnDyeing_Details = (row, RowIndex) => {
+    setSquence(RowIndex);
+    setYarnDyeingColShowPopup(true);
+  };
+
+  const handle_Process_Details = (row, RowIndex) => {
+    setProcessShowPopup(true);
+  };
+
+  //--------------- START YARN PROCESSING-----------------------------------------------------------------------------------
+
+  const handle_Yarn_Change = (e, RowIndex, SNos, field) => {
+    const { name, value, checked, type } = e.target;
+    const isDuplicate = fabyarn_yarn_Values.some((item) => Number(item.RowIndex) !== Number(RowIndex) && Number(item.SNo) !== Number(SNos) && Number(item.Yarn) === Number(value));
+    if (isDuplicate) {
+      toast.error(field + " already exists");
+      return;
+    } else {
+      const updated = [...fabyarn_yarn_Values];
+      updated[RowIndex][field] = value;
+      setFabYarn_Yarn_Values(updated);
+    }
+  };
+
+  const handle_Yarn_Details = (row, RowIndex) => {
+    setSquence(RowIndex);
+    const finid = Number(RowIndex);
+    setSquence(finid);
+    if (popup_Yarn_DataCopy.length > 1) {
+      setFabYarn_Yarn_Values([]);
+      const rowData = popup_Yarn_DataCopy.filter((item, index) => Number(item.RowIndex) === finid);
+      if (rowData.length === 0) {
+        setFabYarn_Yarn_Values([Yarn_NewRow]);
+      } else {
+        setFabYarn_Yarn_Values(rowData);
+      }
+    } else {
+      setFabYarn_Yarn_Values([Yarn_NewRow]);
+    }
+    setYarnShowPopup(true);
+  };
+
+  const Yarn_NewRow = {
+    SNo: 0,
+    RowIndex: sequence,
+    AsptblFabYarYarId: 0,
+    AsptblFabYarDetId: 0,
+    AsptblFabYarId: 0,
+    Yarn: 0,
+    ColorName: 0,
+    Uom: "",
+    Per: "",
+    YarnQty: "",
+    ProYesNo: "",
+    YarnProDet: "",
+    Notes: "",
+    Action: "",
+    All: false,
+  };
+
+  const handle_Yarn_PopupPopulate = () => {
+    setYarnShowPopup(true);
+    setFabYarn_Yarn_Values([]);
+    const finid = Number(sequence);
+    if (fabyarn_yarn_Values.length >= 1) {
+      const filteredData = popup_Yarn_DataCopy.filter((item) => item.RowIndex === finid);
+      if (filteredData.length >= 1) {
+        setFabYarn_Yarn_Values(filteredData);
+      }
+    } else {
+      toast.error("Invalid Row");
+    }
+  };
+
+  const handle_Yarn_PopupSave = () => {
+    const finid = Number(sequence);
+    setPopup_Yarn_DataCopy((prev) => {
+      const otherRows = prev.filter((item) => Number(item.RowIndex) !== finid);
+      const newRows = fabyarn_yarn_Values.map((item1, index) => ({
+        SNo: index + 1,
+        RowIndex: finid,
+        AsptblFabYarYarId: Number(item1.AsptblFabYarYarId) || 0,
+        AsptblFabYarDetId: Number(item1.AsptblFabYarDetId) || 0,
+        AsptblFabYarId: Number(item1.AsptblFabYarId) || 0,
+        Yarn: Number(item1.Yarn) || 0,
+        ColorName: Number(item1.ColorName) || 0,
+        Uom: Number(item1.Uom) || 0,
+        Per: Number(item1.Per) || 0,
+        YarnQty: Number(item1.YarnQty) || 0,
+        ProYesNo: item1.ProYesNo || "",
+        YarnProDet: item1.YarnProDet || "",
+        Notes: item1.Notes || "",
+        Action: "",
+        All: false,
+      }));
+      return [...otherRows, ...newRows];
+    });
+
+    setYarnShowPopup(false);
+  };
+
+  const handle_Yarn_PopupClear = () => {
+    setYarnShowPopup(false);
+  };
+
+  //--------------- END YARN PROCESSING-----------------------------------------------------------------------------------
+
+  const handle_Yarn_Dyeing_Change = (e, RowIndex, SNos, field) => {
+    const { name, value } = e.target;
+    const isDuplicate = fabyarn_yarn_dyeingValues.some((item) => Number(item.RowIndex) !== Number(RowIndex) && Number(item.SNo) !== Number(SNos) && Number(item.ProcessName) === Number(value));
+
+    if (isDuplicate) {
+      toast.error("Combo already exists");
+      return;
+    } else {
+      setFabyarn_yarn_dyeingValues((prev) =>
+        prev.map((item, index) =>
+          index === Number(RowIndex)
+            ? {
+                ...item,
+                [field]: value,
+              }
+            : item,
+        ),
+      );
+    }
+  };
+
+  const handle_Yarn_PopupYarnDyeing = () => {
+    const finid = Number(sequence);
+    setYarnDyeingColShowPopup(true);
+  };
+  const handle_Yarn_PopupYarnDyeing_Save = () => {
+    const finid = Number(sequence);
+  };
+  const handle_Yarn_PopupYarnDyeing_Clear = () => {
+    setYarnDyeingShowPopup(false);
+  };
+
+  const handle_Yarn_PopupYarnDyeingColor = () => {};
+
+  const handle_Yarn_PopupYarnDyeingColor_Save = () => {};
+  const handle_Yarn_PopupYarnDyeingColor_Clear = () => {
+    setYarnDyeingColShowPopup(false);
+  };
+
+  const handle_Yarn_Dyeing_Color_Change = (e, RowIndex, field) => {
+    const { name, value } = e.target;
+    setFabyarn_yarn_dyeingColorValues((prev) =>
+      prev.map((item, index) =>
+        index === Number(RowIndex)
+          ? {
+              ...item,
+              [field]: value,
+            }
+          : item,
+      ),
+    );
+  };
 
   // const handle_Process_PopupPopulate = () => {
   //   setGramShowPopup(true);
   // };
 
-  // const handle_Yarn_PopupSave = () => {
-  //   const finid = Number(sequence);
-  // };
-
   // const handle_Process_PopupSave = () => {};
-
-  // const handle_Gram_PopupClear = () => {
-  //   setGramShowPopup(false);
-  //   //setPopup_Gram_DataCopy([]);
-  // };
-
-  // const handle_Yarn_PopupClear = () => {
-  //   setYarnShowPopup(false);
-  //   setPopup_Yarn_DataCopy([]);
-  // };
 
   // const handle_Process_PopupClear = () => {
   //   setProcessShowPopup(false);
@@ -1154,22 +1460,53 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     e.target.style.color = `${"var(--bs-dark)"}`;
   };
 
-  const handleAll_Gram_Checkbox = (e) => {};
-  const handleChild_Gram_Checkbox = (e, RowIndex) => {};
   const handleAll_Yarn_Checkbox = (e) => {};
   const handleChild_Yarn_Checkbox = (e, RowIndex) => {};
   const handleAll_Process_Checkbox = (e) => {};
   const handleChild_Process_Checkbox = (e, RowIndex) => {};
 
+  const handleResizeStart = (e, field, state1, state2) => {
+    e.preventDefault();
+
+    const column = state1.find((col) => col.field === field);
+
+    if (!column) return;
+
+    const startX = e.clientX;
+    const startWidth = parseInt(column.widths, 10) || 50;
+
+    const handleMouseMove = (moveEvent) => {
+      const difference = moveEvent.clientX - startX;
+
+      const newWidth = Math.max(30, startWidth + difference);
+
+      state2((prev) =>
+        prev.map((col) =>
+          col.field === field
+            ? {
+                ...col,
+                widths: `${newWidth}px`,
+              }
+            : col,
+        ),
+      );
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
   return (
     <div className="container-fluid">
       {userRights1.length >= 1 && (
-        <div
-          className="row"
-          style={{
-            display: `${userRights1[0].readonlys === "T" ? "block" : "none"}`,
-          }}
-        >
+        <div className="row" style={{ display: `${userRights1[0].readonlys === "T" ? "block" : "none"}` }}>
           <ActionButtton
             news={FabYarnProcess_New}
             saves={FabYarnProcess_Save}
@@ -1402,7 +1739,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                       </div>
                     </div>
                   </div>
-
                   <div className="col-12 col-xl-1">
                     <div
                       className="d-flex justify-content-center align-items-center h-100"
@@ -1413,7 +1749,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                       <ImageUploader images={garimages} setImage={setGarImage} name="OrdLogo" value={fabyarn_Values.OrdLogo} defaultimage={defaultimage} buttonVisible="none" />
                     </div>
                   </div>
-
                   <div className="row pt-1">
                     <TabNav tabs={tabs1} onTabClick={TabIndexClick} colorValue={colorValue} isActive={(tab) => newButton === tab.id || tab.id === 1} />
 
@@ -1422,8 +1757,36 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                         <div className="row animate-zoom">
                           <div className="table-responsive">
                             <div className="table-responsive" style={{ overflowX: "auto", width: "100%", height: "330px" }}>
-                              <table className="table table-bordered table-sm align-middle mb-0" id="fabDetTab">
-                                <thead style={{ backgroundColor: colorValue, color: foreValue, position: "sticky" }}>
+                              <table
+                                className="table table-bordered table-sm align-middle mb-0"
+                                id="fabDetTab"
+                                style={{
+                                  tableLayout: "fixed",
+                                  width: "max-content",
+                                }}
+                              >
+                                <colgroup>
+                                  {fabyarn_Details_Headers
+                                    .filter((col) => col.visible)
+                                    .map((col) => (
+                                      <col
+                                        key={col.field}
+                                        style={{
+                                          width: col.widths,
+                                        }}
+                                      />
+                                    ))}
+                                </colgroup>
+
+                                <thead
+                                  style={{
+                                    backgroundColor: colorValue,
+                                    color: foreValue,
+                                    position: "sticky",
+                                    top: 0,
+                                    zIndex: 10,
+                                  }}
+                                >
                                   <tr>
                                     {fabyarn_Details_Headers
                                       .filter((col) => col.visible)
@@ -1431,18 +1794,31 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                         <th
                                           key={col.field}
                                           style={{
-                                            width: col.widths,
-                                            minWidth: col.widths,
+                                            position: "relative",
                                             fontFamily: "Roboto",
                                             fontSize: "var(--bs-font-sm)",
                                             backgroundColor: colorValue,
                                             color: foreValue,
                                             padding: "0",
-                                            margin: "0",
+                                            whiteSpace: "nowrap",
                                           }}
                                           className="p-2"
                                         >
                                           {col.label}
+
+                                          <span
+                                            onMouseDown={(e) => handleResizeStart(e, col.field, fabyarn_Details_Headers, setFabYarn_Details_Headers)}
+                                            style={{
+                                              position: "absolute",
+                                              right: "-3px",
+                                              top: 0,
+                                              width: "7px",
+                                              height: "100%",
+                                              cursor: "col-resize",
+                                              userSelect: "none",
+                                              zIndex: 100,
+                                            }}
+                                          />
                                         </th>
                                       ))}
                                   </tr>
@@ -1455,9 +1831,14 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                         .filter((col) => col.visible)
                                         .map((col, colIndex) => {
                                           const value = row[col.field] || "";
-                                          const tcols = fabyarn_Details_Headers.filter((c) => c.visible).length;
-                                          const tabIndexValue = RowIndex * tcols + colIndex + 1;
-                                          const commonStyle = { width: col.widths, padding: "0", margin: "0", height: col.heights, alignItems: col.alignItems };
+
+                                          const commonStyle = {
+                                            height: col.heights,
+                                            padding: "0",
+                                            margin: "0",
+                                            verticalAlign: "middle",
+                                          };
+
                                           // S.No
                                           if (col.field === "SNo") {
                                             return (
@@ -1562,7 +1943,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                                   tabIndex={0}
                                                   className="p-0 m-0"
                                                   style={commonStyle}
-                                                  onClick={() => handle_Combo_Details(row, RowIndex)}
+                                                  onClick={() => handle_Gram_Details(row, RowIndex)}
                                                   onKeyDown={(e) => {
                                                     handleEnterFocus(e, "#fabDetTab");
                                                   }}
@@ -1579,7 +1960,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                                   tabIndex={0}
                                                   className="p-0 m-0"
                                                   style={commonStyle}
-                                                  onClick={() => handle_Combo_Details(row, RowIndex)}
+                                                  onClick={() => handle_Yarn_Details(row, RowIndex)}
                                                   onKeyDown={(e) => {
                                                     handleEnterFocus(e, "#fabDetTab");
                                                   }}
@@ -1596,7 +1977,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                                   tabIndex={0}
                                                   className="p-0 m-0"
                                                   style={commonStyle}
-                                                  onClick={() => handle_Combo_Details(row, RowIndex)}
+                                                  onClick={() => handle_Process_Details(row, RowIndex)}
                                                   onKeyDown={(e) => {
                                                     handleEnterFocus(e, "#fabDetTab");
                                                   }}
@@ -1610,7 +1991,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                                 <button
                                                   style={{ width: 0, margin: "0", padding: "0" }}
                                                   disabled={col.disabled}
-                                                  onFocus={() => handleAddRow(RowIndex)}
+                                                  onFocus={() => handleAddRow(row.RowIndex, Number(RowIndex), fabyarn_DetValues, Details_NewRow, setFabYarn_DetValues)}
                                                   onKeyDown={(e) => {
                                                     handleEnterFocus(e, "#fabDetTab");
                                                   }}
@@ -1618,7 +1999,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                               </td>
                                             );
                                           }
-
                                           return null;
                                         })}
                                     </tr>
@@ -1685,8 +2065,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                     .filter((col) => col.visible)
                                     .map((col, colIndex) => {
                                       const value = row[col.field] || "";
-                                      const scols = fabyarn_Combo_Headers.filter((c) => c.visible).length;
-
                                       const commonStyle = { width: col.widths, padding: "0", margin: "0", height: col.heights, alignItems: col.alignItems };
                                       if (col.type === "checkbox") {
                                       }
@@ -1746,6 +2124,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                                 handleEnterFocus(e, "#ComboTable");
                                               }}
                                             >
+                                              <option value={""}></option>
                                               {options.map((item, i) => (
                                                 <option key={i} value={item.asptblcolmasid}>
                                                   {item.colorname}
@@ -1761,7 +2140,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                             <button
                                               style={{ width: 0, margin: "0", padding: "0" }}
                                               disabled={col.disabled}
-                                              onFocus={() => handle_Com_AddRow(RowIndex)}
+                                              onFocus={() => handleAddRow(row.RowIndex, RowIndex, fabyarn_combo_Values, Combo_newRow, setFabYarn_Combo_Values)}
                                               onKeyDown={(e) => {
                                                 handleEnterFocus(e, "#ComboTable");
                                               }}
@@ -1779,7 +2158,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                       </div>
                     </div>
                   </PopupCombo>
-
                   <PopupCombo_Populate
                     show={comboShow_SubGrid}
                     onClose={() => setComboShow_SubGrid(false)}
@@ -1796,7 +2174,14 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                     <div className="row animate-zoom" style={{ height: "50%", overflow: "auto", width: "100%" }}>
                       <div className="table-responsive">
                         <div className="table-responsive" style={{ maxHeight: "200px", overflow: "auto", width: "100%" }}>
-                          <table className="table table-bordered table-sm align-middle mb-0 " id="ComboTable_Populate">
+                          <table
+                            className="table table-bordered table-sm align-middle mb-0 "
+                            id="ComboTable_Populate"
+                            style={{
+                              tableLayout: "fixed",
+                              width: "max-content",
+                            }}
+                          >
                             <thead style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, position: "sticky" }}>
                               <tr>
                                 {visibleComboHeaders
@@ -1903,7 +2288,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                           </td>
                                         );
                                       }
-                                      // SELECT
+
                                       if (col.type === "select") {
                                         let options = [];
 
@@ -1938,7 +2323,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                             <button
                                               style={{ width: 0, margin: "0", padding: "0" }}
                                               disabled={col.disabled}
-                                              onFocus={() => handle_Com_AddRow(RowIndex)}
+                                              onFocus={() => ""}
                                               onKeyDown={(e) => {
                                                 handleEnterFocus(e, "#ComboTable_Populate");
                                               }}
@@ -1956,23 +2341,22 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                       </div>
                     </div>
                   </PopupCombo_Populate>
-
-                  {/* <PopupGram
+                  <PopupGram
                     show={gramShowPopup}
                     onClose={() => setGramShowPopup(false)}
-                    title={`${yarnRowindex} Fabric Grammage Details`}
+                    title={`${Number(sequence)} Fabric Grammage Details`}
                     foreValue={foreValue}
                     colorValue={colorValue}
-                    handlePopupPopulate={handle_Gram_PopupPopulate}
-                    handlePopupSave={handle_Gram_PopupSave}
-                    handlePopupClear={handle_Gram_PopupClear}
-                         button1={"ALL"}
+                    handlePopupPopulate={handle_PopupGram}
+                    handlePopupSave={handle_PopupGram_Save}
+                    handlePopupClear={handle_PopupGram_Clear}
+                    button1={"POPULATE"}
                     button2={"SAVE"}
                     button3={"CLEAR"}
                   >
-                    <div className="row animate-zoom" style={{ height: "400px" }}>
+                    <div className="row animate-zoom" style={{ height: "100%", overflow: "auto", width: "100%" }}>
                       <div className="table-responsive">
-                        <div className="table-responsive" style={{ maxHeight: "400px", overflow: "auto" }}>
+                        <div className="table-responsive" style={{ maxHeight: "100%", overflow: "auto", width: "100%" }}>
                           <table className="table table-bordered table-sm align-middle mb-0 " id="GramTable">
                             <thead style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, position: "sticky" }}>
                               <tr>
@@ -1980,25 +2364,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                   .filter((col) => col.visible)
                                   .map((col) => {
                                     if (col.type === "checkbox") {
-                                      const allChecked = fabyarn_gram_Values.length > 0 && fabyarn_gram_Values.every((row) => row.All === true);
-                                      return (
-                                        <th
-                                          key={col.field}
-                                          style={{
-                                            width: col.widths,
-                                            fontFamily: "Roboto",
-                                            fontSize: "var(--bs-font-sm)",
-                                            backgroundColor: `${colorValue}`,
-                                            color: `${foreValue}`,
-                                            disabled: true,
-                                            padding: "0",
-                                            margin: "0",
-                                          }}
-                                          className="p-2"
-                                        >
-                                          <input type="checkbox" checked={allChecked} onChange={handleAll_Gram_Checkbox} />
-                                        </th>
-                                      );
                                     }
                                     return (
                                       <th
@@ -2033,11 +2398,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                       const tabIndexValue = RowIndex + 1;
                                       const commonStyle = { width: col.widths, padding: "0", margin: "0", height: col.heights, alignItems: col.alignItems };
                                       if (col.type === "checkbox") {
-                                        return (
-                                          <td key={col.field} className="text-center p-0 m-0">
-                                            <input type="checkbox" checked={row.All === true} onChange={(e) => handleChild_Gram_Checkbox(e, RowIndex)} />
-                                          </td>
-                                        );
                                       }
                                       if (col.field === "SNo") {
                                         return (
@@ -2137,28 +2497,34 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                       </div>
                     </div>
                   </PopupGram>
-
-                  <PopupYarn
-                    show={yarnShowPopup}
-                    onClose={() => setYarnShowPopup(false)}
-                    title={`${yarnRowindex} Yarn Grammage Details`}
+                  <PopupGram_Populate
+                    show={gramShow_SubGrid}
+                    onClose={() => setGramShow_SubGrid(false)}
+                    title={`${yarnRowindex} Fabric SubGrid Details`}
                     foreValue={foreValue}
                     colorValue={colorValue}
-                    handlePopupPopulate={handle_Yarn_PopupPopulate}
-                    handlePopupSave={handle_Yarn_PopupSave}
-                    handlePopupClear={handle_Yarn_PopupClear}
+                    handlePopupPopulate={handle_PopupGram_SubGrid_Populate}
+                    handlePopupSave={handle_PopupGram_SubGrid_Save}
+                    handlePopupClear={handle_PopupGram_SubGrid_Clear}
+                    button1={"UnChecked"}
+                    button2={"SAVE"}
+                    button3={"CLEAR"}
                   >
-                    <div className="row animate-zoom" style={{ height: "300px" }}>
+                    <div className="row animate-zoom" style={{ height: "100%", overflow: "auto", width: "100%" }}>
                       <div className="table-responsive">
-                        <div className="table-responsive" style={{ maxHeight: "300px", overflow: "auto" }}>
-                          <table className="table table-bordered table-sm align-middle mb-0 " id="YarnTable">
+                        <div className="table-responsive" style={{ maxHeight: "100%", overflow: "auto", width: "100%" }}>
+                          <table className="table table-bordered table-sm align-middle mb-0 " id="PopupGram_Populate">
                             <thead style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, position: "sticky" }}>
                               <tr>
-                                {fabyarn_Yarn_Headers
+                                {visibleGramHeaders
                                   .filter((col) => col.visible)
                                   .map((col) => {
                                     if (col.type === "checkbox") {
-                                      const allChecked = fabyarn_yarn_Values.length > 0 && fabyarn_yarn_Values.every((row) => row.All === true);
+                                      const currentRowIndex = Number(sequence);
+                                      const currentRowItems = popup_Gram_DataCopy.filter((row) => Number(row.RowIndex) === currentRowIndex);
+                                      const allChecked =
+                                        currentRowItems.length > 0 && currentRowItems.every((row) => allPopup_Gram_DataCopy.some((selected) => Number(selected.RowIndex) === Number(row.RowIndex) && Number(selected.SNo) === Number(row.SNo)));
+
                                       return (
                                         <th
                                           key={col.field}
@@ -2174,11 +2540,10 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                           }}
                                           className="p-2"
                                         >
-                                          <input type="checkbox" checked={allChecked} onChange={handleAll_Yarn_Checkbox} />
+                                          <input type="checkbox" checked={allChecked} onChange={(e) => handleAll_Gram_Checkbox(e, currentRowIndex, col.colIndex + 1)} />
                                         </th>
                                       );
                                     }
-
                                     return (
                                       <th
                                         key={col.field}
@@ -2202,6 +2567,176 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                             </thead>
 
                             <tbody>
+                              {popup_Gram_DataCopy.map((row, RowIndex) => (
+                                <tr key={RowIndex}>
+                                  {fabyarn_Gram_Populate_Headers
+                                    .filter((col) => col.visible)
+                                    .map((col, colIndex) => {
+                                      const value = row[col.field] || "";
+                                      const tabIndexValue = RowIndex + 1;
+                                      const commonStyle = { width: col.widths, padding: "0", margin: "0", height: col.heights, alignItems: col.alignItems };
+                                      if (col.type === "checkbox") {
+                                        const isChecked = allPopup_Gram_DataCopy.some((item) => Number(item.RowIndex) === Number(row.RowIndex) && Number(item.SNo) === Number(row.SNo));
+                                        return (
+                                          <td key={col.field} className="text-center p-0 m-0">
+                                            <input type="checkbox" checked={isChecked} onChange={(e) => handleChild_Gram_Checkbox(e, row.RowIndex, row.SNo)} />
+                                          </td>
+                                        );
+                                      }
+                                      if (col.field === "SNo") {
+                                        return (
+                                          <td key={colIndex} className="" style={commonStyle}>
+                                            {tabIndexValue}
+                                          </td>
+                                        );
+                                      }
+                                      if (col.field === "RowIndex") {
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <input
+                                              type="text"
+                                              className="w-100 form-control"
+                                              value={sequence}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Gram_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#PopupGram_Populate");
+                                              }}
+                                            />
+                                          </td>
+                                        );
+                                      }
+                                      if (col.type === "text") {
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <input
+                                              type="text"
+                                              className="w-100 form-control"
+                                              value={value}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Gram_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#PopupGram_Populate");
+                                              }}
+                                            />
+                                          </td>
+                                        );
+                                      }
+                                      // SELECT
+                                      if (col.type === "select") {
+                                        let options = [];
+
+                                        if (col.field === "Combo") {
+                                          options = comboItems;
+                                        }
+                                        if (col.field === "GarColor" || col.field === "BaseColor" || col.field === "PorColor") {
+                                          options = colorItems;
+                                        } else if (col.field === "SizeName") {
+                                          options = sizeGroupItems;
+                                        } else if (col.field === "KDia") {
+                                          options = [{ KDia: 22 }, { KDia: 23 }, { KDia: 24 }];
+                                        } else if (col.field === "FDia") {
+                                          options = [{ FDia: "100cm" }, { FDia: "185cm" }, { FDia: "195cm" }];
+                                        }
+
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <select
+                                              className="w-100 form-select"
+                                              disabled={col.disabled}
+                                              value={value}
+                                              onChange={(e) => handle_Gram_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#PopupGram_Populate");
+                                              }}
+                                            >
+                                              <option></option>
+                                              {options.map((item, i) => (
+                                                <div
+                                                  style={{
+                                                    width: "100%",
+                                                    background: "red",
+                                                    border: "1px solid #2b282a",
+                                                    maxHeight: "220px",
+                                                    overflowY: "auto",
+                                                  }}
+                                                >
+                                                  <option key={i} value={item.asptblcolmasid || item.asptblsizmasid || item.KDia || item.FDia}>
+                                                    {item.colorname || item.sizename || item.KDia || item.FDia}
+                                                  </option>
+                                                </div>
+                                              ))}
+                                            </select>
+                                          </td>
+                                        );
+                                      }
+
+                                      return null;
+                                    })}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </PopupGram_Populate>
+
+                  <PopupYarn
+                    show={yarnShowPopup}
+                    onClose={() => setYarnShowPopup(false)}
+                    title={`${sequence} Yarn Consumption Details`}
+                    foreValue={foreValue}
+                    colorValue={colorValue}
+                    handlePopupPopulate={handle_Yarn_PopupPopulate}
+                    handlePopupSave={handle_Yarn_PopupSave}
+                    handlePopupClear={handle_Yarn_PopupClear}
+                    button1={"POPULATE"}
+                    button2={"SAVE"}
+                    button3={"CLEAR"}
+                  >
+                    <div className="row animate-zoom" style={{ height: "300px", width: "auto" }}>
+                      <div className="table-responsive">
+                        <div className="table-responsive" style={{ maxHeight: "300px", overflow: "auto" }}>
+                          <table className="table table-bordered table-sm align-middle mb-0 " id="YarnTable">
+                            <thead
+                              style={{
+                                backgroundColor: `${colorValue}`,
+                                color: `${foreValue}`,
+                                position: "sticky",
+                                top: 0,
+                                zIndex: 10,
+                              }}
+                            >
+                              <tr>
+                                {fabyarn_Yarn_Headers
+                                  .filter((col) => col.visible)
+                                  .map((col) => {
+                                    if (col.type === "checkbox") {
+                                    }
+
+                                    return (
+                                      <th
+                                        key={col.field}
+                                        style={{
+                                          width: col.widths,
+                                          fontFamily: "Roboto",
+                                          fontSize: "var(--bs-font-sm)",
+                                          backgroundColor: `${colorValue}`,
+                                          color: `${foreValue}`,
+                                          padding: "0",
+                                          margin: "0",
+                                        }}
+                                        className="p-2"
+                                      >
+                                        {col.label}
+                                      </th>
+                                    );
+                                  })}
+                              </tr>
+                            </thead>
+
+                            <tbody>
                               {fabyarn_yarn_Values.map((row, RowIndex) => (
                                 <tr key={RowIndex}>
                                   {fabyarn_Yarn_Headers
@@ -2209,12 +2744,38 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                     .map((col, colIndex) => {
                                       const value = row[col.field] || "";
                                       const scols = fabyarn_Yarn_Headers.filter((c) => c.visible).length;
-                                      const tabIndexValue = RowIndex * scols + colIndex + 1;
                                       const commonStyle = { width: col.widths, padding: "0", margin: "0", height: col.heights ?? 0, alignItems: col.alignItems };
                                       if (col.type === "checkbox") {
+                                      }
+                                      if (col.field === "SNo") {
                                         return (
-                                          <td key={col.field} className="text-center p-0 m-0">
-                                            <input type="checkbox" checked={row.All === true} onChange={(e) => handleChild_Yarn_Checkbox(e, RowIndex)} />
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <input
+                                              type="text"
+                                              className="w-100 form-control"
+                                              value={Number(RowIndex + 1)}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Yarn_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#YarnTable");
+                                              }}
+                                            />
+                                          </td>
+                                        );
+                                      }
+                                      if (col.field === "RowIndex") {
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <input
+                                              type="text"
+                                              className="w-100 form-control"
+                                              value={sequence}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Yarn_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#YarnTable");
+                                              }}
+                                            />
                                           </td>
                                         );
                                       }
@@ -2234,14 +2795,20 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                           </td>
                                         );
                                       }
-                                      // SELECT
                                       if (col.type === "select") {
                                         let options = [];
 
-                                        if (col.field === "StyleItem") {
-                                          options = styleItems;
-                                        } else if (col.field === "SizeName") {
-                                          options = sizeItems;
+                                        if (col.field === "Yarn") {
+                                          options = yarnItems;
+                                        } else if (col.field === "ColorName") {
+                                          options = colors;
+                                        } else if (col.field === "Uom") {
+                                          options = UomItems;
+                                        } else if (col.field === "ProYesNo") {
+                                          options = [
+                                            { value: "NO", label: "NO" },
+                                            { value: "YES", label: "YES" },
+                                          ];
                                         }
 
                                         return (
@@ -2249,22 +2816,23 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                             <select
                                               className="w-100 form-select"
                                               disabled={col.disabled}
-                                              value={row.asptblsizmasid}
-                                              onChange={(e) => handle_Yarn_Change(e, RowIndex, col.field)}
+                                              value={value}
+                                              onChange={(e) => handle_Yarn_Change(e, RowIndex, RowIndex + 1, col.field)}
                                               onKeyDown={(e) => {
                                                 handleEnterFocus(e, "#YarnTable");
                                               }}
                                             >
+                                              <option></option>
                                               {options.map((item, i) => (
-                                                <option key={i} value={item.asptblstyleitemmasid || item.asptblsizmasid}>
-                                                  {item.styleitem || item.sizename}
+                                                <option key={i} value={item.value ?? item.asptblyarmasid ?? item.asptblcolmasid ?? item.asptbluommasid}>
+                                                  {item.label ?? item.yarn ?? item.colorname ?? item.uom}
                                                 </option>
                                               ))}
                                             </select>
                                           </td>
                                         );
                                       }
-                                      if (col.type === "img" && col.field === "yarnprodet") {
+                                      if (col.type === "img") {
                                         return (
                                           <td key={colIndex} style={commonStyle} className="p-0 m-0">
                                             <img
@@ -2273,7 +2841,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                               tabIndex={0}
                                               className="p-0 m-0"
                                               style={commonStyle}
-                                              onClick={() => handle_Yarn_Change(row, RowIndex)}
+                                              onClick={() => handle_PopupYarn_Details(row, RowIndex)}
                                               onKeyDown={(e) => {
                                                 handleEnterFocus(e, "#YarnTable");
                                               }}
@@ -2288,7 +2856,8 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                             <button
                                               style={{ width: 0, margin: "0", padding: "0" }}
                                               disabled={col.disabled}
-                                              onFocus={() => handle_Yar_AddRow(RowIndex)}
+                                              onFocus={() => handleAddRow(row.RowIndex, Number(RowIndex), fabyarn_yarn_Values, Yarn_NewRow, setFabYarn_Yarn_Values)}
+                                              // onClick={() => handle_PopupYarn_AddRow(RowIndex)}
                                               onKeyDown={(e) => {
                                                 handleEnterFocus(e, "#YarnTable");
                                               }}
@@ -2306,8 +2875,358 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                       </div>
                     </div>
                   </PopupYarn>
+                  <PopupYarnDyeing
+                    show={yarnDyeingShowPopup}
+                    onClose={() => setYarnDyeingShowPopup(false)}
+                    title={`${sequence} Yarn Dyeing Details`}
+                    foreValue={foreValue}
+                    colorValue={colorValue}
+                    handlePopupPopulate={handle_Yarn_PopupYarnDyeing}
+                    handlePopupSave={handle_Yarn_PopupYarnDyeing_Save}
+                    handlePopupClear={handle_Yarn_PopupYarnDyeing_Clear}
+                    button1={"POPULATE"}
+                    button2={"SAVE"}
+                    button3={"CLEAR"}
+                  >
+                    <div className="row animate-zoom" style={{ height: "300px", width: "auto" }}>
+                      <div className="table-responsive">
+                        <div className="table-responsive" style={{ maxHeight: "300px", overflow: "auto" }}>
+                          <table className="table table-bordered table-sm align-middle mb-0 " id="YarnDyeingTable">
+                            <thead
+                              style={{
+                                backgroundColor: `${colorValue}`,
+                                color: `${foreValue}`,
+                                position: "sticky",
+                                top: 0,
+                                zIndex: 10,
+                              }}
+                            >
+                              <tr>
+                                {fabyarn_Yarn_Dyeing_Headers
+                                  .filter((col) => col.visible)
+                                  .map((col) => {
+                                    return (
+                                      <th
+                                        key={col.field}
+                                        style={{
+                                          width: col.widths,
+                                          fontFamily: "Roboto",
+                                          fontSize: "var(--bs-font-sm)",
+                                          backgroundColor: `${colorValue}`,
+                                          color: `${foreValue}`,
+                                          padding: "0",
+                                          margin: "0",
+                                        }}
+                                        className="p-2"
+                                      >
+                                        {col.label}
+                                      </th>
+                                    );
+                                  })}
+                              </tr>
+                            </thead>
 
-                  <PopupProcess
+                            <tbody>
+                              {fabyarn_yarn_dyeingValues.map((row, RowIndex) => (
+                                <tr key={RowIndex}>
+                                  {fabyarn_Yarn_Dyeing_Headers
+                                    .filter((col) => col.visible)
+                                    .map((col, colIndex) => {
+                                      const value = row[col.field] || "";
+                                      const commonStyle = { width: col.widths, padding: "0", margin: "0", height: col.heights ?? 0, alignItems: col.alignItems };
+                                      if (col.field === "SNo") {
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <input
+                                              type="text"
+                                              className="w-100 form-control"
+                                              value={Number(RowIndex + 1)}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Yarn_Dyeing_Change(e, RowIndex, RowIndex + 1, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#YarnDyeingTable");
+                                              }}
+                                            />
+                                          </td>
+                                        );
+                                      }
+                                      if (col.field === "RowIndex") {
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <input
+                                              type="text"
+                                              className="w-100 form-control"
+                                              value={sequence}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Yarn_Dyeing_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#YarnDyeingTable");
+                                              }}
+                                            />
+                                          </td>
+                                        );
+                                      }
+                                      if (col.type === "text") {
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <input
+                                              type="text"
+                                              className="w-100 form-control"
+                                              value={value}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Yarn_Dyeing_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#YarnDyeingTable");
+                                              }}
+                                            />
+                                          </td>
+                                        );
+                                      }
+                                      if (col.type === "select") {
+                                        let options = [];
+
+                                        if (col.field === "ProcessName") {
+                                          options = processValues;
+                                        } else if (col.field === "YarDyeYesNo") {
+                                          options = [
+                                            { value: "NO", label: "NO" },
+                                            { value: "YES", label: "YES" },
+                                          ];
+                                        }
+
+                                        return (
+                                          <td key={colIndex} className="p-0" style={commonStyle}>
+                                            <select
+                                              className="w-100 form-select"
+                                              disabled={col.disabled}
+                                              value={value}
+                                              onChange={(e) => handle_Yarn_Dyeing_Change(e, RowIndex, RowIndex + 1, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#YarnDyeingTable");
+                                              }}
+                                            >
+                                              <option value={""}></option>
+                                              {options.map((item, i) => (
+                                                <option key={i} value={item.value ?? item.asptblprogroseqmasid}>
+                                                  {item.label ?? item.processgroup}
+                                                </option>
+                                              ))}
+                                            </select>
+                                          </td>
+                                        );
+                                      }
+                                      if (col.type === "img") {
+                                        return (
+                                          <td key={colIndex} style={commonStyle} className="p-0 m-0">
+                                            <img
+                                              src={imagebutton}
+                                              alt="edit"
+                                              tabIndex={0}
+                                              className="p-0 m-0"
+                                              style={commonStyle}
+                                              onClick={() => handle_PopupYarnDyeing_Details(row, RowIndex)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#YarnDyeingTable");
+                                              }}
+                                            ></img>
+                                          </td>
+                                        );
+                                      }
+
+                                      if (col.type === "button") {
+                                        return (
+                                          <td key={colIndex} style={commonStyle}>
+                                            <button
+                                              style={{ width: 0, margin: "0", padding: "0" }}
+                                              disabled={col.disabled}
+                                              onFocus={() => handleAddRow(row.RowIndex, Number(RowIndex), fabyarn_yarn_dyeingValues, PopUpDy_Details_NewRow, setFabyarn_yarn_dyeingValues)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#YarnDyeingTable");
+                                              }}
+                                            ></button>
+                                          </td>
+                                        );
+                                      }
+                                      return null;
+                                    })}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </PopupYarnDyeing>
+                  <PopupYarnDyeingColor
+                    show={yarnDyeingColShowPopup}
+                    onClose={() => setYarnDyeingColShowPopup(false)}
+                    title={`${sequence} Yarn Dyed Color Details`}
+                    foreValue={foreValue}
+                    colorValue={colorValue}
+                    handlePopupPopulate={handle_Yarn_PopupYarnDyeingColor}
+                    handlePopupSave={handle_Yarn_PopupYarnDyeingColor_Save}
+                    handlePopupClear={handle_Yarn_PopupYarnDyeingColor_Clear}
+                    button1={"POPULATE"}
+                    button2={"SAVE"}
+                    button3={"CLEAR"}
+                  >
+                    <div className="row animate-zoom" style={{ height: "300px", width: "auto" }}>
+                      <div className="table-responsive">
+                        <div className="table-responsive" style={{ maxHeight: "300px", overflow: "auto" }}>
+                          <table className="table table-bordered table-sm align-middle mb-0 " id="PopupYarnDyeingColor">
+                            <thead
+                              style={{
+                                backgroundColor: `${colorValue}`,
+                                color: `${foreValue}`,
+                                position: "sticky",
+                                top: 0,
+                                zIndex: 10,
+                              }}
+                            >
+                              <tr>
+                                {fabyarn_Yarn_DyingColorHeaders
+                                  .filter((col) => col.visible)
+                                  .map((col) => {
+                                    return (
+                                      <th
+                                        key={col.field}
+                                        style={{
+                                          width: col.widths,
+                                          fontFamily: "Roboto",
+                                          fontSize: "var(--bs-font-sm)",
+                                          backgroundColor: `${colorValue}`,
+                                          color: `${foreValue}`,
+                                          padding: "0",
+                                          margin: "0",
+                                        }}
+                                        className="p-2"
+                                      >
+                                        {col.label}
+                                      </th>
+                                    );
+                                  })}
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {fabyarn_yarn_dyeingColorValues.map((row, RowIndex) => (
+                                <tr key={RowIndex}>
+                                  {fabyarn_Yarn_DyingColorHeaders
+                                    .filter((col) => col.visible)
+                                    .map((col, colIndex) => {
+                                      const value = row[col.field] || "";
+                                      const commonStyle = { width: col.widths, padding: "0", margin: "0", height: col.heights ?? 0, alignItems: col.alignItems };
+                                      if (col.field === "SNo") {
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <input
+                                              type="text"
+                                              width={col.widths}
+                                              className="w-100 form-control"
+                                              value={Number(RowIndex + 1)}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Yarn_Dyeing_Color_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#PopupYarnDyeingColor");
+                                              }}
+                                            />
+                                          </td>
+                                        );
+                                      }
+                                      if (col.field === "RowIndex") {
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle} width={col.widths}>
+                                            <input
+                                              type="text"
+                                              width={col.widths}
+                                              className="w-100 form-control"
+                                              value={sequence}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Yarn_Dyeing_Color_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#PopupYarnDyeingColor");
+                                              }}
+                                            />
+                                          </td>
+                                        );
+                                      }
+                                      if (col.type === "text") {
+                                        return (
+                                          <td key={colIndex} className="p-0 m-0" style={commonStyle}>
+                                            <input
+                                              type="text"
+                                              width={col.widths}
+                                              className="w-100 form-control"
+                                              value={value}
+                                              disabled={col.disabled}
+                                              onChange={(e) => handle_Yarn_Dyeing_Color_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#PopupYarnDyeingColor");
+                                              }}
+                                            />
+                                          </td>
+                                        );
+                                      }
+                                      if (col.type === "select") {
+                                        let options = [];
+
+                                        if (col.field === "PortionColor") {
+                                          options = colors;
+                                        }
+                                        if (col.field === "YarnProColor") {
+                                          options = colors;
+                                        }
+
+                                        return (
+                                          <td key={colIndex} className="p-0" style={commonStyle}>
+                                            <select
+                                              className="w-100 form-select"
+                                              width={col.widths}
+                                              disabled={col.disabled}
+                                              value={value}
+                                              onChange={(e) => handle_Yarn_Dyeing_Color_Change(e, RowIndex, col.field)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#PopupYarnDyeingColor");
+                                              }}
+                                            >
+                                              {options.map((item, i) => (
+                                                <option key={i} value={item.asptblcolmasid ?? item.asptblcolmasid}>
+                                                  {item.colorname ?? item.colorname}
+                                                </option>
+                                              ))}
+                                            </select>
+                                          </td>
+                                        );
+                                      }
+
+                                      if (col.type === "button") {
+                                        return (
+                                          <td key={colIndex} style={commonStyle}>
+                                            <button
+                                              style={{ margin: "0", padding: "0" }}
+                                              disabled={col.disabled}
+                                              width={col.widths}
+                                              onFocus={() => handleAddRow(row.RowIndex, Number(RowIndex), fabyarn_yarn_dyeingColorValues, PopUpDy_Co_Details_NewRow, setFabyarn_yarn_dyeingColorValues)}
+                                              // onFocus={() => handle_YarDyeing_Color_AddRow(RowIndex)}
+                                              onKeyDown={(e) => {
+                                                handleEnterFocus(e, "#PopupYarnDyeingColor");
+                                              }}
+                                            ></button>
+                                          </td>
+                                        );
+                                      }
+
+                                      return null;
+                                    })}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </PopupYarnDyeingColor>
+                  {/* <PopupProcess
                     show={processShowPopup}
                     onClose={() => setProcessShowPopup(false)}
                     title={`${yarnRowindex} Process  Details`}

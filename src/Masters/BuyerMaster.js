@@ -212,13 +212,14 @@ const BuyerMaster = ({ title, subTitle }) => {
 
   const heights = "380px";
   const BuyerMasterColumn = [
-    { headername: "", field: "none" },
-    { headername: "ID", field: "asptblbuymasid" },
-    { headername: "Code", field: "buyercode" },
-    { headername: "Buyer", field: "buyername" },
-    { headername: "Agent", field: "buyingagent" },
-    { headername: "City", field: "cityname" },
-    { headername: "Active", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "false" },
+    { headername: "ID", field: "asptblbuymasid", visible: "false" },
+    { headername: "Code", field: "buyercode", visible: "true" },
+    { headername: "Buyer", field: "buyername", visible: "true" },
+    { headername: "Agent", field: "buyingagent", visible: "true" },
+    { headername: "City", field: "cityname", visible: "true" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   const BuyerMasterCheck = async (row) => {

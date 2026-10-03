@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import useAxiosFetch from "../hooks/useFetch";
 import Label from "../Custom/Label";
 import Table from "../Custom/Table";
@@ -6,6 +6,7 @@ import Search from "../Custom/Search";
 import DataTable from "../Custom/DataTable";
 import axios from "axios";
 import DataContext from "../context/CreateTreeViewContext";
+import CustomSelect from "../Custom/CustomSelect";
 import { toast } from "react-toastify";
 const NavigationMaster = ({ title, subTitle }) => {
   const {
@@ -58,16 +59,16 @@ const NavigationMaster = ({ title, subTitle }) => {
   const [searchUserName, setSearchUserName] = useState([]);
   const [userRights1, setUserRights1] = useState([]);
   const HeadersColumn = [
-    { headername: "S.No", field: "SNo" },
-    { headername: "", field: "none" },
-    { headername: "id", field: "menuid" },
-    { headername: "MenuName", field: "menuname" },
-    { headername: "NavUrl", field: "navurl" },
-    { headername: "ParentMenuID", field: "parentmenuid" },
-    { headername: "MenuNameID", field: "menunameid" },
-    { headername: "CompCode", field: "compcode" },
-    { headername: "UserName", field: "username" },
-    { headername: "Active", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "true" },
+    { headername: "id", field: "menuid", visible: "false" },
+    { headername: "MenuName", field: "menuname", visible: "true" },
+    { headername: "NavUrl", field: "navurl", visible: "true" },
+    { headername: "ParentMenuID", field: "parentmenuid", visible: "true" },
+    { headername: "MenuNameID", field: "menunameid", visible: "false" },
+    { headername: "CompCode", field: "compcode", visible: "false" },
+    { headername: "UserName", field: "username", visible: "false" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   useEffect(() => {
@@ -231,6 +232,27 @@ const NavigationMaster = ({ title, subTitle }) => {
     return computedComments.slice((currentPage - 1) * ITEM_PER_PAGE, (currentPage - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE);
   }, [navi_Items, currentPage, navi_naviSearch, sorting]);
 
+  const refs = useRef([]);
+  const handleEnter = (e, index) => {
+    const { name } = e.target;
+
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      refs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleFocus = (e) => {
+    e.target.style.backgroundColor = `${colorValue}`;
+    e.target.style.color = `${"var(--bs-light)"}`;
+    e.target.style.fontWeight = "bolder";
+  };
+
+  const handleBlur = (e) => {
+    e.target.style.backgroundColor = "";
+    e.target.style.color = `${"var(--bs-dark)"}`;
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       {userRights1.length >= 1 && (
@@ -352,14 +374,33 @@ const NavigationMaster = ({ title, subTitle }) => {
                   </div>
                   <div className="row">
                     <Label className={`col-md-4`} labelName={"MenuNameID"}></Label>
-                    <select className="col-md-7" name="menunameid" value={naviValues.menunameid || ""} onChange={handleChange}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="menunameid"
+                      value={naviValues.menunameid || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={2}
+                      ref={(el) => (refs.current[2] = el)}
+                      onKeyDown={(e) => handleEnter(e, 2)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      {navi_menuItems.map((result, index) => (
+                        <option key={index} value={result.menunameid}>
+                          {result.menuname}
+                        </option>
+                      ))}
+                    </CustomSelect>
+                    {/* <select className="col-md-7" name="menunameid" value={naviValues.menunameid || ""} onChange={handleChange}>
                       <option></option>
                       {navi_menuItems.map((result, index) => (
                         <option key={index} value={result.menunameid}>
                           {result.menuname}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row py-1">
                     <label className="col-md-4">MenuName</label>
@@ -378,25 +419,63 @@ const NavigationMaster = ({ title, subTitle }) => {
 
                   <div className="row">
                     <label className="col-md-4">CompCode</label>
-                    <select className="col-md-7" name="compcode" value={naviValues.compcode || ""} onChange={handleChange}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="compcode"
+                      value={naviValues.compcode || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={2}
+                      ref={(el) => (refs.current[2] = el)}
+                      onKeyDown={(e) => handleEnter(e, 2)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      {compcodeData.map((result, index) => (
+                        <option key={index} value={result.gtcompmastid}>
+                          {result.compcode}
+                        </option>
+                      ))}
+                    </CustomSelect>
+                    {/* <select className="col-md-7" name="compcode" value={naviValues.compcode || ""} onChange={handleChange}>
                       <option></option>
                       {compcodeData.map((result, index) => (
                         <option key={index} value={result.gtcompmastid}>
                           {result.compcode}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row py-1">
                     <Label className={`col-md-4`} labelName={"UserName"}></Label>
-                    <select className="col-md-7" name="username" value={naviValues.username || ""} onChange={handleChange}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="username"
+                      value={naviValues.username || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={2}
+                      ref={(el) => (refs.current[2] = el)}
+                      onKeyDown={(e) => handleEnter(e, 2)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      {userData.map((result, index) => (
+                        <option key={index} value={result.userid}>
+                          {result.username}
+                        </option>
+                      ))}
+                    </CustomSelect>
+                    {/* <select className="col-md-7" name="username" value={naviValues.username || ""} onChange={handleChange}>
                       <option></option>
                       {userData.map((result, index) => (
                         <option key={index} value={result.userid}>
                           {result.username}
                         </option>
                       ))}{" "}
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row">
                     <label className="col-md-4"> Active </label>

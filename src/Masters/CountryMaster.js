@@ -226,23 +226,6 @@ const CountryMaster = ({ title, subTitle }) => {
     return computedComments.slice((currentPage - 1) * ITEM_PER_PAGE, (currentPage - 1) * ITEM_PER_PAGE + ITEM_PER_PAGE);
   }, [items, currentPage, search, sorting]);
 
-  const menuButtons = [
-    { key: "news", label: "News", action: CountryMasterNew },
-    { key: "saves", label: "Save", action: CountryMaster_Save },
-    { key: "deletes", label: "Delete", action: CountryMaster_Delete },
-    { key: "searches", label: "Search", action: CountryMasterNew },
-    { key: "prints", label: "Prints", action: CountryMasterNew },
-    { key: "treebutton", label: "TreeButton", action: CountryMasterNew },
-    { key: "globalsearch", label: "Globalsearch", action: CountryMasterNew },
-    { key: "login", label: "Login", action: CountryMasterNew },
-    { key: "changepassword", label: "Changepassword", action: CountryMasterNew },
-    { key: "changeskin", label: "Changeskin", action: CountryMasterNew },
-    { key: "contact", label: "Contact", action: CountryMasterNew },
-    { key: "pdf", label: "Pdf", action: CountryMasterNew },
-    { key: "import", label: "Import", action: CountryMasterNew },
-    { key: "download", label: "Download", action: CountryMasterNew },
-  ];
-
   return (
     <div onSubmit={handleSubmit}>
       {userRights.length > 0 && (

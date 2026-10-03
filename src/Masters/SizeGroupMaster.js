@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import "../ContextMenu.css";
 import ContextMenu from "../ContextMenu";
 import ActionButtton from "../ActionButtton";
+import CustomSelect from "../Custom/CustomSelect";
 
 const SizeGroupMaster = ({ title, subTitle }) => {
   const {
@@ -45,8 +46,6 @@ const SizeGroupMaster = ({ title, subTitle }) => {
     setsizeGroupDetails,
     setLoading,
     loading,
-    fetchError,
-    setFetchError,
     contextMenu,
     setContextMenu,
   } = useContext(DataContext);
@@ -55,10 +54,11 @@ const SizeGroupMaster = ({ title, subTitle }) => {
   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
   const insert_update = `${API_URL}/SizeGroupMasters`;
   const SizeParam = `${API_URL}/SizeMasters`;
-
+  const [fetchError, setFetchError] = useState(null);
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState([]);
-
+  const [checkall, setCheckAll] = useState(false);
+  const [checkchild, setCheckchild] = useState(false);
   const [search, setSearch] = useState("");
   const [items, setItems] = useState([]);
   const [sizeItems, setSizeItems] = useState([]);
@@ -66,7 +66,26 @@ const SizeGroupMaster = ({ title, subTitle }) => {
   const [sizeGroupGrid, setSizeGroupGrid] = useState([]);
 
   setNewButton(1);
+  const refs = useRef([]);
+  const handleEnter = (e, index) => {
+    const { name } = e.target;
 
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      refs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleFocus = (e) => {
+    e.target.style.backgroundColor = `${colorValue}`;
+    e.target.style.color = `${"var(--bs-light)"}`;
+    e.target.style.fontWeight = "bolder";
+  };
+
+  const handleBlur = (e) => {
+    e.target.style.backgroundColor = "";
+    e.target.style.color = `${"var(--bs-dark)"}`;
+  };
   let validcheck = true;
 
   const validate = (sizeGroupValues) => {
@@ -88,6 +107,7 @@ const SizeGroupMaster = ({ title, subTitle }) => {
       try {
         setLoading(true);
         const [rightsRes, sizeGroupRes, sizeRes] = await Promise.all([axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`), axios.get(insert_update), axios.get(SizeParam)]);
+
         if (!isMounted) return;
         setUserRights(rightsRes.data || []);
         setItems(sizeGroupRes.data || []);
@@ -111,10 +131,11 @@ const SizeGroupMaster = ({ title, subTitle }) => {
   }, [items, search]);
 
   const HeadersColumn = [
-    { headername: "", field: "visible" },
-    { headername: "id", field: "asptblsizgrpid" },
-    { headername: "SizeGroup", field: "sizegroup" },
-    { headername: "Active", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "false" },
+    { headername: "id", field: "asptblsizgrpid", visible: "false" },
+    { headername: "SizeGroup", field: "sizegroup", visible: "true" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   const heights = "420px";
@@ -124,6 +145,7 @@ const SizeGroupMaster = ({ title, subTitle }) => {
       setSizeGroupValues({ asptblsizgrpid: id.asptblsizgrpid, sizegroup: id.sizegroup, active: id.active === "T" });
       if (id.asptblsizgrpid > 0) {
         var res = await axios.get(`${insert_update}/${id.asptblsizgrpid}`);
+
         setsizeGroupDetails(res?.data);
       }
     } catch (err) {
@@ -258,13 +280,6 @@ const SizeGroupMaster = ({ title, subTitle }) => {
       };
     });
   };
-  const refs = useRef([]);
-  const handleEnter = (e, index) => {
-    if (e.key === "Enter" || e.key === "Tab") {
-      e.preventDefault();
-      refs.current[index + 1]?.focus();
-    }
-  };
 
   const handleInputChange = (index, e) => {
     const { name, value } = e.target;
@@ -359,7 +374,7 @@ const SizeGroupMaster = ({ title, subTitle }) => {
       {
         asptblsizgrpDetid: "",
         sizeGroupGrid: "",
-        sizename: "",
+        Sizename: "",
         sizeGroupRow: "",
       },
     ]);
@@ -398,25 +413,25 @@ const SizeGroupMaster = ({ title, subTitle }) => {
                   <div className="p-2 text-center" style={{ backgroundColor: colorValue, color: foreValue }}>
                     {title}
                   </div>
-                  <div className="col-12 col-lg-6 my-3" style={{ backgroundColor: foreValue }}>
+                  <div className="col-3 col-lg-3 my-3" style={{ backgroundColor: foreValue }}>
                     <div className="container-fluid">
                       <div className="row mb-2 d-none">
-                        <label className="col-4 col-md-2">ID</label>
-                        <div className="col-8 col-md-4">
+                        <label className="col-6">ID</label>
+                        <div className="col-6">
                           <input type="text" className="form-control" name="asptblsizgrpid" value={sizeGroupValues.asptblsizgrpid} readOnly />
                         </div>
                       </div>
 
                       <div className="row mb-2">
-                        <label className="col-4 col-md-2">SizeGroup</label>
-                        <div className="col-8 col-md-6">
+                        <label className="col-6 ">SizeGroup</label>
+                        <div className="col-6">
                           <input type="text" className="form-control" name="sizegroup" value={sizeGroupValues.sizegroup} onChange={handleChange} />
                         </div>
                       </div>
 
                       <div className="row mb-2 align-items-center">
-                        <label className="col-4 col-md-2">Active</label>
-                        <div className="col-8 col-md-6">
+                        <label className="col-6">Active</label>
+                        <div className="col-6">
                           <input type="checkbox" className="form-check-input" name="active" checked={sizeGroupValues.active} onChange={handleChange} />
                         </div>
                       </div>
@@ -424,8 +439,8 @@ const SizeGroupMaster = ({ title, subTitle }) => {
 
                     <div className="table-responsive mt-3">
                       <div className="table-responsive">
-                        <table className="table   align-middle" style={{ width: "50%" }}>
-                          <thead style={{ backgroundColor: colorValue, color: foreValue }}>
+                        <table className="table table-bordered table-sm align-middle mb-0 " id="ComboTable">
+                          <thead style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, position: "sticky" }}>
                             <tr>
                               <th style={{ backgroundColor: colorValue, color: foreValue, textAlign: "center" }}>S.No</th>
                               <th style={{ backgroundColor: colorValue, color: foreValue, textAlign: "center" }}>Size Name</th>
@@ -438,7 +453,7 @@ const SizeGroupMaster = ({ title, subTitle }) => {
                                 <td style={{ margin: "0px", padding: "0px", textAlign: "center" }}>{index + 1}</td>
                                 <input type="hidden" value={row.asptblsizgrpDetid} />{" "}
                                 <td style={{ margin: "0px", padding: "0px" }}>
-                                  <select className="col-sm-12 col-md-12 col-lg-12 p-1" name="sizename" value={row.sizename} onChange={(e) => handleInputChange(index, e)}>
+                                  <select className="w-100 no-arrow p-1" name="sizename" value={row.asptblsizmasid} onChange={(e) => handleInputChange(index, e)}>
                                     <option value=""></option>
                                     {sizeItems?.map((item, i) => (
                                       <option key={i} value={item.asptblsizmasid}>
@@ -446,6 +461,26 @@ const SizeGroupMaster = ({ title, subTitle }) => {
                                       </option>
                                     ))}
                                   </select>
+
+                                  {/* <CustomSelect
+                                    visible="block"
+                                    className="col-12 form-select"
+                                    name="sizename"
+                                    value={row.asptblsizmasid || ""}
+                                    onChange={(e) => handleInputChange(index, e)}
+                                    colorValue={colorValue}
+                                    tabIndex={10}
+                                    ref={(el) => (refs.current[10] = el)}
+                                    onKeyDown={(e) => handleEnter(e, 10)}
+                                    onFocus={handleFocus}
+                                    onBlur={handleBlur}
+                                  >
+                                    {sizeItems.map((buyer) => (
+                                      <option key={buyer.asptblsizmasid} value={buyer.asptblsizmasid}>
+                                        {buyer.sizename}
+                                      </option>
+                                    ))}
+                                  </CustomSelect> */}
                                 </td>
                               </tr>
                             ))}
@@ -455,8 +490,8 @@ const SizeGroupMaster = ({ title, subTitle }) => {
                       </div>
                     </div>
                   </div>
-
-                  <div className="col-12 col-lg-6 mb-3" style={{ backgroundColor: foreValue }}>
+                  <div className="col-6 col-lg-6 my-3" style={{ backgroundColor: foreValue }}></div>
+                  <div className="col-3 col-lg-3 mb-3" style={{ backgroundColor: foreValue, textAlign: "right" }}>
                     <div className="p-2 text-center" style={{ color: colorValue }}>
                       {subTitle}
                     </div>
@@ -464,10 +499,10 @@ const SizeGroupMaster = ({ title, subTitle }) => {
                     <DataTable
                       heights={heights}
                       colorValue={colorValue}
-                      foreValue={foreValue}
                       headers={HeadersColumn}
                       comments={items}
                       setComments={setItems}
+                      foreValue={foreValue}
                       searches={search}
                       setSearches={setSearch}
                       totalItems={totalItems}
@@ -479,6 +514,10 @@ const SizeGroupMaster = ({ title, subTitle }) => {
                       ITEM_PER_PAGE={ITEM_PER_PAGE}
                       EditData={SizeGropupMaster_Check}
                       commentsData={commentsData}
+                      checkchild={checkchild}
+                      setCheckchild={setCheckchild}
+                      checkall={checkall}
+                      setCheckAll={setCheckAll}
                     />
                   </div>
                 </div>
