@@ -25,10 +25,11 @@ const CurrencyMaster = ({ title, subTitle }) => {
   const [searchCompCode, setSearchCompCode] = useState([]);
   const [searchUserName, setSearchUserName] = useState([]);
   const HeadersColumn = [
-    { headername: "ID", field: "asptblcurmasid" },
-    { headername: "Currency", field: "currency" },
-    { headername: "Symbol", field: "symbol" },
-    { headername: "Active", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "ID", field: "asptblcurmasid", visible: "true" },
+    { headername: "Currency", field: "currency", visible: "true" },
+    { headername: "Symbol", field: "symbol", visible: "true" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   const heights = "420px";

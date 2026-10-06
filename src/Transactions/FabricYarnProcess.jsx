@@ -274,14 +274,15 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     }));
   };
   const FabYarnProcessColumn = [
-    { headername: "", field: "none" },
-    { headername: "ID", field: "asptblFabYarId" },
-    { headername: "COMPCODE", field: "compcode" },
-    { headername: "ORDERNO", field: "orderNo" },
-    { headername: "DATE", field: "orderDate" },
-    { headername: "STYLEREFNO", field: "styleRefNo" },
-    { headername: "ORDERQTY", field: "orderQty" },
-    { headername: "ACTIVE", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "true" },
+    { headername: "ID", field: "asptblFabYarId", visible: "true" },
+    { headername: "COMPCODE", field: "compcode", visible: "true" },
+    { headername: "ORDERNO", field: "orderNo", visible: "true" },
+    { headername: "DATE", field: "orderDate", visible: "true" },
+    { headername: "STYLEREFNO", field: "styleRefNo", visible: "true" },
+    { headername: "ORDERQTY", field: "orderQty", visible: "true" },
+    { headername: "ACTIVE", field: "active", visible: "true" },
   ];
   const commentsData = useMemo(() => {
     const keyword = String(fabyarn_Search || "").toLowerCase();
@@ -658,6 +659,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     updated[index]["RowIndex"] = index;
     updated[index][field] = value;
     setFabYarn_DetValues(updated);
+    alert(JSON.stringify(fabyarn_DetValues));
   };
 
   const initialFabYarnDetailsHeaders = [
@@ -918,20 +920,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const [popup_Yarn_DataCopy, setPopup_Yarn_DataCopy] = useState([]);
   const [popup_Process_DataCopy, setPopup_Process_DataCopy] = useState([]);
 
-  // const handle_Combo_Change = (e, RowIndex, SNos, field) => {
-  //   const value = e.target.value;
-  //   setFabYarn_Combo_Values((prev) =>
-  //     prev.map((item, index) =>
-  //       index === Number(RowIndex) || Number(item.SNo) === Number(SNos) || Number(item.Combo) === Number(value)
-  //         ? {
-  //             ...item,
-  //             [field]: value,
-  //           }
-  //         : "",
-  //     ),
-  //   );
-  // };
-
   const handle_Combo_Change = (e, RowIndex, SNos, field) => {
     const value = e.target.value;
 
@@ -966,38 +954,18 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     Notes: "",
     All: false,
   };
-
   const handle_Combo_Details = (row, RowIndex) => {
     setComboShowPopup(true);
+
     const finid = Number(RowIndex);
     setSquence(finid);
-    if (allPopup_Combo_DataCopy.length > 1) {
-      const rowData = allPopup_Combo_DataCopy.filter((item) => Number(item.RowIndex) === finid && Number(item.Combo) > 0);
-      if (rowData.length === 0) {
-        setFabYarn_Combo_Values([]);
-        setFabYarn_Combo_Values([Combo_newRow]);
-      } else {
-        setFabYarn_Combo_Values(rowData);
-      }
-    } else {
-      const filteredData = allPopup_Combo_DataCopy.filter((item) => Number(item.RowIndex) === finid);
-      if (filteredData.length === 0) {
-        setFabYarn_Combo_Values([]);
-        // const newRow = {
-        //   SNo: 1,
-        //   RowIndex: 0,
-        //   AsptblFabYarComId: 0,
-        //   AsptblFabYarDetId: 0,
-        //   AsptblFabYarId: 0,
-        //   Combo: 0,
-        //   Notes: "",
-        //   All: false,
-        // };
 
-        setFabYarn_Combo_Values([Combo_newRow]);
-      } else {
-        setFabYarn_Combo_Values(filteredData);
-      }
+    const rowData = allPopup_Combo_DataCopy.filter((item) => Number(item.RowIndex) === finid && Number(item.Combo) > 0);
+
+    if (rowData.length === 0) {
+      setFabYarn_Combo_Values([Combo_newRow]);
+    } else {
+      setFabYarn_Combo_Values(rowData);
     }
   };
 
@@ -1146,20 +1114,21 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     setGramShowPopup(true);
     const finid = Number(RowIndex);
     setSquence(finid);
-    if (allPopup_Gram_DataCopy.length > 1) {
-      const rowData = allPopup_Gram_DataCopy.filter((item) => Number(item.RowIndex) === finid);
-      if (rowData.length === 0) {
-        setFabYarn_Gram_Values([]);
-        const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, finid, sizeGroupItems);
-        setFabYarn_Gram_Values(newrow);
-      } else {
-        setFabYarn_Gram_Values(rowData);
-      }
+    const rowData = allPopup_Gram_DataCopy.filter((item) => Number(item.RowIndex) === finid);
+    let gramRows;
+
+    if (rowData.length === 0) {
+      gramRows = createFabyarnGramRows(allPopup_Combo_DataCopy, finid, sizeGroupItems);
     } else {
-      setFabYarn_Gram_Values([]);
-      const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, finid, sizeGroupItems);
-      setFabYarn_Gram_Values(newrow);
+      gramRows = rowData;
     }
+
+    const updated = gramRows.map((item) => ({
+      ...item,
+      CadWt: row.CadWt,
+    }));
+
+    setFabYarn_Gram_Values(updated);
   };
 
   const handle_PopupGram_Save = () => {
@@ -1285,22 +1254,34 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   };
 
   const handle_Yarn_Details = (row, RowIndex) => {
-    setSquence(RowIndex);
     const finid = Number(RowIndex);
+
     setSquence(finid);
-    if (popup_Yarn_DataCopy.length > 1) {
-      setFabYarn_Yarn_Values([]);
-      const rowData = popup_Yarn_DataCopy.filter((item, index) => Number(item.RowIndex) === finid);
-      if (rowData.length === 0) {
-        setFabYarn_Yarn_Values([Yarn_NewRow]);
-      } else {
-        setFabYarn_Yarn_Values(rowData);
-      }
-    } else {
-      setFabYarn_Yarn_Values([Yarn_NewRow]);
-    }
     setYarnShowPopup(true);
+
+    const rowData = popup_Yarn_DataCopy.filter((item) => Number(item.RowIndex) === finid);
+
+    setFabYarn_Yarn_Values(rowData.length > 0 ? rowData : [Yarn_NewRow]);
   };
+
+  // const handle_Yarn_Details = (row, RowIndex) => {
+  //   setSquence(RowIndex);
+
+  //   const finid = Number(RowIndex);
+  //   setSquence(finid);
+  //   if (popup_Yarn_DataCopy.length > 1) {
+  //     setFabYarn_Yarn_Values([]);
+  //     const rowData = popup_Yarn_DataCopy.filter((item, index) => Number(item.RowIndex) === finid);
+  //     if (rowData.length === 0) {
+  //       setFabYarn_Yarn_Values([Yarn_NewRow]);
+  //     } else {
+  //       setFabYarn_Yarn_Values(rowData);
+  //     }
+  //   } else {
+  //     setFabYarn_Yarn_Values([Yarn_NewRow]);
+  //   }
+  //   setYarnShowPopup(true);
+  // };
 
   const Yarn_NewRow = {
     SNo: 0,
@@ -1805,7 +1786,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                           className="p-2"
                                         >
                                           {col.label}
-
                                           <span
                                             onMouseDown={(e) => handleResizeStart(e, col.field, fabyarn_Details_Headers, setFabYarn_Details_Headers)}
                                             style={{
@@ -2086,6 +2066,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                           </td>
                                         );
                                       }
+
                                       if (col.type === "text") {
                                         return (
                                           <td key={colIndex} className="text-center p-0" style={{ width: col.widths, margin: "0", padding: "0" }}>
@@ -2438,6 +2419,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                           </td>
                                         );
                                       }
+
                                       // SELECT
                                       if (col.type === "select") {
                                         let options = [];

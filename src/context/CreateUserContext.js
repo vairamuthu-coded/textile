@@ -372,15 +372,8 @@ export const DataProvider = ({
   };
 
   const [order, setOrder] = useState({ CategorySelected: [] });
-  const orderSizeHeaders = [
-    { field: "sNo", label: "SNo", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "asptblordSizId", label: "AsptblOrdSizid", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
-    { field: "asptblOrdId", label: "AsptblOrdid", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "sizename", label: "SizeName", visible: true, type: "select", widths: "250px", pattern: "", disabled: true },
-    { field: "buyerPrice", label: "BuyerPrice", visible: true, type: "text", widths: "250px", pattern: "", disabled: false },
-    { field: "notes", label: "Notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
-  ];
-  const [orderSizeValues, setOrderSizeValues] = useState([{ asptblOrdSizId: "", asptblOrdId: "", sizename: "", buyerPrice: "", notes: "" }]);
+
+  const [orderSizeValues, setOrderSizeValues] = useState([{ asptblOrdSizId: "", asptblOrdId: "", asptblsizmasid: "", buyerPrice: "", notes: "" }]);
 
   const [orderOrdValues, setOrderOrdValues] = useState([
     { sNo: "", asptblordColId: "", asptblOrdId: "", styleGroup: "", bPono: "", bPoDate: "", combo: "", color: "", ratioYN: "", ratio: "", ratio: "", colorQty: "", totalQty: "", styleDetails: "", notes: "" },
@@ -396,11 +389,11 @@ export const DataProvider = ({
       asptblordColId: 0,
       asptblOrdId: 0,
       styleitem: 0,
-      sizename: 0,
-      assortQty: "",
-      shipQty: "",
-      excessQty: "",
-      prodQty: "",
+      asptblsizmasid: 0,
+      assortQty: 0,
+      shipQty: 0,
+      excessQty: 0,
+      prodQty: 0,
       notes: "",
     },
   ]);

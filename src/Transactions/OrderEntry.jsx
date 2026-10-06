@@ -15,6 +15,7 @@ import ImageUploader from "../Custom/ImageUploader.jsx";
 import Search from "../Custom/Search.js";
 import DataTable from "../Custom/DataTable.js";
 import TabNav from "../component/TabNav.js";
+import CustomSelect from "../Custom/CustomSelect.jsx";
 const OrderEntry = ({ title, subTitle }) => {
   const {
     API_URL,
@@ -87,7 +88,8 @@ const OrderEntry = ({ title, subTitle }) => {
   const StyleItemMastersParams = `${API_URL}/StyleItemMasters`;
   const [popupType, setPopupType] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-
+  const [checkall, setCheckAll] = useState(false);
+  const [checkchild, setCheckchild] = useState(false);
   const [userRights1, setUserRights1] = useState([]);
   const [items, setItems] = useState([]);
   const [finYearItems, setFinYearItems] = useState([]);
@@ -168,6 +170,26 @@ const OrderEntry = ({ title, subTitle }) => {
     fetchData();
   }, [defaultDetails?.Compcode, defaultDetails?.User, title]);
 
+  const refs = useRef([]);
+  const handleEnter = (e, index) => {
+    const { name } = e.target;
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      refs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleFocus = (e) => {
+    e.target.style.backgroundColor = `${colorValue}`;
+    e.target.style.color = `${"var(--bs-light)"}`;
+    e.target.style.fontWeight = "bolder";
+  };
+
+  const handleBlur = (e) => {
+    e.target.style.backgroundColor = "";
+    e.target.style.color = `${"var(--bs-dark)"}`;
+  };
+
   useEffect(() => {
     const filterResult = orderEntryItem.filter((item) => item.compcode.includes(orderEntry_Search));
     setCompanyFilterSearch(filterResult.reverse());
@@ -194,51 +216,65 @@ const OrderEntry = ({ title, subTitle }) => {
       [name]: finalValue,
     }));
   };
-  const OrderEntryColumn = [
-    { headername: "", field: "none" },
-    { headername: "ID", field: "asptblOrdId" },
-    { headername: "COMPCODE", field: "compcode" },
-    { headername: "ORDERNO", field: "orderNo" },
-    { headername: "DATE", field: "orderDate" },
-    { headername: "STYLEREFNO", field: "styleRefNo" },
-    { headername: "ORDERQTY", field: "orderQty" },
-    { headername: "ACTIVE", field: "active" },
+  const HeaderColumn = [
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "true" },
+    { headername: "ID", field: "asptblOrdId", visible: "true" },
+    { headername: "COMPCODE", field: "compcode", visible: "true" },
+    { headername: "ORDERNO", field: "orderNo", visible: "true" },
+    { headername: "DATE", field: "orderDate", visible: "true" },
+    { headername: "STYLEREFNO", field: "styleRefNo", visible: "true" },
+    { headername: "ORDERQTY", field: "orderQty", visible: "true" },
+    { headername: "ACTIVE", field: "active", visible: "true" },
   ];
+
   const commentsData = useMemo(() => {
-    const keyword = String(orderEntry_Search || "").toLowerCase();
+    let computedComments = [...orderEntryItem];
 
-    // 1) FILTER
-    let filtered = orderEntryItem;
+    // Search
+    if (orderEntry_Search) {
+      const search = String(orderEntry_Search ?? "").toUpperCase();
 
-    if (keyword) {
-      filtered = orderEntryItem.filter((item) =>
-        String(item.compcode || "")
-          .toLowerCase()
-          .includes(keyword),
+      computedComments = computedComments.filter((item) =>
+        String(item.compcode ?? "")
+          .toUpperCase()
+          .includes(search),
       );
     }
 
-    // Update total count
-    setTotalItems(filtered.length);
+    // Total items
+    setTotalItems(computedComments.length);
 
-    // 2) SORT
+    // Sorting
     if (sorting.field) {
       const reversed = sorting.order === "asc" ? 1 : -1;
 
-      filtered = [...filtered].sort((a, b) => reversed * String(a[sorting.field] || "").localeCompare(String(b[sorting.field] || "")));
+      computedComments.sort((a, b) => {
+        const valueA = String(a[sorting.field] ?? "");
+        const valueB = String(b[sorting.field] ?? "");
+
+        return reversed * valueA.localeCompare(valueB);
+      });
     }
 
-    // 3) PAGINATION
-    const start = (currentPage - 1) * ITEM_PER_PAGE;
-    const end = start + ITEM_PER_PAGE;
+    // Pagination
+    const startIndex = (currentPage - 1) * ITEM_PER_PAGE;
 
-    return filtered.slice(start, end);
+    return computedComments.slice(startIndex, startIndex + ITEM_PER_PAGE);
   }, [orderEntryItem, currentPage, orderEntry_Search, sorting]);
 
   const OrderEntryCheck = async (row) => {
     try {
       const res = await axios.get(`${insert_update}/${row.asptblOrdId}`);
       const data = res.data[0];
+      if (data.asptblOrdId > 0) {
+        const SizGridres = await axios.get(`${insert_update}/${data.sizeTemplate}/${data.asptblOrdId}`);
+        setOrderSizeValues(SizGridres.data.sizeData);
+        setOrderOrdValues(SizGridres.data.colorData);
+        // setOrderPopUpValues(SizGridres.data.popSizData);
+        setPopupDataCopy(SizGridres.data.popSizData);
+        setOrdeShiValues(SizGridres.data.shippingData);
+      }
       if (data.asptblOrdId === 0) {
         toast.error("Invalid Data");
         return;
@@ -250,15 +286,23 @@ const OrderEntry = ({ title, subTitle }) => {
         filetype: data.filetype,
       });
 
+      const categorySelected = String(data.splCategory ?? "")
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .map((stylegroup) => styleGroupItems.find((item) => item.stylegroup === stylegroup))
+        .filter(Boolean);
+
       setOrder({
+        OrdLogo: ordimages.imagesrc,
         AsptblOrdId: Number(data.asptblOrdId) || 0,
-        Compcode: Number(defaultDetails.HCompcode) || 0,
-        FinYear: Number(order.finYear) || 0,
+        Compcode: Number(data.compcode) || 0,
+        FinYear: Number(data.finYear) || 0,
         FabType: data.fabType || "",
         Type: data.type || "",
         OrderType: data.orderType || "",
         OrderNo: data.orderNo || "",
-        OrderDate: data.orderDate || "",
+        OrderDate: data.orderDate ? data.orderDate.split("T")[0] : "",
         Buyer: data.buyer || "",
         BuyerAgent: data.buyerAgent || "",
         ShipingAgent: data.shipingAgent || "",
@@ -271,17 +315,17 @@ const OrderEntry = ({ title, subTitle }) => {
         ShipMode: data.shipMode || "",
         PayTerms: data.payTerms || "",
         DutyType: data.dutyType || "",
-        LCExpDate: data.lCExpDate || "",
+        LCExpDate: data.lcExpDate ? data.lcExpDate.split("T")[0] : "",
         ExShipAllowed: data.exShipAllowed || "",
         UnAssortAllowed: data.unAssortAllowed || "",
         Merchandiser: data.merchandiser || "",
         AsstMerch: data.asstMerch || "",
         Follower: data.follower || "",
         Currency: data.currency || "",
-        CunCrrentValue: data.currencyValue || "",
+        CunCurrentValue: data.cunCurrentValue || "",
         SizeTemplate: data.sizeTemplate || "",
         SampleNo: data.sampleNo || "",
-        SplCategory: data.categorySelected.map((item) => item.stylegroup).join(","),
+        CategorySelected: categorySelected,
       });
     } catch (error) {
       toast.error("-- " + error.message);
@@ -290,17 +334,23 @@ const OrderEntry = ({ title, subTitle }) => {
     }
   };
 
-  const OrderEntry_New = () => {
+  const OrderEntry_New = async () => {
     setNewButton(1);
-    // setOrderSizeValues([]);
-    // setOrderOrdValues([]);
-    // setOrdeShiValues([]);
-    //setOrderPopUpValues([]);
+    setOrder({ CategorySelected: [] });
+    setOrderSizeValues([orderSizeValues]);
+    setOrderOrdValues([orderOrdValues]);
+    setOrdeShiValues([ordeShiValues]);
+    setOrderPopUpValues([orderPopUpValues]);
+    setPopupDataCopy([popupDataCopy]);
+    const res = await axios.get(insert_update);
+    if (res?.data) {
+      setOrderEntryItem(res.data);
+    }
   };
 
   const ListData0 = {
     AsptblOrdId: Number(order.AsptblOrdId) || 0,
-    Compcode: Number(defaultDetails.HCompcode) || 0,
+    Compcode: 1,
     FinYear: Number(order.FinYear) || 0,
     FabType: order.FabType,
     Type: order.Type,
@@ -326,28 +376,27 @@ const OrderEntry = ({ title, subTitle }) => {
     AsstMerch: order.AsstMerch,
     Follower: order.Follower,
     Currency: order.Currency,
-    CunCrrentValue: order.CurrencyValue,
+    CunCurrentValue: order.CunCurrentValue,
     SizeTemplate: order.SizeTemplate,
     SampleNo: order.SampleNo,
     SplCategory: order.CategorySelected.map((item) => item.stylegroup).join(","),
-    Filetype: garimages.imagesrc,
+    Filetype: ordimages.imagesrc,
   };
 
   const ListData1 = (items = []) => {
     return items
-      .filter((obj) => obj.sizename && obj.sizename !== "")
+      .filter((obj) => obj.asptblsizmasid && obj.asptblsizmasid > 0)
       .map((obj, i) => {
         const price = parseFloat(obj.buyerPrice) || 0;
         var index = parseInt(i + 1);
         return {
           asptblOrdSizId: Number(obj.asptblOrdSizId) || 0,
           asptblOrdId: Number(obj.asptblOrdId) || 0,
-          sizename: Number(obj.sizename) || 0,
+          asptblsizmasid: Number(obj.asptblsizmasid) || 0,
           buyerPrice: price,
-          compcode: Number(obj.compcode) || 0,
+          compcode: Number(order.Compcode) || 0,
           notes: obj.notes?.trim() || "",
-          compcode: Number(defaultDetails.HCompcode) || 0,
-          rowIndex: index,
+          rowIndex: obj.rowIndex,
         };
       });
   };
@@ -369,7 +418,7 @@ const OrderEntry = ({ title, subTitle }) => {
         colorQty: Number(obj.colorQty) || 0,
         totalQty: Number(obj.totalQty) || 0,
         notes: obj.notes,
-        compcode: Number(defaultDetails.HCompcode) || 0,
+        compcode: Number(order.compcode) || 0,
       }));
   };
 
@@ -377,20 +426,19 @@ const OrderEntry = ({ title, subTitle }) => {
     return items
       .filter((obj) => obj.styleitem && obj.styleitem !== "")
       .map((obj, i) => {
-        var index = parseInt(i + 1);
         return {
           asptblOrdPopId: Number(obj.asptblOrdPopId) || 0,
           asptblordColId: Number(obj.asptblordColId) || 0,
           asptblOrdId: Number(obj.asptblOrdId) || 0,
           styleitem: Number(obj.styleitem) || 0,
-          sizename: Number(obj.sizename) || 0,
+          asptblsizmasid: Number(obj.asptblsizmasid) || 0,
           assortQty: Number(obj.assortQty) || 0,
           shipQty: Number(obj.shipQty) || 0,
           excessQty: Number(obj.excessQty) || 0,
           prodQty: Number(obj.prodQty) || 0,
           notes: obj.notes || "",
-          rowIndex: index,
-          compcode: Number(defaultDetails.HCompcode) || 0,
+          rowIndex: Number(obj.rowIndex),
+          compcode: Number(order.Compcode) || 0,
         };
       });
   };
@@ -414,7 +462,7 @@ const OrderEntry = ({ title, subTitle }) => {
           color: Number(obj.color) || 0,
           shipQty: Number(obj.shipQty) || 0,
           notes: obj.notes || "",
-          compcode: Number(defaultDetails.HCompcode) || 0,
+          compcode: Number(order.compcode) || 0,
         };
       });
   };
@@ -443,16 +491,13 @@ const OrderEntry = ({ title, subTitle }) => {
         OrdShi: ListData4(ordeShiValues),
       };
       const response = await axios.post(insert_update, payload);
-
       if (response.status === 200 || response.status === 201) {
         if (response.data?.error) {
           toast.error(response.data.error);
           return;
         }
 
-        setNewButton(1);
         toast.success("Record Saved Successfully");
-        OrderEntry_New();
       } else {
         toast.error("Failed to save data");
       }
@@ -460,6 +505,8 @@ const OrderEntry = ({ title, subTitle }) => {
       toast.error(err?.response?.data?.message || err.message || "Error saving data");
     } finally {
       setLoading(false);
+      setNewButton(1);
+      await OrderEntry_New();
     }
   };
   const OrderEntry_Delete = () => {
@@ -587,7 +634,7 @@ const OrderEntry = ({ title, subTitle }) => {
   const handleInsertBefore = () => {
     if (contextMenu.index == null) return;
     let values = [...orderSizeValues];
-    values.splice(contextMenu.index, 0, { asptblOrdSizId: "", asptblOrdId: "", sizename: "", buyerPrice: "", notes: "" });
+    values.splice(contextMenu.index, 0, { asptblOrdSizId: "", asptblOrdId: "", asptblsizmasid: "", buyerPrice: "", notes: "" });
 
     setOrderSizeValues(values);
     closeMenu();
@@ -597,7 +644,7 @@ const OrderEntry = ({ title, subTitle }) => {
     if (contextMenu.index == null) return;
 
     const values = [...orderSizeValues];
-    values.splice(contextMenu.index + 1, 0, { asptblOrdSizId: "", asptblOrdId: "", sizename: "", buyerPrice: "", notes: "" });
+    values.splice(contextMenu.index + 1, 0, { asptblOrdSizId: "", asptblOrdId: "", asptblsizmasid: "", buyerPrice: "", notes: "" });
 
     setOrderSizeValues(values);
     closeMenu();
@@ -618,7 +665,7 @@ const OrderEntry = ({ title, subTitle }) => {
       {
         asptblOrdSizId: "",
         asptblOrdId: "",
-        sizename: "",
+        asptblsizmasid: "",
         buyerPrice: "",
         notes: "",
       },
@@ -661,7 +708,6 @@ const OrderEntry = ({ title, subTitle }) => {
           asptblOrdSizId: item?.asptblOrdSizId || "",
           asptblOrdId: item?.asptblOrdId || "",
           asptblsizmasid: item?.asptblsizmasid || "",
-          sizename: item?.sizename || "",
           buyerPrice: item?.buyerPrice || "",
           notes: item?.notes || "",
         }));
@@ -674,12 +720,13 @@ const OrderEntry = ({ title, subTitle }) => {
       setNewButton(1);
     }
   };
+
   const orderSizeHeaders = [
     { field: "sNo", label: "SNo", visible: true, type: "text", widths: "50px", pattern: "", disabled: true },
     { field: "asptblOrdSizId", label: "AsptblordcolId", type: "text", visible: false, widths: "50px", pattern: "", disabled: true },
     { field: "asptblOrdId", label: "asptblOrdId", visible: false, type: "text", widths: "50px", pattern: "", disabled: true },
-    { field: "sizename", label: "Sizename", visible: true, type: "select", widths: "250px", pattern: "", disabled: true },
-    { field: "buyerPrice", label: "buyerPrice", visible: true, type: "text", widths: "250px", pattern: "", disabled: false },
+    { field: "asptblsizmasid", label: "Sizename", visible: true, type: "select", widths: "250px", pattern: "", disabled: true },
+    { field: "buyerPrice", label: "BuyerPrice", visible: true, type: "text", widths: "250px", pattern: "", disabled: false },
     { field: "notes", label: "notes", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
   ];
 
@@ -708,7 +755,7 @@ const OrderEntry = ({ title, subTitle }) => {
     { field: "asptblordColId", label: "asptblordColId", visible: false, type: "text", widths: "50px", disabled: true },
     { field: "asptblOrdId", label: "asptblOrdId", visible: false, type: "text", widths: "50px", disabled: true },
     { field: "styleitem", label: "Styleitem", visible: true, type: "select", widths: "250px", disabled: true },
-    { field: "sizename", label: "Sizename", visible: true, type: "select", widths: "80px", disabled: true },
+    { field: "asptblsizmasid", label: "Sizename", visible: true, type: "select", widths: "80px", disabled: true },
     { field: "assortQty", label: "AssortQty", visible: true, type: "text", widths: "50px", disabled: false },
     { field: "shipQty", label: "ShipQty", visible: true, type: "text", widths: "50px", disabled: true },
     { field: "excessQty", label: "ExcessQty", visible: true, type: "text", widths: "50px", disabled: false },
@@ -767,7 +814,7 @@ const OrderEntry = ({ title, subTitle }) => {
     const value = e.target.value;
     const updated = [...orderPopUpValues];
     let totalAssort = 0;
-    const currentOrder = orderOrdValues[sequence - 1];
+    const currentOrder = orderOrdValues[sequence];
     const Ratio_YN = currentOrder.ratioYN;
     const Total_Qty = Number(currentOrder.totalQty || 0);
     const Ratio_ = Ratio_YN === "Yes" ? Number(currentOrder.ratio || 0) : Total_Qty;
@@ -842,7 +889,7 @@ const OrderEntry = ({ title, subTitle }) => {
     setOrderOrdValues(updated);
   };
   const [sequence, setSquence] = useState();
-  const [popupDataCopy, setPopupDataCopy] = useState("");
+  const [popupDataCopy, setPopupDataCopy] = useState([{ asptblOrdPopId: 0, asptblordColId: 0, asptblOrdId: 0, styleitem: 0, asptblsizmasid: 0, assortQty: 0, shipQty: 0, excessQty: 0, prodQty: 0, notes: "", rowIndex: 0, compcode: 0 }]);
 
   const handleAssortQty = (item, row, i, seq) => {
     return {
@@ -853,7 +900,6 @@ const OrderEntry = ({ title, subTitle }) => {
       asptblOrdId: Number(row.asptblOrdId) || 0,
       styleitem: row.styleGroup,
       asptblsizmasid: item?.asptblsizmasid || 0,
-      sizename: item.sizename,
       assortQty: "",
       shipQty: "",
       excessQty: "",
@@ -862,61 +908,117 @@ const OrderEntry = ({ title, subTitle }) => {
     };
   };
 
-  const handleStyleDetails = (row, RowIndex) => {
-    const finid = Number(RowIndex) + 1;
+  // const handleStyle_Details = (row, RowIndex) => {
+  //   const finid = Number(RowIndex);
 
-    if (popupDataCopy.length >= 1) {
-      const filteredData = popupDataCopy.filter((item) => item.rowIndex === finid);
+  //   if (popupDataCopy.length >= 1) {
+  //     const filteredData = popupDataCopy.filter((item) => item.rowIndex === finid);
 
-      if (filteredData.length >= 1) {
-        setSquence(finid);
-        setOrderPopUpValues(filteredData);
-        setShowPopup(true);
-      } else {
-        const seq = finid;
+  //     if (filteredData.length >= 1) {
+  //       setSquence(finid);
+  //       setOrderPopUpValues(filteredData);
+  //       setShowPopup(true);
+  //     } else {
+  //       const seq = finid;
 
-        setSquence(seq);
-        setOrderPopUpValues([]);
+  //       setSquence(seq);
+  //       setOrderPopUpValues([]);
 
-        const newrow = orderSizeValues.map((item, i) => {
-          if (i === 0) {
-            return {
-              sNo: Number(i) + 1,
-              rowIndex: seq,
-              asptblOrdPopId: Number(row.asptblOrdPopId) || 0,
-              asptblordColId: Number(row.asptblordColId) || 0,
-              asptblOrdId: Number(row.asptblOrdId) || 0,
-              styleitem: row.styleGroup,
-              asptblsizmasid: item?.asptblsizmasid || 0,
-              sizename: item.sizename,
-              assortQty: row.ratioYN === "Yes" ? row.ratio : row.totalQty,
-              shipQty: row.ratioYN === "Yes" ? row.totalQty : 0,
-              excessQty: "",
-              prodQty: "",
-              notes: "",
-            };
-          }
-          return handleAssortQty(item, row, i, seq);
-        });
+  //       const newrow = orderSizeValues.map((item, i) => {
+  //         if (i === 0) {
+  //           return {
+  //             sNo: Number(i) + 1,
+  //             rowIndex: seq,
+  //             asptblOrdPopId: Number(row.asptblOrdPopId) || 0,
+  //             asptblordColId: Number(row.asptblordColId) || 0,
+  //             asptblOrdId: Number(row.asptblOrdId) || 0,
+  //             styleitem: row.styleGroup,
+  //             asptblsizmasid: item?.asptblsizmasid || 0,
+  //             sizename: item.sizename,
+  //             assortQty: row.ratioYN === "Yes" ? row.ratio : row.totalQty,
+  //             shipQty: row.ratioYN === "Yes" ? row.totalQty : 0,
+  //             excessQty: "",
+  //             prodQty: "",
+  //             notes: "",
+  //           };
+  //         }
+  //         return handleAssortQty(item, row, i, seq);
+  //       });
 
-        setOrderPopUpValues((prev) => [...prev, ...newrow]);
-        setShowPopup(true);
-      }
-    } else {
-      const seq = finid;
-      setSquence(seq);
-      setOrderPopUpValues([]);
+  //       setOrderPopUpValues((prev) => [...prev, ...newrow]);
+  //       setShowPopup(true);
+  //     }
+  //   } else {
+  //     const seq = finid;
+  //     setSquence(seq);
+  //     setOrderPopUpValues([]);
+  //     const newrow = orderSizeValues.map((item, i) => {
+  //       if (i === 0) {
+  //         return {
+  //           sNo: Number(i) + 1,
+  //           rowIndex: seq,
+  //           asptblOrdPopId: "0",
+  //           asptblordColId: "0",
+  //           asptblOrdId: "0",
+  //           styleitem: row.styleGroup,
+  //           asptblsizmasid: item?.asptblsizmasid || 0,
+  //           sizename: item.sizename,
+  //           assortQty: row.ratioYN === "Yes" ? row.ratio : row.totalQty,
+  //           shipQty: row.ratioYN === "Yes" ? row.totalQty : 0,
+  //           excessQty: "",
+  //           prodQty: "",
+  //           notes: "",
+  //         };
+  //       }
+
+  //       return handleAssortQty(item, row, i, seq);
+  //     });
+
+  //     setOrderPopUpValues((prev) => [...prev, ...newrow]);
+
+  //     setShowPopup(true);
+  //   }
+  // };
+
+  const handleStyle_Details = (row, RowIndex) => {
+    const seq = Number(RowIndex);
+    setSquence(seq);
+    const filteredData = popupDataCopy.filter((item) => Number(item.rowIndex) === seq);
+    if (filteredData.length > 0) {
+      const updatedData = filteredData.map((item, i) => ({
+        ...item,
+
+        sNo: i + 1,
+        rowIndex: seq,
+        asptblOrdPopId: Number(item.asptblOrdPopId) || 0,
+        asptblordColId: Number(item.asptblordColId) || 0,
+        asptblOrdId: Number(item.asptblOrdId) || 0,
+        styleitem: item.styleitem || 0,
+        asptblsizmasid: item.asptblsizmasid || "",
+        assortQty: Number(item.assortQty) || 0,
+        shipQty: Number(item.shipQty) || 0,
+        excessQty: Number(item.excessQty) || 0,
+        prodQty: Number(item.prodQty) || 0,
+        notes: item.notes || "",
+      }));
+
+      setOrderPopUpValues(updatedData);
+      setShowPopup(true);
+      return;
+    }
+    if (filteredData.length === 0) {
+      // New data
       const newrow = orderSizeValues.map((item, i) => {
         if (i === 0) {
           return {
-            sNo: Number(i) + 1,
+            sNo: i + 1,
             rowIndex: seq,
-            asptblOrdPopId: "0",
-            asptblordColId: "0",
-            asptblOrdId: "0",
+
+            asptblOrdPopId: Number(row.asptblOrdPopId) || 0,
+            asptblordColId: Number(row.asptblordColId) || 0,
+            asptblOrdId: Number(row.asptblOrdId) || 0,
             styleitem: row.styleGroup,
-            asptblsizmasid: item?.asptblsizmasid || 0,
-            sizename: item.sizename,
+            asptblsizmasid: Number(item?.asptblsizmasid) || 0,
             assortQty: row.ratioYN === "Yes" ? row.ratio : row.totalQty,
             shipQty: row.ratioYN === "Yes" ? row.totalQty : 0,
             excessQty: "",
@@ -928,8 +1030,7 @@ const OrderEntry = ({ title, subTitle }) => {
         return handleAssortQty(item, row, i, seq);
       });
 
-      setOrderPopUpValues((prev) => [...prev, ...newrow]);
-
+      setOrderPopUpValues(newrow);
       setShowPopup(true);
     }
   };
@@ -957,7 +1058,7 @@ const OrderEntry = ({ title, subTitle }) => {
 
     const totalShipQty = orderPopUpValues.reduce((sum, item) => sum + Number(item.shipQty || 0), 0);
 
-    const totalQty = Number(orderOrdValues[finid - 1]?.totalQty || 0);
+    const totalQty = Number(orderOrdValues[finid]?.totalQty || 0);
 
     if (hasEmpty) {
       toast.info("Assort Qty Empty not allowed");
@@ -966,21 +1067,17 @@ const OrderEntry = ({ title, subTitle }) => {
 
     if (totalShipQty !== totalQty) {
       toast.info("Mismatch Ship Qty not allowed");
-      return;
+      //return;
     }
 
-    // CHECK EXISTING DATA
     const filteredData = popupDataCopy.filter((item) => item.rowIndex === finid);
     if (filteredData.length === 0) {
-      // ADD NEW
       setPopupDataCopy((prev) => [...prev, ...orderPopUpValues]);
     } else {
-      // UPDATE EXISTING
       const updated = popupDataCopy.map((item) => {
         if (item.rowIndex === finid) {
           return orderPopUpValues.find((p) => p.asptblOrdPopId === item.asptblOrdPopId) || item;
         }
-
         return item;
       });
 
@@ -1040,25 +1137,7 @@ const OrderEntry = ({ title, subTitle }) => {
 
           <div className="container-fluid">
             <TabNav tabs={tabs} onTabClick={TabIndexClick} colorValue={colorValue} isActive={(tab) => newButton === tab.id || (tab.id === 1 && newButton === 2)} />
-            {/* <ul>
-              {tabs.map((tab) => (
-                <li key={tab.id} className="me-2">
-                  <button
-                    type="button"
-                    className={newButton === tab.id ? "tabs active-tabs" : "tabs"}
-                    onClick={() => TabIndexClick(tab.id, tab.param)}
-                    style={{
-                      backgroundColor: colorValue,
-                      width: "100%",
-                      padding: "1%",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                </li>
-              ))}
-            </ul> */}
+
             <div className={newButton === 1 || newButton === 4 || newButton === 5 ? "content active-content" : "content"}>
               <div className="row">
                 <div className="col-md-2">
@@ -1080,7 +1159,7 @@ const OrderEntry = ({ title, subTitle }) => {
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> NoOfPcs </label>
-                    <input type="text" className="col-7 form-control" name="NoOfPcs" value={order.NoOfPcs || ""} onChange={handleChange} ref={(el) => (inputRefs.current[13] = el)} onKeyDown={(e) => handleKeyDown(e, 13)} />
+                    <input type="text" className="col-7 form-control" name="NoofPcs" value={order.NoofPcs || ""} onChange={handleChange} ref={(el) => (inputRefs.current[13] = el)} onKeyDown={(e) => handleKeyDown(e, 13)} />
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> DutyType </label>
@@ -1094,45 +1173,120 @@ const OrderEntry = ({ title, subTitle }) => {
                 <div className="col-md-3">
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> Type </label>
-                    <select className="col-5 form-select" name="Type" value={order.Type || ""} onChange={handleChange} ref={(el) => (inputRefs.current[2] = el)} onKeyDown={(e) => handleKeyDown(e, 2)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-4 form-select"
+                      name="Type"
+                      value={order.Type || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={2}
+                      ref={(el) => (inputRefs.current[2] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 2)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      <option value={1}>FromEnq</option>
+                      <option value={2}>Direct</option>
+                    </CustomSelect>
+                    {/* <select className="col-4 form-select" name="Type" value={order.Type || ""} onChange={handleChange} ref={(el) => (inputRefs.current[2] = el)} onKeyDown={(e) => handleKeyDown(e, 2)}>
                       <option></option>
                       <option value={1}>FromEnq</option>
                       <option value={2}>Direct</option>
-                    </select>
-                    <select className="col-2 form-select" name="FinYear" value={order.FinYear} onChange={handleChange} ref={(el) => (inputRefs.current[2] = el)} onKeyDown={(e) => handleKeyDown(e, 2)}>
+                    </select> */}
+                    <CustomSelect
+                      visible="block"
+                      className="col-3 form-select"
+                      name="FinYear"
+                      value={order.FinYear || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={2}
+                      ref={(el) => (inputRefs.current[2] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 2)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
                       {finYearItems.map((year) => (
                         <option key={year.gtFinancialYearID} value={year.gtFinancialYearID}>
                           {" "}
                           {year.finYear}
                         </option>
                       ))}
-                    </select>
+                    </CustomSelect>
+
+                    {/* <select className="col-3 form-select" name="FinYear" value={order.FinYear} onChange={handleChange} ref={(el) => (inputRefs.current[2] = el)} onKeyDown={(e) => handleKeyDown(e, 2)}>
+                      {finYearItems.map((year) => (
+                        <option key={year.gtFinancialYearID} value={year.gtFinancialYearID}>
+                          {" "}
+                          {year.finYear}
+                        </option>
+                      ))}
+                    </select> */}
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> Buyer </label>
-                    <select className="col-7 form-select" name="Buyer" value={order.Buyer || ""} onChange={handleChange} ref={(el) => (inputRefs.current[6] = el)} onKeyDown={(e) => handleKeyDown(e, 6)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="Buyer"
+                      value={order.Buyer || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={6}
+                      ref={(el) => (inputRefs.current[2] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 6)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      {buyerItems.map((buyer) => (
+                        <option key={buyer.id} value={buyer.asptblbuymasid}>
+                          {buyer.buyercode}
+                        </option>
+                      ))}
+                    </CustomSelect>
+                    {/* <select className="col-7 form-select" name="Buyer" value={order.Buyer || ""} onChange={handleChange} ref={(el) => (inputRefs.current[6] = el)} onKeyDown={(e) => handleKeyDown(e, 6)}>
                       <option></option>
                       {buyerItems.map((buyer) => (
                         <option key={buyer.id} value={buyer.asptblbuymasid}>
                           {buyer.buyercode}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> OrderQty </label>
-                    <input type="text" className="col-7" name="OrderQty" value={5000 || ""} onChange={handleChange} ref={(el) => (inputRefs.current[10] = el)} onKeyDown={(e) => handleKeyDown(e, 10)} />
+                    <input type="text" className="col-7" name="OrderQty" value={order.OrderQty || ""} onChange={handleChange} ref={(el) => (inputRefs.current[10] = el)} onKeyDown={(e) => handleKeyDown(e, 10)} />
                   </div>
 
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> ShipSystem </label>
-                    <select className="col-7 form-select" name="ShipingSystem" value={order.ShipingSystem || ""} onChange={handleChange} ref={(el) => (inputRefs.current[14] = el)} onKeyDown={(e) => handleKeyDown(e, 14)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="ShipingSystem"
+                      value={order.ShipingSystem || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={14}
+                      ref={(el) => (inputRefs.current[14] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 14)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      <option value={"C&F"}>C&F</option>
+                      <option value={"FCA"}>FCA</option>
+                      <option value={"FOB"}>FOB</option>
+                      <option value={"LC"}>LC</option>
+                    </CustomSelect>
+
+                    {/* <select className="col-7 form-select" name="ShipingSystem" value={order.ShipingSystem || ""} onChange={handleChange} ref={(el) => (inputRefs.current[14] = el)} onKeyDown={(e) => handleKeyDown(e, 14)}>
                       <option></option>
                       <option value={"C&F"}>C&F</option>
                       <option value={"FCA"}>FCA</option>
                       <option value={"FOB"}>FOB</option>
                       <option value={"LC"}>LC</option>
-                    </select>
+                    </select>*/}
                   </div>
 
                   <div className="row pt-1">
@@ -1143,53 +1297,146 @@ const OrderEntry = ({ title, subTitle }) => {
                 <div className="col-md-3">
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> OrderType </label>
-                    <select className="col-7 form-select" name="OrderType" value={order.OrderType || ""} onChange={handleChange} ref={(el) => (inputRefs.current[3] = el)} onKeyDown={(e) => handleKeyDown(e, 3)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="OrderType"
+                      value={order.OrderType || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={3}
+                      ref={(el) => (inputRefs.current[14] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 14)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      <option value={"Order - 1"}>Order-1</option>
+                      <option value={"Sample - 2"}>Sample-2</option>
+                      <option value={"FabricOrder - 3"}>FabricOrder-3</option>
+                      <option value={"PrePlan - 3"}>PrePlan-3</option>
+                    </CustomSelect>
+
+                    {/* <select className="col-7 form-select" name="OrderType" value={order.OrderType || ""} onChange={handleChange} ref={(el) => (inputRefs.current[3] = el)} onKeyDown={(e) => handleKeyDown(e, 3)}>
                       <option></option>
                       <option value={"Order - 1"}>Order-1</option>
                       <option value={"Sample - 2"}>Sample-2</option>
                       <option value={"FabricOrder - 3"}>FabricOrder-3</option>
                       <option value={"PrePlan - 3"}>PrePlan-3</option>
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> BuyerAgent </label>
-                    <select className="col-7 form-select" name="BuyerAgent" value={order.BuyerAgent || ""} onChange={handleChange} ref={(el) => (inputRefs.current[7] = el)} onKeyDown={(e) => handleKeyDown(e, 7)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="BuyerAgent"
+                      value={order.BuyerAgent || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={7}
+                      ref={(el) => (inputRefs.current[7] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 7)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      {buyerAgent.map((agent) => (
+                        <option key={agent.id} value={agent.asptblagemasid}>
+                          {agent.agentName}
+                        </option>
+                      ))}
+                    </CustomSelect>
+
+                    {/* <select className="col-7 form-select" name="BuyerAgent" value={order.BuyerAgent || ""} onChange={handleChange} ref={(el) => (inputRefs.current[7] = el)} onKeyDown={(e) => handleKeyDown(e, 7)}>
                       <option></option>
                       {buyerAgent.map((agent) => (
                         <option key={agent.id} value={agent.asptblagemasid}>
                           {agent.agentName}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> Uom </label>
-                    <select className="col-7 form-select" name="Uom" value={order.Uom || ""} onChange={handleChange} ref={(el) => (inputRefs.current[11] = el)} onKeyDown={(e) => handleKeyDown(e, 11)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="Uom"
+                      value={order.Uom || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={11}
+                      ref={(el) => (inputRefs.current[11] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 11)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      {UomItems.map((agent) => (
+                        <option key={agent.asptbluommasid} value={agent.asptbluommasid}>
+                          {agent.uom}
+                        </option>
+                      ))}
+                    </CustomSelect>
+
+                    {/* <select className="col-7 form-select" name="Uom" value={order.Uom || ""} onChange={handleChange} ref={(el) => (inputRefs.current[11] = el)} onKeyDown={(e) => handleKeyDown(e, 11)}>
                       <option></option>
                       {UomItems.map((agent) => (
                         <option key={agent.asptbluommasid} value={agent.asptbluommasid}>
                           {agent.uom}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> ShipMode </label>
-                    <select className="col-7 form-select" name="ShipMode" value={order.ShipMode || ""} onChange={handleChange} ref={(el) => (inputRefs.current[15] = el)} onKeyDown={(e) => handleKeyDown(e, 15)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="ShipMode"
+                      value={order.ShipMode || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={15}
+                      ref={(el) => (inputRefs.current[15] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 15)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      <option value={"AIR"}>AIR</option>
+                      <option value={"SEA"}>SEA</option>
+                      <option value={"SEA / AIR"}>SEA/AIR</option>
+                      <option value={"ROAD"}>ROAD</option>
+                    </CustomSelect>
+                    {/* <select className="col-7 form-select" name="ShipMode" value={order.ShipMode || ""} onChange={handleChange} ref={(el) => (inputRefs.current[15] = el)} onKeyDown={(e) => handleKeyDown(e, 15)}>
                       <option></option>
                       <option value={"AIR"}>AIR</option>
                       <option value={"SEA"}>SEA</option>
                       <option value={"SEA / AIR"}>SEA/AIR</option>
                       <option value={"ROAD"}>ROAD</option>
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> ExShipAllowed </label>
-                    <select className="col-7 form-select" name="ExShipAllowed" value={order.ExShipAllowed || ""} onChange={handleChange} ref={(el) => (inputRefs.current[19] = el)} onKeyDown={(e) => handleKeyDown(e, 19)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="ExShipAllowed"
+                      value={order.ExShipAllowed || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={19}
+                      ref={(el) => (inputRefs.current[19] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 19)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      <option value={"Yes"}>Yes</option>
+                      <option value={"No"}>No</option>
+                    </CustomSelect>
+                    {/* <select className="col-7 form-select" name="ExShipAllowed" value={order.ExShipAllowed || ""} onChange={handleChange} ref={(el) => (inputRefs.current[19] = el)} onKeyDown={(e) => handleKeyDown(e, 19)}>
                       <option></option>
                       <option value={"Yes"}>Yes</option>
                       <option value={"No"}>No</option>
-                    </select>
+                    </select> */}
                   </div>
                 </div>
                 <div className="col-md-3">
@@ -1199,25 +1446,63 @@ const OrderEntry = ({ title, subTitle }) => {
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> ShipAgent </label>
-                    <select className="col-7 form-select" name="ShipingAgent" value={order.ShipingAgent || ""} onChange={handleChange} ref={(el) => (inputRefs.current[8] = el)} onKeyDown={(e) => handleKeyDown(e, 8)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="ShipingAgent"
+                      value={order.ShipingAgent || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={8}
+                      ref={(el) => (inputRefs.current[8] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 8)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      {buyerItems.map((buyer) => (
+                        <option key={buyer.asptblbuymasid} value={buyer.asptblbuymasid}>
+                          {buyer.buyingagent}
+                        </option>
+                      ))}
+                    </CustomSelect>
+                    {/* <select className="col-7 form-select" name="ShipingAgent" value={order.ShipingAgent || ""} onChange={handleChange} ref={(el) => (inputRefs.current[8] = el)} onKeyDown={(e) => handleKeyDown(e, 8)}>
                       <option></option>
                       {buyerItems.map((buyer) => (
                         <option key={buyer.asptblbuymasid} value={buyer.asptblbuymasid}>
                           {buyer.buyingagent}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> OrderPackType </label>
-                    <select className="col-7 form-select" name="OrderPackType" value={order.OrderPackType || ""} onChange={handleChange} ref={(el) => (inputRefs.current[12] = el)} onKeyDown={(e) => handleKeyDown(e, 12)}>
+                    <CustomSelect
+                      visible="block"
+                      className="col-7 form-select"
+                      name="OrderPackType"
+                      value={order.OrderPackType || ""}
+                      onChange={handleChange}
+                      colorValue={colorValue}
+                      tabIndex={12}
+                      ref={(el) => (inputRefs.current[12] = el)}
+                      onKeyDown={(e) => handleKeyDown(e, 12)}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      {orderPackTypeItems.map((pack) => (
+                        <option key={pack.asptblordpactypmasid} value={pack.asptblordpactypmasid}>
+                          {pack.orderPackType}
+                        </option>
+                      ))}
+                    </CustomSelect>
+                    {/* <select className="col-7 form-select" name="OrderPackType" value={order.OrderPackType || ""} onChange={handleChange} ref={(el) => (inputRefs.current[12] = el)} onKeyDown={(e) => handleKeyDown(e, 12)}>
                       <option></option>
                       {orderPackTypeItems.map((pack) => (
                         <option key={pack.asptblordpactypmasid} value={pack.asptblordpactypmasid}>
                           {pack.orderPackType}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
                   </div>
                   <div className="row pt-1">
                     <label className="col-5 col-form-label"> PayTerm </label>
@@ -1241,7 +1526,7 @@ const OrderEntry = ({ title, subTitle }) => {
                 </div>
                 <div className="col-md-1">
                   <div style={{ padding: "0px", border: "1px solid var(--bs-white)", alignItems: "right" }}>
-                    <ImageUploader images={garimages} setImage={setGarImage} name="OrdLogo" value={order.OrdLogo} defaultimage={defaultimage} />
+                    <ImageUploader images={ordimages} setImage={setordImage} name="OrdLogo" value={ordimages.imagesrc} defaultimage={defaultimage} />
                   </div>
                 </div>
                 <div className="row">
@@ -1292,8 +1577,8 @@ const OrderEntry = ({ title, subTitle }) => {
                   </div>
                   <div className="col-12 col-sm-12 col-md-6 col-lg-6 pt-1">
                     <div className="row">
-                      <label className="col-2 col-form-label"> CunCrrentValue </label>
-                      <select className="col-4 form-select" name="CunCrrentValue" value={order.CunCrrentValue || ""} onChange={handleChange} ref={(el) => (inputRefs.current[25] = el)} onKeyDown={(e) => handleKeyDown(e, 25)}>
+                      <label className="col-2 col-form-label"> CunCurrentValue </label>
+                      <select className="col-4 form-select" name="CunCurrentValue" value={order.CunCurrentValue || ""} onChange={handleChange} ref={(el) => (inputRefs.current[25] = el)} onKeyDown={(e) => handleKeyDown(e, 25)}>
                         <option></option>
                         {currencyItems.map((item) => (
                           <option key={item.asptblcurmasid} value={item.asptblcurmasid}>
@@ -1335,7 +1620,7 @@ const OrderEntry = ({ title, subTitle }) => {
                         name="SplCategory"
                         colorValue={colorValue}
                         styleGroupItems={styleGroupItems}
-                        selectedOptions={order.CategorySelected || []}
+                        selectedOptions={order.CategorySelected}
                         setSelectedOptions={setOrder}
                         handleChange={handleChange}
                         labelField="stylegroup"
@@ -1353,25 +1638,6 @@ const OrderEntry = ({ title, subTitle }) => {
 
                 <div className="row pt-1">
                   <TabNav tabs={tabs1} onTabClick={TabIndexClick} colorValue={colorValue} isActive={(tab) => newButton === tab.id || (tab.id === 1 && newButton === 5)} />
-                  {/* <ul>
-                    {tabs1.map((tab) => (
-                      <li className="ps-2" key={tab.id}>
-                        <button
-                          type="button"
-                          className={newButton === 1 ? "tabs active-tabs btn" : "tabs"}
-                          onClick={() => TabIndexClick(tab.id, tab.param)}
-                          style={{
-                            backgroundColor: colorValue,
-                            width: "100%",
-                            padding: "1%",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {tab.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul> */}
 
                   <div className="content-tabs">
                     <div className={newButton === 1 ? "content active-content" : "content"}>
@@ -1434,9 +1700,6 @@ const OrderEntry = ({ title, subTitle }) => {
                                                     {item.sizename}
                                                   </option>
                                                 ))}
-                                                {/* <option key={RowIndex} value={row.asptblsizmasid}>
-                                              {row.sizename}
-                                            </option> */}
                                               </select>
                                             </td>
                                           );
@@ -1598,10 +1861,10 @@ const OrderEntry = ({ title, subTitle }) => {
                                                 tabIndex={0}
                                                 className="p-0 m-0"
                                                 style={{ height: "20px" }}
-                                                onClick={() => handleStyleDetails(row, RowIndex)}
+                                                onClick={() => handleStyle_Details(row, RowIndex)}
                                                 onKeyDown={(e) => {
                                                   if (e.key === "Enter") {
-                                                    handleStyleDetails(row, RowIndex);
+                                                    handleStyle_Details(row, RowIndex);
                                                   }
                                                 }}
                                                 // onKeyDown={(e) => {
@@ -1773,6 +2036,9 @@ const OrderEntry = ({ title, subTitle }) => {
                   handlePopupPopulate={handlePopupPopulate}
                   handlePopupSave={handlePopupSave}
                   handlePopupClear={handlePopupClear}
+                  button1={"POPULATE"}
+                  button2={"SAVE"}
+                  button3={"CLEAR"}
                 >
                   <div className="row animate-zoom" style={{ height: "300px" }}>
                     <div className="table-responsive">
@@ -1852,7 +2118,7 @@ const OrderEntry = ({ title, subTitle }) => {
 
                                       if (col.field === "styleitem") {
                                         options = styleItems;
-                                      } else if (col.field === "sizename") {
+                                      } else if (col.field === "asptblsizmasid") {
                                         options = sizeItems;
                                       }
 
@@ -1918,31 +2184,32 @@ const OrderEntry = ({ title, subTitle }) => {
                   searchCompCode={searchCompCode}
                   searchUserName={searchUserName}
                 />
-                {!fetchError && newButton === 2 ? (
-                  <>
-                    <DataTable
-                      heights={heights}
-                      colorValue={colorValue}
-                      headers={OrderEntryColumn}
-                      comments={orderEntryItem}
-                      setComments={setOrderEntryItem}
-                      searches={orderEntry_Search}
-                      setSearches={setOrderEntrySearch}
-                      foreValue={foreValue}
-                      totalItems={totalItems}
-                      setTotalItems={setTotalItems}
-                      currentPage={currentPage}
-                      setCurrentPage={setCurrentPage}
-                      sorting={sorting}
-                      setSorting={setSorting}
-                      ITEM_PER_PAGE={ITEM_PER_PAGE}
-                      EditData={OrderEntryCheck}
-                      commentsData={commentsData}
-                    />
-                  </>
-                ) : (
-                  <p style={{ marginTop: "1rem", color: "var(--bs-danger)" }}>{fetchError}</p>
-                )}
+
+                <>
+                  <DataTable
+                    heights={heights}
+                    colorValue={colorValue}
+                    headers={HeaderColumn}
+                    comments={orderEntryItem}
+                    setComments={setOrderEntryItem}
+                    foreValue={foreValue}
+                    searches={orderEntry_Search}
+                    setSearches={setOrderEntrySearch}
+                    totalItems={totalItems}
+                    setTotalItems={setTotalItems}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    sorting={sorting}
+                    setSorting={setSorting}
+                    ITEM_PER_PAGE={ITEM_PER_PAGE}
+                    EditData={OrderEntryCheck}
+                    commentsData={commentsData}
+                    checkchild={checkchild}
+                    setCheckchild={setCheckchild}
+                    setCheckAll={setCheckAll}
+                    checkall={checkall}
+                  />
+                </>
               </div>
             </div>
           </div>
