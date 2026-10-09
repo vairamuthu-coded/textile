@@ -82,10 +82,11 @@ const CountsMaster = ({ title, subTitle }) => {
   }, [items, search]);
 
   const HeadersColumn = [
-    { headername: "", field: "visible" },
-    { headername: "ID", field: "asptblcoumasid" },
-    { headername: "Counts", field: "counts" },
-    { headername: "Active", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "true" },
+    { headername: "ID", field: "asptblcoumasid", visible: "false" },
+    { headername: "Counts", field: "counts", visible: "true" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   const heights = "380px";

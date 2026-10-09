@@ -44,9 +44,11 @@ const ColorMaster = ({ title, subTitle }) => {
   const [checkall, setCheckAll] = useState(false);
   const [checkchild, setCheckchild] = useState(false);
   const HeadersColumn = [
-    { headername: "ID", field: "asptblcolmasid" },
-    { headername: "Color", field: "colorname" },
-    { headername: "Active", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "true" },
+    { headername: "ID", field: "asptblcolmasid", visible: "true" },
+    { headername: "Color", field: "colorname", visible: "true" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   const heights = "420px";

@@ -37,7 +37,11 @@ export const DataProvider = ({
   const [countsValues, setCountsValues] = useState("");
   const [proGroSeqValues, setProGroSeqValues] = useState("");
   const [proGroValues, setProGroValues] = useState("");
+  const [loopLengthValues, setLoopLengthValues] = useState("");
 
+  const [designValues, setDesignValues] = useState("");
+  const [portionValues, setPortionValues] = useState("");
+  const [gsmValues, setGsmValues] = useState("");
   const [proGroDetValues, setProGroDetValues] = useState([{ asptblprogrodetid: "", asptblprogroid: "", process: "", processgroup: 0, seqno: "" }]);
 
   const [yarnValues, setYarnValues] = useState({
@@ -600,6 +604,14 @@ export const DataProvider = ({
         setCountryItems,
         processValues,
         setProcessValues,
+        loopLengthValues,
+        setLoopLengthValues,
+        designValues,
+        setDesignValues,
+        portionValues,
+        setPortionValues,
+        gsmValues,
+        setGsmValues,
         proGroSeqValues,
         setProGroSeqValues,
         proGroValues,

@@ -33,9 +33,8 @@ const FabricTypeMaster = ({ title, subTitle, colorValue }) => {
   setSearchLable1("Search");
   setSearchLable2("");
   setSearchLable3("");
-  const insert_update = API_URL + "/FabricTypeMasters/PostFabricTypeMaster";
-  const GetDataparam = API_URL + "/FabricTypeMasters/GetFabricTypeMaster";
-  const deleteData = API_URL + "/FabricTypeMasters/DeleteFabricTypeMaster";
+  const insert_update = API_URL + "/FabricTypeMasters";
+  const GetDataparam = API_URL + "/GetFabricTypeMaster";
   const [searchCompCode, setSearchCompCode] = useState([]);
   const [searchUserName, setSearchUserName] = useState([]);
   const [fetchError, setFetchError] = useState(null);
@@ -162,7 +161,7 @@ const FabricTypeMaster = ({ title, subTitle, colorValue }) => {
       if (fabtype.asptblfabrictypemasid >= 1) {
         const asptblfabrictypemasid = fabtype.asptblfabrictypemasid;
         await axios
-          .delete(`${deleteData}/${asptblfabrictypemasid}`)
+          .delete(`${insert_update}/${asptblfabrictypemasid}`)
           .then((respose) => {
             if (respose.data.asptblfabrictypemasid > 0) {
               axios

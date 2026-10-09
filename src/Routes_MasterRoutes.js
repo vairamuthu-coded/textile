@@ -35,6 +35,11 @@ import YarnMaster from "./Masters/YarnMaster";
 
 import ProcessGroupSequence from "./Masters/ProcessGroupSequence";
 import ProcessGroupMaster from "./Masters/ProcessGroupMaster";
+import LoopLengthMaster from "./Masters/LoopLengthMaster";
+import GsmMaster from "./Masters/GsmMaster";
+import DesignMaster from "./Masters/DesignMaster";
+import PortionMaster from "./Masters/PortionMaster";
+import GaugeMaster from "./Masters/GaugeMaster";
 
 const routes = [
   { path: "/BankMaster", component: BankMaster, title: "BankMaster" },
@@ -71,6 +76,11 @@ const routes = [
   { path: "/FinYearMaster", component: FinYearMaster, title: "FinYearMaster" },
   { path: "/YarnBlendMaster", component: YarnBlendMaster, title: "YarnBlendMaster" },
   { path: "/YarnMaster", component: YarnMaster, title: "YarnMaster" },
+  { path: "/LoopLengthMaster", component: LoopLengthMaster, title: "LoopLengthMaster" },
+  { path: "/GsmMaster", component: GsmMaster, title: "GsmMaster" },
+  { path: "/DesignMaster", component: DesignMaster, title: "DesignMaster" },
+  { path: "/PortionMaster", component: PortionMaster, title: "PortionMaster" },
+  { path: "/GaugeMaster", component: GaugeMaster, title: "GaugeMaster" },
 ];
 
 const MasterRoutes = routes.map((r) => ({

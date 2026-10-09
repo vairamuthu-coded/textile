@@ -21,7 +21,7 @@ import DataTable from "../Custom/DataTable.js";
 import TabNav from "../component/TabNav.js";
 import CustomSelect from "../Custom/CustomSelect";
 import Label from "../Custom/Label.js";
-
+// https://ramishahopeai.ewebinar.com/webinar/8851/join/30260685
 const FabricYarnProcess = ({ title, subTitle }) => {
   const {
     API_URL,
@@ -103,6 +103,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const sizeGroupParam = `${API_URL}/SizeGroupMasters/1`;
   const SizeParam = `${API_URL}/SizeMasters`;
   const FinYearParam = `${API_URL}/FinYearMasters`;
+  const FabricParam = `${API_URL}/GetFabricMaster}`;
   const StyleGroupParam = `${API_URL}/StyleGroupMasters`;
   const ColorParam = `${API_URL}/ColorMaster/GetColor`;
   const ComboParam = `${API_URL}/ColorMaster/GetCombo`;
@@ -131,6 +132,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const [yarnDyeingColShowPopup, setYarnDyeingColShowPopup] = useState(false);
   const [processShowPopup, setProcessShowPopup] = useState(false);
   const [userRights1, setUserRights1] = useState([]);
+  const [fabricValue, setFabricValue] = useState([]);
   const [sizeGroupItems, setSizeGroupItems] = useState([]);
   const [finYearItems, setFinYearItems] = useState([]);
   const [sizeItems, setSizeItems] = useState([]);
@@ -193,6 +195,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
           fabyarn_Com_Res,
           yarRes,
           processRes,
+          fabRes,
         ] = await Promise.all([
           axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
           axios.get(sizeGroupParam),
@@ -215,6 +218,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
           axios.get(`${compcodeparam}`),
           axios.get(GetYarnMasterParam),
           axios.get(GetYarnDyeingProcess),
+          axios.get(FabricParam),
         ]);
 
         setUserRights1(userRes.data);
@@ -239,6 +243,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
         setCompCodeData(fabyarn_Com_Res.data || []);
         setYarnItems(yarRes.data || []);
         setProcessValues(processRes.data || []);
+        setFabricValue(fabRes.data || []);
       } catch (error) {
         setFetchError(error);
         toast.error(error);
@@ -464,11 +469,34 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     setNewButton(1);
 
     setFabYarn_Values([]);
-    setFabYarn_DetValues([]);
-    setFabYarn_Combo_Values([]);
-    setFabYarn_Gram_Values([]);
-    setFabYarn_Pro_Values([]);
-    setFabYarn_Yarn_Values([]);
+    setFabYarn_DetValues([
+      {
+        SNo: 1,
+        RowIndex: 0,
+        AsptblFabYarDetId: 0,
+        AsptblFabYarId: 0,
+        StyleItem: 0,
+        PortionId: 0,
+        Portion: "",
+        Fabric: "",
+        Gsm: "",
+        Gauge: "",
+        LL: "",
+        Design: 0,
+        Combo: "",
+        CadWt: 0,
+        FabWt: 0,
+        Grams: "",
+        FabPlanQty: 0,
+        Yarn: "",
+        Fabpro: "",
+        Notes: "",
+      },
+    ]);
+    // setFabYarn_Combo_Values([]);
+    // setFabYarn_Gram_Values([]);
+    // setFabYarn_Pro_Values([]);
+    // setFabYarn_Yarn_Values([]);
   };
 
   const FabYarnProcess_Save = async () => {
@@ -486,9 +514,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
       const payload = {
         FabYar: ListData0,
         FabYarDet: ListData1(fabyarn_DetValues),
-        FabYarCom: ListData2(fabyarn_combo_Values),
-        FabYarGra: ListData3(fabyarn_gram_Values),
-        FabYarYar: ListData4(fabyarn_yarn_Values),
+        // FabYarCom: ListData2(fabyarn_combo_Values),
+        // FabYarGra: ListData3(fabyarn_gram_Values),
+        // FabYarYar: ListData4(fabyarn_yarn_Values),
         //FabYarPro: ListData4(fabyarn_pro_Values),
       };
       const response = await axios.post(insert_update, payload);
@@ -659,7 +687,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     updated[index]["RowIndex"] = index;
     updated[index][field] = value;
     setFabYarn_DetValues(updated);
-    alert(JSON.stringify(fabyarn_DetValues));
   };
 
   const initialFabYarnDetailsHeaders = [
@@ -1859,17 +1886,17 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                             } else if (col.field === "PortionId") {
                                               options = [{ PortionId: "Portion 1" }, { PortionId: "Portion 2" }, { PortionId: "Portion 3" }];
                                             } else if (col.field === "Portion") {
-                                              options = [{ Portion: "ALL PARTS" }, { Portion: "SLEEVE" }, { Portion: "COLLAR" }];
+                                              options = fabricValue;
                                             } else if (col.field === "Design") {
-                                              options = [{ Design: "SOLID" }, { Design: "AOP" }, { Design: "STRIPES" }];
+                                              options = fabricValue;
                                             } else if (col.field === "Fabric") {
-                                              options = [{ Fabric: "100 % COTTON SINGLE JERSERY" }, { Fabric: "LYCRA JERSEY" }, { Fabric: "RIB" }];
+                                              options = fabricValue;
                                             } else if (col.field === "Gsm") {
-                                              options = [{ Gsm: "120" }, { Gsm: "200" }, { Gsm: "240" }];
+                                              options = fabricValue;
                                             } else if (col.field === "Gauge") {
-                                              options = [{ Gauge: "18" }, { Gauge: "24" }, { Gauge: "28" }];
+                                              options = fabricValue;
                                             } else if (col.field === "LL") {
-                                              options = [{ LL: "27CM" }, { LL: "30CM" }, { LL: "28.5CM" }];
+                                              options = fabricValue;
                                             }
 
                                             return (
@@ -1883,9 +1910,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                                     handleEnterFocus(e, "#fabDetTab");
                                                   }}
                                                 >
+                                                  <option value={""}></option>
                                                   {options.map((item, i) => {
-                                                    const optionValue = item.styleitem ?? item.PortionId ?? item.Portion ?? item.Design ?? item.Fabric ?? item.Gsm ?? item.Gauge ?? item.LL;
-
+                                                    const optionValue = item.styleitem ?? item.PortionId ?? item.Portion ?? item.Design ?? item.asptblfabmasid ?? item.Gsm ?? item.Gauge ?? item.LL;
                                                     return (
                                                       <option key={i} value={optionValue}>
                                                         {optionValue}
@@ -1992,7 +2019,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                     </div>
                   </div>
 
-                  <PopupCombo
+                  {/* <PopupCombo
                     show={comboShowPopup}
                     onClose={() => setComboShowPopup(false)}
                     title={`${sequence} Combo Details`}
@@ -2138,8 +2165,8 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                         </div>
                       </div>
                     </div>
-                  </PopupCombo>
-                  <PopupCombo_Populate
+                  </PopupCombo> */}
+                  {/* <PopupCombo_Populate
                     show={comboShow_SubGrid}
                     onClose={() => setComboShow_SubGrid(false)}
                     title={`${fabRowindex} Combo Populate Details`}
@@ -3208,7 +3235,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                       </div>
                     </div>
                   </PopupYarnDyeingColor>
-                  {/* <PopupProcess
+                  <PopupProcess
                     show={processShowPopup}
                     onClose={() => setProcessShowPopup(false)}
                     title={`${yarnRowindex} Process  Details`}
@@ -3217,6 +3244,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                     handlePopupPopulate={handle_Process_PopupPopulate}
                     handlePopupSave={handle_Process_PopupSave}
                     handlePopupClear={handle_Process_PopupClear}
+                      button1={"POPULATE"}
+                    button2={"SAVE"}
+                    button3={"CLEAR"}
                   >
                     <div className="row animate-zoom" style={{ height: "300px" }}>
                       <div className="table-responsive">
@@ -3356,7 +3386,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                         </div>
                       </div>
                     </div>
-                  </PopupProcess> */}
+                  </PopupProcess>  */}
                 </div>
               </div>
               <div className={newButton === 2 ? "content active-content" : "content"}>

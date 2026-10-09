@@ -72,6 +72,7 @@ const TreeViewMaster = ({ title, subTitle }) => {
   const UserRightsFilter = API_URL + "/UserRights/UserRightsDetails";
 
   const HeadersColumn = [
+    { headername: "SNo", field: "SNo", visible: "true" },
     { headername: "", field: "visible", visible: "true" },
     { headername: "ID", field: "menuid", visible: "false" },
     { headername: "MenuName", field: "menuname", visible: "true" },
@@ -84,6 +85,7 @@ const TreeViewMaster = ({ title, subTitle }) => {
   ];
 
   const HeadersColumn1 = [
+    { headername: "SNo", field: "SNo", visible: "true" },
     { headername: "", field: "visible", visible: "true" },
     { headername: "ID", field: "menuid", visible: "false" },
     { headername: "MenuName", field: "menuname", visible: "true" },
