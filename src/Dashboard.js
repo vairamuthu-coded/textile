@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import DataContext from "./context/CreateUserContext";
-
 import { toast } from "react-toastify";
 import ResponsiveTabs from "./ResponsiveTabs";
 import "./Dashboard.css";
@@ -22,9 +21,7 @@ const Dashboard = ({ title, subTitle }) => {
   const handlepage1 = async (index, pid) => {
     try {
       setLoading(true);
-
       const res = await axios.get(`${findmenuname1}/${pid}`);
-
       setFindMenu(res.data);
       setNewButton(index);
     } catch (error) {

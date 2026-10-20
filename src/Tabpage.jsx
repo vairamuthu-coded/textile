@@ -1,9 +1,7 @@
 import React, { useContext, useRef } from "react";
 import DataContext from "./context/CreateUserContext";
 import { Link } from "react-router-dom";
-import styled from "styled-components";
-import Marquee from "react-fast-marquee";
-import { RiHome4Line } from "react-icons/ri";
+import AIChat from "./AIChat";
 
 const Tabpage = ({ title, colorValue }) => {
   let ref = useRef();

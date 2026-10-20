@@ -36,7 +36,7 @@ function App({ API_URL, localServerCart, urls }) {
   const [loginPage, setLoginPage] = useState(false);
 
   const [token, setToken] = useState(
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9zdXJuYW1lIjoiQUdGIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IlZBSVJBTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvZXhwaXJhdGlvbiI6IjEwLzEwLzIwMjYgMTQ6MTY6NTgiLCJleHAiOjE3OTE2MjIwMTh9.L8iCTJApOiwSOdZku4xwjFCkLDVMiD-vHI18-Fz3Vgk",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9zdXJuYW1lIjoiQUdGIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IlZBSVJBTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvZXhwaXJhdGlvbiI6IjA5LzExLzIwMjYgMTU6MTA6MTYiLCJleHAiOjE3OTQyMTcyMTZ9.G9UYn2HQbCsttOUnRZTmtzDqgPLPbv1F-woo5qg4Bk8",
   );
 
   let navigate = useNavigate();
@@ -113,7 +113,7 @@ function App({ API_URL, localServerCart, urls }) {
         },
       });
 
-      if (res.data) {
+      if (res.data.length > 0) {
         setAuthToken(res.data[0].token);
         setLoginPage(true);
         navigate("/Dashboard");

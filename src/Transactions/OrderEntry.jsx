@@ -405,7 +405,7 @@ const OrderEntry = ({ title, subTitle }) => {
     return items
       .filter((obj) => obj.styleGroup && obj.styleGroup !== "")
       .map((obj, i) => ({
-        rowIndex: Number(i) + 1,
+        rowIndex: Number(i),
         asptblordColId: Number(obj.asptblordColId) || 0,
         asptblOrdId: Number(obj.asptblOrdId) || 0,
         styleGroup: Number(obj.styleGroup) || 0,

@@ -48,7 +48,7 @@ const MenuNameMaster = ({ title, subTitle }) => {
   const [checkchild, setCheckchild] = useState([]);
   const [searchCompCode, setSearchCompCode] = useState([]);
   const [searchUserName, setSearchUserName] = useState([]);
-  const menunameparam = API_URL + "/MenuNameMaster/MenuNameMaster";
+  const menunameparam = API_URL + "/MenuNameMaster";
   const userrightsMenuCheck = API_URL + "/UserRights/userrightsMenuCheck";
   const heights = "399px";
 

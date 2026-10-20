@@ -46,7 +46,7 @@ const NavigationMaster = ({ title, subTitle }) => {
   const [userData, setUserData] = useState([]);
   const naviparam = API_URL + "/NavigationMaster/NavigationMaster";
   // const insert_update = API_URL + "/NavigationMaster/Saves";
-  const menunameparam = API_URL + "/MenuNameMaster/MenuNameMaster";
+  const menunameparam = API_URL + "/MenuNameMaster";
   const compcodeparam = API_URL + "/CompanyMaster/CompanyMaster";
   const usernameparam = API_URL + "/UserMasters/UserMaster";
   const NavigationMaster_Detete = API_URL + "/NavigationMaster/NavigationMaster_Delete";

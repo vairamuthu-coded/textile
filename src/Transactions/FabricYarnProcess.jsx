@@ -98,12 +98,13 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   };
   let fabRowindex = 0;
   let yarnRowindex = 0;
+
   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
   const insert_update = `${API_URL}/FabYarnProcess`;
   const sizeGroupParam = `${API_URL}/SizeGroupMasters/1`;
   const SizeParam = `${API_URL}/SizeMasters`;
   const FinYearParam = `${API_URL}/FinYearMasters`;
-  const FabricParam = `${API_URL}/GetFabricMaster}`;
+  const FabricParam = `${API_URL}/FabricMasters`;
   const StyleGroupParam = `${API_URL}/StyleGroupMasters`;
   const ColorParam = `${API_URL}/ColorMaster/GetColor`;
   const ComboParam = `${API_URL}/ColorMaster/GetCombo`;
@@ -120,6 +121,12 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const StyleItemMastersParams = `${API_URL}/StyleItemMasters`;
   const GetYarnMasterParam = `${API_URL}/YarnMasters`;
   const GetYarnDyeingProcess = `${API_URL}/ProcessGroupSequenceMasters/GetProcess`;
+  const PortionParam = `${API_URL}/PortionMasters`;
+  const GsmParam = `${API_URL}/GsmMasters`;
+  const LLParam = `${API_URL}/LoopLengthMasters`;
+  const DesignParam = `${API_URL}/DesignMasters`;
+  const GaugeParam = `${API_URL}/GaugeMasters`;
+  const OrderParam = `${API_URL}/OrderEntrys`;
 
   const compcodeparam = `${API_URL}${ENDPOINTS.COMPANY}`;
   const [popupType, setPopupType] = useState("");
@@ -152,6 +159,15 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const [styleCategoryItems, setStyleCategoryItems] = useState([]);
   const [styleGroupitem, setStyleGrioupItems] = useState([]);
   const [styleItems, setStyleItems] = useState([]);
+  const [gsmItems, setGsmItems] = useState([]);
+  const [llItems, setLLItems] = useState([]);
+  const [designItems, setDesignItems] = useState([]);
+  const [gaugeItems, setGaugeItems] = useState([]);
+  const [orderItems, setOrderItems] = useState([]);
+
+  const [portionsItems, setPortionsItems] = useState([{ portionid: "Portion1" }, { portionid: "Portion2" }, { portionid: "Portion3" }, { portionid: "Portion4" }, { portionid: "Portion5" }]);
+
+  const [portionItems, setPortionItems] = useState([]);
   const [resizingColumn, setResizingColumn] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState([]);
@@ -167,19 +183,19 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const [compcodeData, setCompCodeData] = useState([]);
 
   const heights = "380px";
-  //Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU" -Name * -ErrorAction SilentlyContinue
 
+  //Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU" -Name * -ErrorAction SilentlyContinue
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const [
           userRes,
-          sizeGroupRes,
+          //sizeGroupRes,
           sizeRes,
           styleGroupRes,
           colorRes,
-          comboRes,
+          //comboRes,
           buyerRes,
           agentRes,
           uomRes,
@@ -196,13 +212,19 @@ const FabricYarnProcess = ({ title, subTitle }) => {
           yarRes,
           processRes,
           fabRes,
+          porRes,
+          llRes,
+          gsmRes,
+          desRes,
+          ggRes,
+          ordRes,
         ] = await Promise.all([
           axios.get(`${userrightsMenuCheck}/${defaultDetails.Compcode}/${defaultDetails.User}/${title}`),
-          axios.get(sizeGroupParam),
+          //axios.get(sizeGroupParam),
           axios.get(SizeParam),
           axios.get(StyleGroupParam),
           axios.get(ColorParam),
-          axios.get(ComboParam),
+          // axios.get(ComboParam),
           axios.get(BuyerParam),
           axios.get(AgentMastersParam),
           axios.get(UomMastersParam),
@@ -219,14 +241,20 @@ const FabricYarnProcess = ({ title, subTitle }) => {
           axios.get(GetYarnMasterParam),
           axios.get(GetYarnDyeingProcess),
           axios.get(FabricParam),
+          axios.get(PortionParam),
+          axios.get(LLParam),
+          axios.get(GsmParam),
+          axios.get(DesignParam),
+          axios.get(GaugeParam),
+          axios.get(OrderParam),
         ]);
 
         setUserRights1(userRes.data);
-        setSizeGroupItems(sizeGroupRes.data || []);
+        //setSizeGroupItems(sizeGroupRes.data || []);
         setSizeItems(sizeRes.data || []);
         setStyleGroupItems(styleGroupRes.data || []);
         setColorItems(colorRes.data || []);
-        setComboItems(comboRes.data || []);
+        // setComboItems(comboRes.data || []);
         setBuyerItems(buyerRes.data || []);
         setBuyerAgent(agentRes.data || []);
         setUomItems(uomRes.data || []);
@@ -244,6 +272,12 @@ const FabricYarnProcess = ({ title, subTitle }) => {
         setYarnItems(yarRes.data || []);
         setProcessValues(processRes.data || []);
         setFabricValue(fabRes.data || []);
+        setPortionItems(porRes.data || []);
+        setLLItems(llRes.data || []);
+        setGsmItems(gsmRes.data || []);
+        setDesignItems(desRes.data || []);
+        setGaugeItems(ggRes.data || []);
+        setOrderItems(ordRes.data || []);
       } catch (error) {
         setFetchError(error);
         toast.error(error);
@@ -262,10 +296,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     filetype: "",
   });
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, checked, type } = e.target;
     const finalValue = type === "checkbox" ? (checked === true ? "T" : "F") : type === "number" ? Number(value) : value;
-
     if (name === "OrderType") {
       setFabYarn_Values((prev) => ({
         ...prev,
@@ -273,11 +306,18 @@ const FabricYarnProcess = ({ title, subTitle }) => {
       }));
     }
 
+    if (name === "OrderNo") {
+      const res = await axios.get(`${ComboParam}/${value}`);
+      const resdata = res.data?.siz;
+      setSizeGroupItems([]);
+      setSizeGroupItems(resdata);
+    }
     setFabYarn_Values((prev) => ({
       ...prev,
       [name]: finalValue,
     }));
   };
+
   const FabYarnProcessColumn = [
     { headername: "SNo", field: "SNo", visible: "true" },
     { headername: "", field: "none", visible: "true" },
@@ -289,6 +329,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     { headername: "ORDERQTY", field: "orderQty", visible: "true" },
     { headername: "ACTIVE", field: "active", visible: "true" },
   ];
+
   const commentsData = useMemo(() => {
     const keyword = String(fabyarn_Search || "").toLowerCase();
 
@@ -379,9 +420,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const ListData1 = (items1 = []) => {
     return items1
-      .filter((obj) => obj.StyleItem && obj.StyleItem !== "")
+      .filter((obj) => Number(obj.StyleItem) && Number(obj.StyleItem) > 0)
       .map((obj, i) => {
-        var index = parseInt(i + 1);
+        var index = parseInt(i);
         return {
           RowIndex: index,
           AsptblFabYarDetId: Number(obj.AsptblFabYarDetId) || 0,
@@ -394,7 +435,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
           Gauge: obj.Gauge || 0,
           LL: obj.LL || 0,
           Design: obj.Design || 0,
-          Combo: obj.Combo || "",
           CadWt: obj.CadWt || 0,
           FabWt: obj.FabWt || 0,
           Grams: obj.Grams || 0,
@@ -408,9 +448,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const ListData2 = (items = []) => {
     return items
-      .filter((obj) => obj.Combo && obj.Combo !== "")
+      .filter((obj) => Number(obj.Combo) && Number(obj.Combo) > 0)
       .map((obj, i) => ({
-        RowIndex: Number(i) + 1,
+        RowIndex: Number(i),
         AsptblFabYarComId: Number(obj.AsptblFabYarComId) || 0,
         AsptblFabYarDetId: Number(obj.AsptblFabYarDetId) || 0,
         AsptblFabYarId: Number(obj.AsptblFabYarId) || 0,
@@ -421,9 +461,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const ListData3 = (items = []) => {
     return items
-      .filter((obj) => obj.styleitem && obj.styleitem !== "")
+      .filter((obj) => Number(obj.BaseColor) && Number(obj.BaseColor) > 0)
       .map((obj, i) => {
-        var index = parseInt(i + 1);
+        var index = parseInt(i);
         return {
           AsptblFabYarGraId: Number(obj.AsptblFabYarGraId) || 0,
           AsptblFabYarDetId: Number(obj.AsptblFabYarDetId) || 0,
@@ -445,7 +485,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     return items
       .filter((obj) => obj.assortNo && obj.assortNo !== "")
       .map((obj, i) => {
-        var index = parseInt(i + 1);
+        var index = parseInt(i);
         return {
           asptblOrdShiId: Number(obj.asptblOrdShiId) || 0,
           asptblFabYarId: Number(obj.asptblFabYarId) || 0,
@@ -501,19 +541,19 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const FabYarnProcess_Save = async () => {
     if (loading) return;
-    if (!fabyarn_Values.SizeTemplate) {
-      toast.error("Size Group is required");
-      return;
-    }
-    if (!fabyarn_combo_Values.length) {
-      toast.error("At least one detail row is required");
-      return;
-    }
+    // if (!fabyarn_Values.SizeTemplate) {
+    //   toast.error("Size Group is required");
+    //   return;
+    // }
+    // if (!fabyarn_combo_Values.length) {
+    //   toast.error("At least one detail row is required");
+    //   return;
+    // }
     try {
       setLoading(true);
       const payload = {
         FabYar: ListData0,
-        FabYarDet: ListData1(fabyarn_DetValues),
+        // FabYarDet: ListData1(fabyarn_DetValues),
         // FabYarCom: ListData2(fabyarn_combo_Values),
         // FabYarGra: ListData3(fabyarn_gram_Values),
         // FabYarYar: ListData4(fabyarn_yarn_Values),
@@ -771,7 +811,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     { field: "Yarn", label: "Yarn Name", visible: true, type: "select", widths: "450px", pattern: "", disabled: false },
     { field: "ColorName", label: "Yarn Color", visible: true, type: "select", widths: "150px", pattern: "", disabled: false },
     { field: "Uom", label: "Uom", visible: true, type: "select", widths: "80px", pattern: "", disabled: false },
-    { field: "Per", label: "Per", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
+    { field: "Per", label: "Per", visible: true, type: "text", widths: "50px", dpattern: "", isabled: false },
     { field: "YarnQty", label: "YarnQty", visible: true, type: "text", widths: "50px", pattern: "", disabled: false },
     { field: "ProYesNo", label: "YarnPro", visible: true, type: "select", widths: "70px", pattern: "", disabled: false },
     { field: "YarnProDet", label: "Det", visible: true, type: "img", widths: "20px", heights: "20px", pattern: "", disabled: false },
@@ -833,6 +873,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const handle_Gram_Change = (e, RowIndex, field) => {
     const value = e.target.value;
+
     const updated = [...fabyarn_gram_Values];
     updated[RowIndex][field] = value;
     setFabYarn_Gram_Values(updated);
@@ -981,15 +1022,19 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     Notes: "",
     All: false,
   };
-  const handle_Combo_Details = (row, RowIndex) => {
-    setComboShowPopup(true);
 
+  const handle_Combo_Details = async (row, RowIndex) => {
+    setComboShowPopup(true);
     const finid = Number(RowIndex);
     setSquence(finid);
 
     const rowData = allPopup_Combo_DataCopy.filter((item) => Number(item.RowIndex) === finid && Number(item.Combo) > 0);
 
     if (rowData.length === 0) {
+      const res = await axios.get(`${ComboParam}/${fabyarn_Values.OrderNo}`);
+      const rescol = res.data?.col;
+
+      setComboItems(rescol);
       setFabYarn_Combo_Values([Combo_newRow]);
     } else {
       setFabYarn_Combo_Values(rowData);
@@ -1070,7 +1115,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const handle_PopupCombo_SubGrid_Populate = () => {};
 
-  const handle_PopupCombo = () => {
+  const handle_PopupCombo = async () => {
     const currentRowIndex = Number(sequence);
     const existingRows = allPopup_Combo_DataCopy.filter((item) => Number(item.RowIndex) === currentRowIndex);
 
@@ -1081,11 +1126,10 @@ const FabricYarnProcess = ({ title, subTitle }) => {
         AsptblFabYarComId: 0,
         AsptblFabYarDetId: 0,
         AsptblFabYarId: 0,
-        Combo: Number(com.asptblcolmasid),
+        Combo: Number(com.combo),
         Notes: "",
         All: false,
       }));
-
       setPopup_Combo_DataCopy(newRows);
     } else {
     }
@@ -1137,7 +1181,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     }
   };
 
-  const handle_Gram_Details = (row, RowIndex) => {
+  const handle_Gram_Details = async (row, RowIndex) => {
     setGramShowPopup(true);
     const finid = Number(RowIndex);
     setSquence(finid);
@@ -1145,7 +1189,14 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     let gramRows;
 
     if (rowData.length === 0) {
-      gramRows = createFabyarnGramRows(allPopup_Combo_DataCopy, finid, sizeGroupItems);
+      try {
+        const res = await axios.get(`${ComboParam}/${fabyarn_Values.OrderNo}`);
+        const resdata = res.data?.qty;
+        gramRows = createFabyarnGramRows(allPopup_Combo_DataCopy, finid, resdata, true);
+      } catch (error) {
+        console.error("API Error:", error);
+        alert(error.message);
+      }
     } else {
       gramRows = rowData;
     }
@@ -1198,41 +1249,123 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     setGramShow_SubGrid(false);
   };
 
-  const createFabyarnGramRows = (comboData, currentRowIndex, sizeGroupItems) => {
-    const newrow = comboData
-      .filter((item) => Number(item.RowIndex) === Number(currentRowIndex))
-      .flatMap((com, comboIndex) =>
-        sizeGroupItems.map((siz, sizeIndex) => ({
-          SNo: comboIndex * sizeGroupItems.length + sizeIndex + 1,
-          RowIndex: Number(currentRowIndex),
-          AsptblFabYarGraId: 0,
-          AsptblFabYarDetId: 0,
-          AsptblFabYarId: 0,
-          Combo: Number(com.Combo),
-          GarColor: com.Combo,
-          BaseColor: 33,
-          PorColor: 0,
-          SizeName: siz.asptblsizmasid,
-          ShipQty: 0,
-          ProdQty: 0,
-          SizeQty: 0,
-          CadWt: 0,
-          KDia: "",
-          FDia: "",
-          TotFabQty: "",
-          Notes: "",
-        })),
-      );
+  // const createFabyarnGramRows = (currentRowIndex, resdata) => {
+  //   const newrow = resdata.map((siz, sizeIndex) => ({
+  //     SNo: sizeIndex + 1,
+  //     RowIndex: Number(currentRowIndex),
+  //     AsptblFabYarGraId: 0,
+  //     AsptblFabYarDetId: 0,
+  //     AsptblFabYarId: 0,
+  //     Combo: siz.combo,
+  //     GarColor: siz.combo,
+  //     BaseColor: 33,
+  //     PorColor: 0,
+  //     SizeName: siz.asptblsizmasid,
+  //     ShipQty: siz.shipQty,
+  //     ProdQty: siz.prodQty,
+  //     SizeQty: 0,
+  //     CadWt: 0,
+  //     KDia: "",
+  //     FDia: "",
+  //     TotFabQty: "",
+  //     Notes: "",
+  //   }));
 
-    return newrow;
+  //   return newrow;
+  // };
+
+  // const createFabyarnGramRows = (comboData, currentRowIndex, resdata) => {
+  //   const filteredCombo = comboData.filter((item) => Number(item.RowIndex) === Number(currentRowIndex));
+  //   const newrow = filteredCombo.flatMap((com, comboIndex) =>
+  //     resdata.map((siz, sizeIndex) => ({
+  //       SNo: comboIndex * resdata.length + sizeIndex + 1,
+  //       RowIndex: Number(currentRowIndex),
+  //       AsptblFabYarGraId: 0,
+  //       AsptblFabYarDetId: 0,
+  //       AsptblFabYarId: 0,
+  //       Combo: siz.combo,
+  //       GarColor: siz.combo,
+  //       BaseColor: 33,
+  //       PorColor: 0,
+  //       SizeName: siz.asptblsizmasid,
+  //       ShipQty: siz.shipQty,
+  //       ProdQty: siz.prodQty,
+  //       SizeQty: 0,
+  //       CadWt: 0,
+  //       KDia: "",
+  //       FDia: "",
+  //       TotFabQty: "",
+  //       Notes: "",
+  //     })),
+  //   );
+
+  //   return newrow;
+  // };
+
+  const createFabyarnGramRows = (comboData, currentRowIndex, resdata, check) => {
+    if (check === true) {
+      const newrow = comboData
+        .filter((item) => Number(item.RowIndex) === Number(currentRowIndex))
+        .flatMap((com, comboIndex) =>
+          resdata
+            .filter((siz) => Number(siz.rowIndex) === Number(currentRowIndex))
+            .map((siz, sizeIndex) => ({
+              SNo: comboIndex * resdata.length + sizeIndex + 1,
+              RowIndex: Number(currentRowIndex),
+              AsptblFabYarGraId: 0,
+              AsptblFabYarDetId: 0,
+              AsptblFabYarId: 0,
+              Combo: com.Combo,
+              GarColor: com.Combo,
+              BaseColor: 33,
+              PorColor: 0,
+              SizeName: siz.asptblsizmasid,
+              ShipQty: siz.shipQty,
+              ProdQty: siz.prodQty,
+              SizeQty: 0,
+              CadWt: 0,
+              KDia: "",
+              FDia: "",
+              TotFabQty: "",
+              Notes: "",
+            })),
+        );
+
+      return newrow;
+    } else {
+      const newrow = resdata.map((siz, sizeIndex) => ({
+        SNo: sizeIndex + 1,
+        RowIndex: Number(currentRowIndex),
+        AsptblFabYarGraId: 0,
+        AsptblFabYarDetId: 0,
+        AsptblFabYarId: 0,
+        Combo: siz.combo,
+        GarColor: siz.combo,
+        BaseColor: 33,
+        PorColor: 0,
+        SizeName: siz.asptblsizmasid,
+        ShipQty: siz.shipQty,
+        ProdQty: siz.prodQty,
+        SizeQty: 0,
+        CadWt: 0,
+        KDia: "",
+        FDia: "",
+        TotFabQty: "",
+        Notes: "",
+      }));
+
+      return newrow;
+    }
   };
 
-  const handle_PopupGram = () => {
+  const handle_PopupGram = async () => {
     const currentRowIndex = Number(sequence);
     const existingRows = allPopup_Gram_DataCopy.filter((item) => Number(item.RowIndex) === currentRowIndex);
 
     if (existingRows.length === 0) {
-      const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, currentRowIndex, sizeGroupItems);
+      const res = await axios.get(`${ComboParam}/${fabyarn_Values.OrderNo}`);
+      const resdata = res.data?.qty;
+      const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, currentRowIndex, resdata, false);
       setPopup_Gram_DataCopy(newrow);
     } else {
       setPopup_Gram_DataCopy(existingRows);
@@ -1242,10 +1375,12 @@ const FabricYarnProcess = ({ title, subTitle }) => {
   const handle_PopupGram_Clear = () => {
     setFabYarn_Gram_Values([]);
   };
-  const handle_PopupGram_SubGrid_Clear = () => {
+  const handle_PopupGram_SubGrid_Clear = async () => {
     const currentRowIndex = Number(sequence);
     setPopup_Gram_DataCopy([]);
-    const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, currentRowIndex, sizeGroupItems);
+    const res = await axios.get(`${ComboParam}/${fabyarn_Values.OrderNo}`);
+    const resdata = res.data?.qty;
+    const newrow = createFabyarnGramRows(allPopup_Combo_DataCopy, currentRowIndex, resdata, false);
     setPopup_Gram_DataCopy(newrow);
   };
 
@@ -1267,17 +1402,18 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   //--------------- START YARN PROCESSING-----------------------------------------------------------------------------------
 
-  const handle_Yarn_Change = (e, RowIndex, SNos, field) => {
+  const handle_Yarn_Change = (e, RowIndex, field) => {
     const { name, value, checked, type } = e.target;
-    const isDuplicate = fabyarn_yarn_Values.some((item) => Number(item.RowIndex) !== Number(RowIndex) && Number(item.SNo) !== Number(SNos) && Number(item.Yarn) === Number(value));
-    if (isDuplicate) {
-      toast.error(field + " already exists");
-      return;
-    } else {
-      const updated = [...fabyarn_yarn_Values];
-      updated[RowIndex][field] = value;
-      setFabYarn_Yarn_Values(updated);
-    }
+
+    // const isDuplicate = fabyarn_yarn_Values.some((item) => Number(item.RowIndex) !== Number(RowIndex) && Number(item.SNo) !== Number(SNos) && Number(item.Yarn) === Number(value));
+    // if (isDuplicate) {
+    //   toast.error(field + " already exists");
+    //   return;
+    // } else {
+    const updated = [...fabyarn_yarn_Values];
+    updated[RowIndex][field] = value;
+    setFabYarn_Yarn_Values(updated);
+    //}
   };
 
   const handle_Yarn_Details = (row, RowIndex) => {
@@ -1318,10 +1454,10 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     AsptblFabYarId: 0,
     Yarn: 0,
     ColorName: 0,
-    Uom: "",
+    Uom: 0,
     Per: "",
     YarnQty: "",
-    ProYesNo: "",
+    ProYesNo: 0,
     YarnProDet: "",
     Notes: "",
     Action: "",
@@ -1428,16 +1564,16 @@ const FabricYarnProcess = ({ title, subTitle }) => {
     );
   };
 
-  // const handle_Process_PopupPopulate = () => {
-  //   setGramShowPopup(true);
-  // };
+  const handle_Process_PopupPopulate = () => {
+    setGramShowPopup(true);
+  };
 
-  // const handle_Process_PopupSave = () => {};
+  const handle_Process_PopupSave = () => {};
 
-  // const handle_Process_PopupClear = () => {
-  //   setProcessShowPopup(false);
-  //   setPopup_Process_DataCopy([]);
-  // };
+  const handle_Process_PopupClear = () => {
+    setProcessShowPopup(false);
+    setPopup_Process_DataCopy([]);
+  };
 
   const tabs = [
     { id: 1, label: title },
@@ -1448,9 +1584,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
   const tabs1 = [{ id: 1, label: "FabricPlanning Details", param: "FabricPlanning Details" }];
   const refs = useRef([]);
+
   const handleEnter = (e, index) => {
     const { name } = e.target;
-
     if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault();
       refs.current[index + 1]?.focus();
@@ -1502,12 +1638,10 @@ const FabricYarnProcess = ({ title, subTitle }) => {
 
     const handleMouseUp = () => {
       document.removeEventListener("mousemove", handleMouseMove);
-
       document.removeEventListener("mouseup", handleMouseUp);
     };
 
     document.addEventListener("mousemove", handleMouseMove);
-
     document.addEventListener("mouseup", handleMouseUp);
   };
 
@@ -1622,8 +1756,12 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                             onFocus={handleFocus}
                             onBlur={handleBlur}
                           >
-                            <option value={"AGF/26-27/ORD1"}>AGF/26-27/ORD1</option>
-                            <option value={"AGF/26-27/ORD2"}>AGF/26-27/ORD2</option>
+                            <option value={""}></option>
+                            {orderItems.map((item, i) => (
+                              <option key={i} value={item.asptblOrdId}>
+                                {item.orderNo}
+                              </option>
+                            ))}
                           </CustomSelect>
                         </div>
                       </div>
@@ -1792,7 +1930,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                     color: foreValue,
                                     position: "sticky",
                                     top: 0,
-                                    zIndex: 10,
                                   }}
                                 >
                                   <tr>
@@ -1823,7 +1960,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                               height: "100%",
                                               cursor: "col-resize",
                                               userSelect: "none",
-                                              zIndex: 100,
+                                              zIndex: 1,
                                             }}
                                           />
                                         </th>
@@ -1838,7 +1975,6 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                         .filter((col) => col.visible)
                                         .map((col, colIndex) => {
                                           const value = row[col.field] || "";
-
                                           const commonStyle = {
                                             height: col.heights,
                                             padding: "0",
@@ -1884,19 +2020,19 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                             if (col.field === "StyleItem") {
                                               options = styleItems;
                                             } else if (col.field === "PortionId") {
-                                              options = [{ PortionId: "Portion 1" }, { PortionId: "Portion 2" }, { PortionId: "Portion 3" }];
+                                              options = portionsItems;
                                             } else if (col.field === "Portion") {
-                                              options = fabricValue;
+                                              options = portionItems;
                                             } else if (col.field === "Design") {
-                                              options = fabricValue;
+                                              options = designItems;
                                             } else if (col.field === "Fabric") {
                                               options = fabricValue;
                                             } else if (col.field === "Gsm") {
-                                              options = fabricValue;
+                                              options = gsmItems;
                                             } else if (col.field === "Gauge") {
-                                              options = fabricValue;
+                                              options = gaugeItems;
                                             } else if (col.field === "LL") {
-                                              options = fabricValue;
+                                              options = llItems;
                                             }
 
                                             return (
@@ -1911,14 +2047,15 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                                   }}
                                                 >
                                                   <option value={""}></option>
-                                                  {options.map((item, i) => {
-                                                    const optionValue = item.styleitem ?? item.PortionId ?? item.Portion ?? item.Design ?? item.asptblfabmasid ?? item.Gsm ?? item.Gauge ?? item.LL;
-                                                    return (
-                                                      <option key={i} value={optionValue}>
-                                                        {optionValue}
-                                                      </option>
-                                                    );
-                                                  })}
+
+                                                  {options.map((item, i) => (
+                                                    <option
+                                                      key={i}
+                                                      value={item.asptblstyleitemmasid || item.portionid || item.asptblpormasid || item.asptbldesmasid || item.asptblfabmasid || item.asptblgsmmasid || item.asptblggmasid || item.asptblllmasid}
+                                                    >
+                                                      {item.stylegroup || item.portionid || item.portion || item.design || item.fabric || item.gsm || item.gg || item.ll}
+                                                    </option>
+                                                  ))}
                                                 </select>
                                               </td>
                                             );
@@ -2019,7 +2156,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                     </div>
                   </div>
 
-                  {/* <PopupCombo
+                  <PopupCombo
                     show={comboShowPopup}
                     onClose={() => setComboShowPopup(false)}
                     title={`${sequence} Combo Details`}
@@ -2165,8 +2302,8 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                         </div>
                       </div>
                     </div>
-                  </PopupCombo> */}
-                  {/* <PopupCombo_Populate
+                  </PopupCombo>
+                  <PopupCombo_Populate
                     show={comboShow_SubGrid}
                     onClose={() => setComboShow_SubGrid(false)}
                     title={`${fabRowindex} Combo Populate Details`}
@@ -2362,9 +2499,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                     button2={"SAVE"}
                     button3={"CLEAR"}
                   >
-                    <div className="row animate-zoom" style={{ height: "100%", overflow: "auto", width: "100%" }}>
+                    <div className="row animate-zoom" style={{ maxHeight: "350px", overflow: "auto", width: "100%" }}>
                       <div className="table-responsive">
-                        <div className="table-responsive" style={{ maxHeight: "100%", overflow: "auto", width: "100%" }}>
+                        <div className="table-responsive" style={{ maxHeight: "300px", overflow: "auto", width: "100%" }}>
                           <table className="table table-bordered table-sm align-middle mb-0 " id="GramTable">
                             <thead style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, position: "sticky" }}>
                               <tr>
@@ -2519,9 +2656,9 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                     button2={"SAVE"}
                     button3={"CLEAR"}
                   >
-                    <div className="row animate-zoom" style={{ height: "100%", overflow: "auto", width: "100%" }}>
+                    <div className="row animate-zoom" style={{ maxHeight: "300px", overflow: "auto", width: "100%" }}>
                       <div className="table-responsive">
-                        <div className="table-responsive" style={{ maxHeight: "100%", overflow: "auto", width: "100%" }}>
+                        <div className="table-responsive" style={{ minHeight: "10%", overflow: "auto", width: "100%" }}>
                           <table className="table table-bordered table-sm align-middle mb-0 " id="PopupGram_Populate">
                             <thead style={{ backgroundColor: `${colorValue}`, color: `${foreValue}`, position: "sticky" }}>
                               <tr>
@@ -2794,7 +2931,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                             <input
                                               type="text"
                                               className="w-100 form-control"
-                                              value={value}
+                                              value={row[col.field] ?? ""}
                                               disabled={col.disabled}
                                               onChange={(e) => handle_Yarn_Change(e, RowIndex, col.field)}
                                               onKeyDown={(e) => {
@@ -2826,7 +2963,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                               className="w-100 form-select"
                                               disabled={col.disabled}
                                               value={value}
-                                              onChange={(e) => handle_Yarn_Change(e, RowIndex, RowIndex + 1, col.field)}
+                                              onChange={(e) => handle_Yarn_Change(e, RowIndex, col.field)}
                                               onKeyDown={(e) => {
                                                 handleEnterFocus(e, "#YarnTable");
                                               }}
@@ -3198,6 +3335,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                                                 handleEnterFocus(e, "#PopupYarnDyeingColor");
                                               }}
                                             >
+                                              <option value={""}></option>
                                               {options.map((item, i) => (
                                                 <option key={i} value={item.asptblcolmasid ?? item.asptblcolmasid}>
                                                   {item.colorname ?? item.colorname}
@@ -3244,7 +3382,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                     handlePopupPopulate={handle_Process_PopupPopulate}
                     handlePopupSave={handle_Process_PopupSave}
                     handlePopupClear={handle_Process_PopupClear}
-                      button1={"POPULATE"}
+                    button1={"POPULATE"}
                     button2={"SAVE"}
                     button3={"CLEAR"}
                   >
@@ -3386,7 +3524,7 @@ const FabricYarnProcess = ({ title, subTitle }) => {
                         </div>
                       </div>
                     </div>
-                  </PopupProcess>  */}
+                  </PopupProcess>
                 </div>
               </div>
               <div className={newButton === 2 ? "content active-content" : "content"}>

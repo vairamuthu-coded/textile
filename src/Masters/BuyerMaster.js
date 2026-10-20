@@ -43,11 +43,12 @@ const BuyerMaster = ({ title, subTitle }) => {
   const insert = `${API_URL}/BuyerMasters`;
   const StateParam = `${API_URL}/CityMaster/StateMaster`;
   const CountryParam = `${API_URL}/CityMaster/CountryMaster`;
-  const CityParam = `${API_URL}/CityMaster/CityMaster`;
+  const CityParam = `${API_URL}/CityMaster/GridLoad`;
   const compcodeparam = `${API_URL}/CompanyMaster/CompanyMaster`;
   const userrightsMenuCheck = `${API_URL}/UserRights/userrightsMenuCheck`;
   const [fetchError, setFetchError] = useState(null);
   const [compcodeData, setCompCodeData] = useState([]);
+
   setNewButton(1);
   setSearchLable1("Search");
   setSearchLable2("");

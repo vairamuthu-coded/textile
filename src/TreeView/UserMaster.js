@@ -49,10 +49,10 @@ const UserMaster = ({ title, subTitle }) => {
 
   const userrightsMenuCheck = API_URL + "/UserRights/userrightsMenuCheck";
   const compcodeparam = API_URL + "/CompanyMaster/CompanyMaster";
-  const API_URL_username = API_URL + "/UserMasters/UserMaster";
-  const deptparam = API_URL + "/UserMasters/Department";
-  const getpdffile = API_URL + "/UserMasters/GenerateReport";
-  const insert_update = API_URL + "/UserMasters";
+  const API_URL_username = API_URL + "/UserMaster/UserMaster";
+  const deptparam = API_URL + "/UserMaster/Department";
+  const getpdffile = API_URL + "/UserMaster/GenerateReport";
+  const insert_update = API_URL + "/UserMaster";
 
   setSearchLable1("Search");
   setSearchLable2("");
@@ -112,7 +112,7 @@ const UserMaster = ({ title, subTitle }) => {
           setFetchError("a4" + error);
         });
       await axios
-        .get(`${API_URL_username}/${defaultDetails.Compcode}`)
+        .get(`${API_URL_username}`)
         .then((res) => {
           setUserItems(res.data);
           setUserData(res.data);
@@ -143,14 +143,15 @@ const UserMaster = ({ title, subTitle }) => {
   }, []);
 
   const HeadersColumn = [
-    { headername: "", field: "visible" },
-    { headername: "id", field: "userid" },
-    { headername: "CompCode", field: "compcode" },
-    { headername: "UserName", field: "username" },
-    { headername: "password", field: "password" },
-    { headername: "SessionTime", field: "sessiontime" },
-    { headername: "Dept", field: "department" },
-    { headername: "Active", field: "active" },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "visible", visible: "true" },
+    { headername: "id", field: "userid", visible: "true" },
+    { headername: "CompCode", field: "compcode", visible: "true" },
+    { headername: "UserName", field: "username", visible: "true" },
+    { headername: "password", field: "password", visible: "true" },
+    { headername: "SessionTime", field: "sessiontime", visible: "true" },
+    { headername: "Dept", field: "department", visible: "true" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   const heights = "250px";
@@ -170,12 +171,12 @@ const UserMaster = ({ title, subTitle }) => {
 
   const UserMasterCheck = async (id) => {
     try {
-      await axios.get(`${API_URL_username}/${id.compcode}/${id.userid}`).then((u) => {
+      await axios.get(`${API_URL_username}/${id.userid}`).then((u) => {
         setUserValues({
           userid: u.data[0].userid,
           finyear: u.data[0].finyear,
           dept: u.data[0].dept,
-          compcode: u.data[0].gtcompmastid,
+          compcode: u.data[0].compcode,
           username: u.data[0].username,
           password: u.data[0].password,
           binarypassword: u.data[0].newpassword,
@@ -437,7 +438,6 @@ const UserMaster = ({ title, subTitle }) => {
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         >
-                          <option></option>
                           {compcodeData.map((result, index) => (
                             <option key={index} value={result.gtcompmastid}>
                               {result.compcode}
@@ -468,7 +468,6 @@ const UserMaster = ({ title, subTitle }) => {
                           onFocus={handleFocus}
                           onBlur={handleBlur}
                         >
-                          <option></option>
                           {deptData.map((result, index) => (
                             <option key={index} value={result.asptbldeptmasid}>
                               {result.department}

@@ -487,7 +487,7 @@ export const DataProvider = ({
       AsptblFabYarId: 0,
       Yarn: 0,
       ColorName: 0,
-      Uom: "",
+      Uom: 0,
       Per: "",
       YarnQty: "",
       ProYesNo: "",
