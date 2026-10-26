@@ -187,40 +187,6 @@ export const DataProvider = ({
     { field: "Pcs", value: "", placeholder: "Pcs", HeaderVisible: "visible", width: "100px", pattern: "" },
   ];
 
-  const [fabyarn_yarn_dyeingValues, setFabyarn_yarn_dyeingValues] = useState([
-    {
-      SNo: 1,
-      RowIndex: "",
-      AsptblFabYarYarDyeId: "",
-      AsptblFabYarYarId: "",
-      AsptblFabYarDetId: "",
-      AsptblFabYarId: "",
-      ProcessName: "",
-      YarDyeYesNo: "",
-      YarDyeDet: "",
-      Loss: "",
-      Notes: "",
-      Action: "",
-    },
-  ]);
-
-  const [fabyarn_yarn_dyeingColorValues, setFabyarn_yarn_dyeingColorValues] = useState([
-    {
-      SNo: 1,
-      RowIndex: "",
-      AsptblFabYarYarDyeColId: "",
-      AsptblFabYarYarDyeId: "",
-      AsptblFabYarYarId: "",
-      AsptblFabYarDetId: "",
-      AsptblFabYarId: "",
-      PortionColor: "",
-      YarnProColor: "",
-      YarPer: "",
-      Notes: "",
-      Action: "",
-    },
-  ]);
-
   const [addColumns, setAddColumns] = useState(HeadersColumn);
   const [addColumns1, setAddColumns1] = useState(HeadersColumn1);
   const [addColumns2, setAddColumns2] = useState(HeadersColumn2);
@@ -445,6 +411,44 @@ export const DataProvider = ({
       Notes: "",
     },
   ]);
+  const [fabyarn_yarn_dyeingValues, setFabyarn_yarn_dyeingValues] = useState([
+    {
+      SNo: 1,
+      RowIndex: 0,
+      RowIndex1: 0,
+      RowIndex2: 0,
+      AsptblFabYarYarDyeId: 0,
+      AsptblFabYarYarId: 0,
+      AsptblFabYarDetId: 0,
+      AsptblFabYarId: 0,
+      ProcessName: 0,
+      YarDyeYesNo: "",
+      YarDyeDet: "",
+      Loss: 0,
+      Notes: "",
+      Action: "",
+    },
+  ]);
+
+  const [fabyarn_yarn_dyeingColorValues, setFabyarn_yarn_dyeingColorValues] = useState([
+    {
+      SNo: 1,
+      RowIndex: 0,
+      RowIndex1: 0,
+      RowIndex2: 0,
+      RowIndex3: 0,
+      AsptblFabYarYarDyeColId: 0,
+      AsptblFabYarYarDyeId: 0,
+      AsptblFabYarYarId: 0,
+      AsptblFabYarDetId: 0,
+      AsptblFabYarId: 0,
+      PortionColor: 0,
+      YarnProColor: 0,
+      YarPer: "",
+      Notes: "",
+      Action: "",
+    },
+  ]);
   const [fabyarn_combo_Values, setFabYarn_Combo_Values] = useState([
     {
       SNo: 1,
@@ -482,6 +486,7 @@ export const DataProvider = ({
     {
       SNo: 1,
       RowIndex: 0,
+      RowIndex1: 0,
       AsptblFabYarYarId: 0,
       AsptblFabYarDetId: 0,
       AsptblFabYarId: 0,
@@ -498,7 +503,7 @@ export const DataProvider = ({
 
   const [fabyarn_pro_Values, setFabYarn_Pro_Values] = useState([
     {
-      SNo: 1,
+      SNo: 0,
       RowIndex: 0,
       AsptblFabYarProId: 0,
       AasptblFabYarDetId: 0,
