@@ -58,16 +58,16 @@ const AutoGenerateMaster = ({ title, subTitle }) => {
   setSearchLable2("");
   setSearchLable3("");
   const HeadersColumn = [
-    { headername: "", field: "visible", checkboxSelection: true, width: 50 },
-    { headername: "S.No", field: "SNo", width: 80 },
-    { headername: "ID", field: "asptblautogeneratemasid" },
-    { headername: "Sequence ID", field: "sequenceid" },
-    { headername: "Fin Year", field: "finyear" },
-    { headername: "Screen", field: "screen" },
-    { headername: "Short Code", field: "shortcode" },
-    { headername: "Sequence No", field: "sequenceno" },
-    { headername: "Barcode Type", field: "barcodetype" },
-    { headername: "Active", field: "active", cellRenderer: (params) => (params.value ? "Yes" : "No") },
+    { headername: "SNo", field: "SNo", visible: "true" },
+    { headername: "", field: "none", visible: "false" },
+    { headername: "ID", field: "asptblautogeneratemasid", visible: "true" },
+    { headername: "Sequence ID", field: "sequenceid", visible: "true" },
+    { headername: "Fin Year", field: "finyear", visible: "true" },
+    { headername: "Screen", field: "screen", visible: "true" },
+    { headername: "Short Code", field: "shortcode", visible: "falstruee" },
+    { headername: "Sequence No", field: "sequenceno", visible: "true" },
+    { headername: "Barcode Type", field: "barcodetype", visible: "true" },
+    { headername: "Active", field: "active", visible: "true" },
   ];
 
   const handleChange = async (e) => {

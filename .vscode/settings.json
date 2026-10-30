@@ -7,5 +7,6 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "prettier.trailingComma": "all",
   "editor.wrapOnEscapedLineFeeds": false,
-  "html.format.wrapLineLength": 500
+  "html.format.wrapLineLength": 500,
+  "chat.disableAIFeatures": true
 }

@@ -503,7 +503,7 @@ export const DataProvider = ({
 
   const [fabyarn_pro_Values, setFabYarn_Pro_Values] = useState([
     {
-      SNo: 0,
+      SNo: 1,
       RowIndex: 0,
       AsptblFabYarProId: 0,
       AasptblFabYarDetId: 0,
